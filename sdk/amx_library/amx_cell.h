@@ -1,6 +1,8 @@
 #ifndef AMX_CELL_H_INCLUDED
     #define AMX_CELL_H_INCLUDED
 
+    #include <stdint.h>
+
     // Cell size configuration
     #if !defined PAWN_CELL_SIZE
         #define PAWN_CELL_SIZE 32

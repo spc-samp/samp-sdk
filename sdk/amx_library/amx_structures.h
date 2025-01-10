@@ -3,6 +3,7 @@
 
     #include "amx_cell.h"
     #include "amx_alignment.h"
+    #include "amx_calling.h"
 
     struct tagAMX;
     typedef cell (AMX_NATIVE_CALL *AMX_NATIVE)(struct tagAMX *amx, const cell *params);
