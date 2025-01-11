@@ -20,10 +20,14 @@
     #endif
 
     // Pointer width handling
+    #if defined _LP64 || defined __LP64__ || defined WIN64 || defined _WIN64
+        #define __64BIT__
+    #endif
+
     #if defined __64BIT__ && PAWN_CELL_SIZE < 64
         #define AMX_DONT_RELOCATE
         #define AMX_WIDE_POINTERS
-    #elif defined __32BIT__ && PAWN_CELL_SIZE < 32
+    #elif !defined __64BIT__ && PAWN_CELL_SIZE < 32
         #define AMX_DONT_RELOCATE
         #define AMX_WIDE_POINTERS
     #endif
@@ -51,4 +55,5 @@
         #define amx_ftoc(f)   (*(cell*)&(f))
         #define amx_ctof(c)   (*(double*)&(c))
     #endif
+
 #endif

@@ -11,7 +11,7 @@
 
     // Unix-like systems header
     #if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
-        #include <sclinux.h>
+        #include <../sclinux.h>
     #endif
 
     // GCC version detection

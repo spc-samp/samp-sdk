@@ -10,27 +10,45 @@
     #define DIRECTORY_SEP_CHAR '/'
     #define DIRECTORY_SEP_STR "/"
 
-    #ifdef HAVE_ENDIAN_H
+    // Modern endianness detection
+    #if defined(__linux__) || defined(__GNU__) || defined(__GLIBC__)
         #include <endian.h>
+    #elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
+        #include <sys/endian.h>
+    #elif defined(__APPLE__)
+        #include <machine/endian.h>
+        #include <libkern/OSByteOrder.h>
     #endif
 
     #ifndef __BYTE_ORDER
-        #include <stdlib.h>
-    #endif
-
-    #if defined(__OpenBSD__) || defined(__FreeBSD__)
-        #define __BYTE_ORDER BYTE_ORDER
-        #define __LITTLE_ENDIAN LITTLE_ENDIAN
-        #define __BIG_ENDIAN BIG_ENDIAN
-    #endif
-
-    #if defined(__APPLE__)
-        #define __BYTE_ORDER BYTE_ORDER
-        #define __LITTLE_ENDIAN __DARWIN_LITTLE_ENDIAN
-        #define __BIG_ENDIAN __DARWIN_BIG_ENDIAN
+        #if defined(__BYTE_ORDER__)
+            #define __BYTE_ORDER __BYTE_ORDER__
+            #define __LITTLE_ENDIAN __ORDER_LITTLE_ENDIAN__
+            #define __BIG_ENDIAN __ORDER_BIG_ENDIAN__
+        #else
+            #if defined(__linux__) || defined(__CYGWIN__) || defined(__GNUC__) || \
+                defined(__GNU_LIBRARY__) || defined(__ANDROID__)
+                #include <endian.h>
+            #endif
+        #endif
     #endif
 
     #ifndef __BYTE_ORDER
-        #error "Cannot determine system byte order (__BYTE_ORDER undefined)"
+        #if defined(__hppa__) || defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || \
+            (defined(__MIPS__) && defined(__MIPSEB__)) || defined(__ppc__) || defined(__POWERPC__) || \
+            defined(__powerpc__) || defined(__PPC__) || defined(__sparc__)
+            #define __BYTE_ORDER __BIG_ENDIAN
+        #else
+            #define __BYTE_ORDER __LITTLE_ENDIAN
+        #endif
     #endif
+
+    #if !defined(__LITTLE_ENDIAN)
+        #define __LITTLE_ENDIAN 1234
+    #endif
+
+    #if !defined(__BIG_ENDIAN)
+        #define __BIG_ENDIAN 4321
+    #endif
+
 #endif
