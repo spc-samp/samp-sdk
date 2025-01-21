@@ -57,6 +57,10 @@ SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) to kompleksowy zb
     - [Interfejs funkcji publicznych](#interfejs-funkcji-publicznych)
   - [Informacje o wersji](#informacje-o-wersji)
     - [Kompatybilność wersji](#kompatybilność-wersji)
+  - [Licencja](#licencja)
+    - [Co możesz zrobić ✅](#co-możesz-zrobić-)
+    - [Co musisz zrobić ⚠️](#co-musisz-zrobić-️)
+    - [Czego nie możesz zrobić ❌](#czego-nie-możesz-zrobić-)
 
 ## Główne komponenty
 
@@ -624,3 +628,82 @@ SDK utrzymuje kompatybilność poprzez:
 3. Weryfikację kompatybilności JIT
 4. Wykrywanie funkcji
 5. Obsługę wersji specyficznych dla platformy
+
+## Licencja
+
+Copyright © SA-MP Programming Community
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Możesz uzyskać kopię licencji na stronie:
+https://opensource.org/licenses/MIT
+
+### Co możesz zrobić ✅
+
+1. **Użytek komercyjny**: 
+   - Pełna swoboda użytku komercyjnego
+   - Możliwość sprzedaży produktów opartych na kodzie
+   - Brak konieczności płacenia tantiem
+   - Możliwość wykorzystania w produktach własnościowych
+
+2. **Modyfikacja**: 
+   - Pełna modyfikacja kodu źródłowego
+   - Tworzenie prac pochodnych
+   - Dostosowywanie do dowolnego celu
+   - Integracja z innymi systemami
+
+3. **Dystrybucja**: 
+   - Dystrybucja oryginalnego oprogramowania
+   - Udostępnianie zmodyfikowanych wersji
+   - Włączanie do innych projektów
+   - Dystrybucja komercyjna
+
+4. **Użytek prywatny**: 
+   - Wykorzystanie w projektach prywatnych
+   - Modyfikacje poufne
+   - Brak obowiązku ujawniania
+   - Nieograniczone użytkowanie wewnętrzne
+
+5. **Sublicencjonowanie**: 
+   - Możliwość zmiany licencji kodu pochodnego
+   - Wybór różnych warunków dla swoich modyfikacji
+   - Łączenie z innymi licencjami
+   - Tworzenie własnych warunków dystrybucji
+
+### Co musisz zrobić ⚠️
+
+1. **Dołączenie licencji**: 
+   - Zachowanie kopii licencji wraz z kodem
+   - Dołączanie do wszystkich dystrybucji
+   - Zachowanie oryginalnego tekstu
+   - Utrzymanie widoczności i dostępności
+
+2. **Uznanie autorstwa**: 
+   - Zachowanie informacji o prawach autorskich
+   - Dołączanie do wszystkich kopii
+   - Zachowanie oryginalnych kredytów
+   - Dokumentowanie pochodzenia kodu
+
+### Czego nie możesz zrobić ❌
+
+1. **Pociągać autorów do odpowiedzialności**: 
+   - Brak gwarancji działania
+   - Autorzy nie ponoszą odpowiedzialności za szkody
+   - Brak obowiązkowego wsparcia
+   - Użytkowanie na własne ryzyko

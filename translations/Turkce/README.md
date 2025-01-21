@@ -57,6 +57,10 @@ SA-MP (San Andreas Multiplayer) Software Development Kit (SDK), geliştiricileri
     - [Public Fonksiyon Arayüzü](#public-fonksiyon-arayüzü)
   - [Versiyon Bilgisi](#versiyon-bilgisi)
     - [Versiyon Uyumluluğu](#versiyon-uyumluluğu)
+  - [Lisans](#lisans)
+    - [Yapabilecekleriniz ✅](#yapabilecekleriniz-)
+    - [Yapmanız Gerekenler ⚠️](#yapmanız-gerekenler-️)
+    - [Yapamayacaklarınız ❌](#yapamayacaklarınız-)
 
 ## Temel Bileşenler
 
@@ -623,4 +627,83 @@ SDK, uyumluluğu şunlar aracılığıyla sürdürür:
 2. AMX sürüm doğrulaması  
 3. JIT uyumluluk doğrulaması  
 4. Özellik algılama  
-5. Platforma özgü sürüm yönetimi  
+5. Platforma özgü sürüm yönetimi
+
+## Lisans
+
+Copyright © SA-MP Programming Community
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Lisansın bir kopyasını buradan alabilirsiniz:
+https://opensource.org/licenses/MIT
+
+### Yapabilecekleriniz ✅
+
+1. **Ticari Kullanım**: 
+   - Tamamen ticari kullanım serbestliği
+   - Koda dayalı ürünler satabilirsiniz
+   - Telif ücreti ödeme zorunluluğu yok
+   - Tescilli ürünlerde kullanabilirsiniz
+
+2. **Değişiklik**: 
+   - Kaynak kodunda tam değişiklik
+   - Türev çalışmalar oluşturma
+   - Herhangi bir amaca uyarlama
+   - Diğer sistemlerle entegrasyon
+
+3. **Dağıtım**: 
+   - Orijinal yazılımı dağıtma
+   - Değiştirilmiş sürümleri paylaşma
+   - Diğer projelere dahil etme
+   - Ticari olarak dağıtma
+
+4. **Özel Kullanım**: 
+   - Özel projelerde kullanım
+   - Gizli değişiklikler
+   - Açıklama zorunluluğu yok
+   - Sınırsız dahili kullanım
+
+5. **Alt Lisanslama**: 
+   - Türetilmiş kodun lisansını değiştirebilirsiniz
+   - Değişiklikleriniz için farklı şartlar seçebilirsiniz
+   - Diğer lisanslarla birleştirebilirsiniz
+   - Dağıtım için kendi şartlarınızı oluşturabilirsiniz
+
+### Yapmanız Gerekenler ⚠️
+
+1. **Lisans Ekleme**: 
+   - Lisans kopyasını kodla birlikte tutma
+   - Tüm dağıtımlara dahil etme
+   - Orijinal metni koruma
+   - Görünür ve erişilebilir tutma
+
+2. **Atıf**: 
+   - Telif hakkı bildirimini koruma
+   - Tüm kopyalara dahil etme
+   - Orijinal kredileri koruma
+   - Kodun kaynağını belgeleme
+
+### Yapamayacaklarınız ❌
+
+1. **Yazarları Sorumlu Tutma**: 
+   - Çalışma garantisi yok
+   - Yazarlar hasarlardan sorumlu değil
+   - Zorunlu destek yok
+   - Kullanım riski size ait
