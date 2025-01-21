@@ -1,4 +1,4 @@
-# SA-MP SDK
+# samp-sdk
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Language](https://img.shields.io/badge/Language-C-00599C.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
@@ -14,7 +14,7 @@ Das SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) ist eine umfa
 
 ## Sprachen
 
-- Português: [README](../../README.md)
+- Português: [README](../../)
 - English: [README](../English/README.md)
 - Español: [README](../Espanol/README.md)
 - Français: [README](../Francais/README.md)
@@ -26,7 +26,7 @@ Das SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) ist eine umfa
 
 ## Inhaltsverzeichnis
 
-- [SA-MP SDK](#sa-mp-sdk)
+- [samp-sdk](#samp-sdk)
   - [Sprachen](#sprachen)
   - [Inhaltsverzeichnis](#inhaltsverzeichnis)
   - [Kernkomponenten](#kernkomponenten)
