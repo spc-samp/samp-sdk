@@ -58,9 +58,11 @@ Il SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) è una raccolt
   - [Informazioni sulla Versione](#informazioni-sulla-versione)
     - [Compatibilità Versioni](#compatibilità-versioni)
   - [Licenza](#licenza)
-    - [Cosa puoi fare ✅](#cosa-puoi-fare-)
-    - [Cosa devi fare ⚠️](#cosa-devi-fare-️)
-    - [Cosa non puoi fare ❌](#cosa-non-puoi-fare-)
+    - [Termini e Condizioni d'Uso](#termini-e-condizioni-duso)
+      - [1. Permessi Concessi](#1-permessi-concessi)
+      - [2. Condizioni Obbligatorie](#2-condizioni-obbligatorie)
+      - [3. Diritti d'Autore](#3-diritti-dautore)
+      - [4. Esclusione di Garanzia e Limitazione di Responsabilità](#4-esclusione-di-garanzia-e-limitazione-di-responsabilità)
 
 ## Componenti Principali
 
@@ -631,79 +633,37 @@ L'SDK mantiene la compatibilità attraverso:
 
 ## Licenza
 
-Copyright © SA-MP Programming Community
+Copyright © **SA-MP Programming Community**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Questo software è concesso in licenza secondo i termini della Licenza MIT ("Licenza"); è possibile utilizzare questo software in conformità con le condizioni della Licenza. Una copia della Licenza può essere ottenuta su: [MIT License](https://opensource.org/licenses/MIT)
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### Termini e Condizioni d'Uso
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+#### 1. Permessi Concessi
 
-Puoi ottenere una copia della licenza su:
-https://opensource.org/licenses/MIT
+La presente licenza concede gratuitamente a chiunque ottenga una copia di questo software e dei file di documentazione associati i seguenti diritti:
 
-### Cosa puoi fare ✅
+* Utilizzare, copiare, modificare, unire, pubblicare, distribuire, sublicenziare e/o vendere copie del software senza restrizioni
+* Permettere alle persone a cui il software viene fornito di fare lo stesso, soggetto alle seguenti condizioni
 
-1. **Uso Commerciale**: 
-   - Totale libertà per uso commerciale
-   - Possibilità di vendere prodotti basati sul codice
-   - Nessun pagamento di royalty richiesto
-   - Possibilità di utilizzarlo in prodotti proprietari
+#### 2. Condizioni Obbligatorie
 
-2. **Modifiche**: 
-   - Modifica completa del codice sorgente
-   - Creazione di lavori derivati
-   - Adattamento per qualsiasi scopo
-   - Integrazione con altri sistemi
+Tutte le copie o parti sostanziali del software devono includere:
 
-3. **Distribuzione**: 
-   - Distribuzione del software originale
-   - Condivisione di versioni modificate
-   - Inclusione in altri progetti
-   - Distribuzione commerciale
+* L'avviso di copyright sopra riportato
+* Questo avviso di permesso
+* L'avviso di esclusione di responsabilità sotto riportato
 
-4. **Uso Privato**: 
-   - Utilizzo in progetti privati
-   - Modifiche confidenziali
-   - Nessun obbligo di divulgazione
-   - Uso interno illimitato
+#### 3. Diritti d'Autore
 
-5. **Sublicenza**: 
-   - Possibilità di cambiare la licenza del codice derivato
-   - Scelta di termini diversi per le modifiche
-   - Combinazione con altre licenze
-   - Creazione di termini propri per la distribuzione
+Il software e tutta la documentazione associata sono protetti dalle leggi sul diritto d'autore. La **SA-MP Programming Community** mantiene la titolarità dei diritti d'autore originali del software.
 
-### Cosa devi fare ⚠️
+#### 4. Esclusione di Garanzia e Limitazione di Responsabilità
 
-1. **Includere la Licenza**: 
-   - Mantenere una copia della licenza con il codice
-   - Includerla in tutte le distribuzioni
-   - Preservare il testo originale
-   - Mantenerla visibile e accessibile
+IL SOFTWARE VIENE FORNITO "COSÌ COM'È", SENZA GARANZIE DI ALCUN TIPO, ESPLICITE O IMPLICITE, INCLUSE, MA NON LIMITATE A, LE GARANZIE DI COMMERCIABILITÀ, IDONEITÀ PER UN PARTICOLARE SCOPO E NON VIOLAZIONE.
 
-2. **Attribuzione**: 
-   - Mantenere l'avviso di copyright
-   - Includere in tutte le copie
-   - Preservare i crediti originali
-   - Documentare l'origine del codice
+IN NESSUN CASO GLI AUTORI O I TITOLARI DEL COPYRIGHT SARANNO RESPONSABILI PER QUALSIASI RECLAMO, DANNO O ALTRA RESPONSABILITÀ, SIA IN UN'AZIONE DI CONTRATTO, ILLECITO O ALTRO, DERIVANTE DA, FUORI O IN CONNESSIONE CON IL SOFTWARE O L'USO O ALTRE OPERAZIONI NEL SOFTWARE.
 
-### Cosa non puoi fare ❌
+---
 
-1. **Ritenere Responsabili gli Autori**: 
-   - Nessuna garanzia di funzionamento
-   - Gli autori non sono responsabili per danni
-   - Nessun supporto obbligatorio
-   - Uso a proprio rischio e pericolo
+Per informazioni dettagliate sulla Licenza MIT, consultare: https://opensource.org/licenses/MIT

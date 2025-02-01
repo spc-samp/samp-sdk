@@ -58,9 +58,11 @@ SA-MP (San Andreas Multiplayer) Software Development Kit (SDK), geliştiricileri
   - [Versiyon Bilgisi](#versiyon-bilgisi)
     - [Versiyon Uyumluluğu](#versiyon-uyumluluğu)
   - [Lisans](#lisans)
-    - [Yapabilecekleriniz ✅](#yapabilecekleriniz-)
-    - [Yapmanız Gerekenler ⚠️](#yapmanız-gerekenler-️)
-    - [Yapamayacaklarınız ❌](#yapamayacaklarınız-)
+    - [Kullanım Şartları ve Koşulları](#kullanım-şartları-ve-koşulları)
+      - [1. Verilen İzinler](#1-verilen-i̇zinler)
+      - [2. Zorunlu Koşullar](#2-zorunlu-koşullar)
+      - [3. Telif Hakları](#3-telif-hakları)
+      - [4. Garanti Reddi ve Sorumluluk Sınırlaması](#4-garanti-reddi-ve-sorumluluk-sınırlaması)
 
 ## Temel Bileşenler
 
@@ -631,79 +633,37 @@ SDK, uyumluluğu şunlar aracılığıyla sürdürür:
 
 ## Lisans
 
-Copyright © SA-MP Programming Community
+Copyright © **SA-MP Programming Community**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Bu yazılım MIT Lisansı ("Lisans") şartları altında lisanslanmıştır; bu yazılımı Lisans şartlarına uygun olarak kullanabilirsiniz. Lisansın bir kopyasını şu adresten edinebilirsiniz: [MIT License](https://opensource.org/licenses/MIT)
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### Kullanım Şartları ve Koşulları
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+#### 1. Verilen İzinler
 
-Lisansın bir kopyasını buradan alabilirsiniz:
-https://opensource.org/licenses/MIT
+Bu lisans, bu yazılımın ve ilgili dokümantasyon dosyalarının bir kopyasını edinen herhangi bir kişiye ücretsiz olarak aşağıdaki hakları vermektedir:
 
-### Yapabilecekleriniz ✅
+* Yazılımın kopyalarını kullanma, kopyalama, değiştirme, birleştirme, yayınlama, dağıtma, alt lisans verme ve/veya satma hakkı
+* Yazılımın sağlandığı kişilerin de aynısını yapmasına izin verme hakkı (aşağıdaki koşullara tabi olmak kaydıyla)
 
-1. **Ticari Kullanım**: 
-   - Tamamen ticari kullanım serbestliği
-   - Koda dayalı ürünler satabilirsiniz
-   - Telif ücreti ödeme zorunluluğu yok
-   - Tescilli ürünlerde kullanabilirsiniz
+#### 2. Zorunlu Koşullar
 
-2. **Değişiklik**: 
-   - Kaynak kodunda tam değişiklik
-   - Türev çalışmalar oluşturma
-   - Herhangi bir amaca uyarlama
-   - Diğer sistemlerle entegrasyon
+Yazılımın tüm kopyaları veya önemli parçaları şunları içermelidir:
 
-3. **Dağıtım**: 
-   - Orijinal yazılımı dağıtma
-   - Değiştirilmiş sürümleri paylaşma
-   - Diğer projelere dahil etme
-   - Ticari olarak dağıtma
+* Yukarıdaki telif hakkı bildirimi
+* Bu izin bildirimi
+* Aşağıdaki sorumluluk reddi
 
-4. **Özel Kullanım**: 
-   - Özel projelerde kullanım
-   - Gizli değişiklikler
-   - Açıklama zorunluluğu yok
-   - Sınırsız dahili kullanım
+#### 3. Telif Hakları
 
-5. **Alt Lisanslama**: 
-   - Türetilmiş kodun lisansını değiştirebilirsiniz
-   - Değişiklikleriniz için farklı şartlar seçebilirsiniz
-   - Diğer lisanslarla birleştirebilirsiniz
-   - Dağıtım için kendi şartlarınızı oluşturabilirsiniz
+Yazılım ve ilgili tüm dokümantasyon telif hakkı yasaları ile korunmaktadır. **SA-MP Programming Community** yazılımın orijinal telif haklarını elinde tutmaktadır.
 
-### Yapmanız Gerekenler ⚠️
+#### 4. Garanti Reddi ve Sorumluluk Sınırlaması
 
-1. **Lisans Ekleme**: 
-   - Lisans kopyasını kodla birlikte tutma
-   - Tüm dağıtımlara dahil etme
-   - Orijinal metni koruma
-   - Görünür ve erişilebilir tutma
+YAZILIM "OLDUĞU GİBİ" SAĞLANMAKTADIR, HİÇBİR TÜRDE GARANTİ VERİLMEMEKTEDİR, AÇIK VEYA ZIMNİ, TİCARİ ELVERİŞLİLİK, BELİRLİ BİR AMACA UYGUNLUK VE İHLAL ETMEME GARANTİLERİ DAHİL ANCAK BUNLARLA SINIRLI OLMAMAK ÜZERE.
 
-2. **Atıf**: 
-   - Telif hakkı bildirimini koruma
-   - Tüm kopyalara dahil etme
-   - Orijinal kredileri koruma
-   - Kodun kaynağını belgeleme
+HİÇBİR KOŞULDA YAZARLAR VEYA TELİF HAKKI SAHİPLERİ HERHANGİ BİR İDDİA, HASAR VEYA DİĞER YÜKÜMLÜLÜKLERDEN SORUMLU TUTULAMAZ, İSTER SÖZLEŞME KAPSAMINDA, HAKSIZ FİİL VEYA BAŞKA BİR ŞEKİLDE OLSUN, YAZILIMDAN VEYA YAZILIMIN KULLANIMINDAN VEYA DİĞER İŞLEMLERDEN KAYNAKLANAN DURUMLAR İÇİN.
 
-### Yapamayacaklarınız ❌
+---
 
-1. **Yazarları Sorumlu Tutma**: 
-   - Çalışma garantisi yok
-   - Yazarlar hasarlardan sorumlu değil
-   - Zorunlu destek yok
-   - Kullanım riski size ait
+MIT Lisansı hakkında detaylı bilgi için: https://opensource.org/licenses/MIT

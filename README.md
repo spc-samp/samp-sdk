@@ -58,9 +58,11 @@ O SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) é uma coleçã
   - [Informações de Versão](#informações-de-versão)
     - [Compatibilidade de Versão](#compatibilidade-de-versão)
   - [Licença](#licença)
-    - [O que você pode fazer ✅](#o-que-você-pode-fazer-)
-    - [O que você deve fazer ⚠️](#o-que-você-deve-fazer-️)
-    - [O que você não pode fazer ❌](#o-que-você-não-pode-fazer-)
+    - [Termos e Condições de Uso](#termos-e-condições-de-uso)
+      - [1. Permissões Concedidas](#1-permissões-concedidas)
+      - [2. Condições Obrigatórias](#2-condições-obrigatórias)
+      - [3. Direitos Autorais](#3-direitos-autorais)
+      - [4. Isenção de Garantias e Limitação de Responsabilidade](#4-isenção-de-garantias-e-limitação-de-responsabilidade)
 
 ## Componentes Principais
 
@@ -631,79 +633,37 @@ O SDK mantém compatibilidade através de:
 
 ## Licença
 
-Copyright © SA-MP Programming Community
+Copyright © **SA-MP Programming Community**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Este software é licenciado sob os termos da Licença MIT ("Licença"); você pode utilizar este software de acordo com as condições da Licença. Uma cópia da Licença pode ser obtida em: [MIT License](https://opensource.org/licenses/MIT)
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### Termos e Condições de Uso
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+#### 1. Permissões Concedidas
 
-Você pode obter uma cópia da licença em:
-https://opensource.org/licenses/MIT
+A presente licença concede, gratuitamente, a qualquer pessoa que obtenha uma cópia deste software e arquivos de documentação associados, os seguintes direitos:
 
-### O que você pode fazer ✅
+* Utilizar, copiar, modificar, mesclar, publicar, distribuir, sublicenciar e/ou vender cópias do software sem restrições
+* Permitir que pessoas para as quais o software é fornecido façam o mesmo, desde que sujeitas às condições a seguir
 
-1. **Uso Comercial**: 
-   - Liberdade total para uso comercial
-   - Pode vender produtos baseados no código
-   - Sem necessidade de pagamento de royalties
-   - Pode usar em produtos proprietários
+#### 2. Condições Obrigatórias
 
-2. **Modificação**: 
-   - Modificação completa do código fonte
-   - Criar trabalhos derivados
-   - Adaptar para qualquer propósito
-   - Integrar com outros sistemas
+Todas as cópias ou partes substanciais do software devem incluir:
 
-3. **Distribuição**: 
-   - Distribuir o software original
-   - Compartilhar versões modificadas
-   - Incluir em outros projetos
-   - Distribuir comercialmente
+* O aviso de direitos autorais acima
+* Este aviso de permissão
+* O aviso de isenção de responsabilidade abaixo
 
-4. **Uso Privado**: 
-   - Uso em projetos privados
-   - Modificações confidenciais
-   - Sem obrigação de divulgação
-   - Uso interno irrestrito
+#### 3. Direitos Autorais
 
-5. **Sublicenciamento**: 
-   - Pode mudar a licença do código derivado
-   - Escolher diferentes termos para suas modificações
-   - Combinar com outras licenças
-   - Criar termos próprios para distribuição
+O software e toda a documentação associada são protegidos por leis de direitos autorais. A **SA-MP Programming Community** mantém a titularidade dos direitos autorais originais do software.
 
-### O que você deve fazer ⚠️
+#### 4. Isenção de Garantias e Limitação de Responsabilidade
 
-1. **Incluir Licença**: 
-   - Manter cópia da licença com o código
-   - Incluir em todas as distribuições
-   - Preservar texto original
-   - Manter visível e acessível
+O SOFTWARE É FORNECIDO "COMO ESTÁ", SEM GARANTIA DE QUALQUER TIPO, EXPRESSA OU IMPLÍCITA, INCLUINDO, MAS NÃO SE LIMITANDO ÀS GARANTIAS DE COMERCIALIZAÇÃO, ADEQUAÇÃO A UM DETERMINADO FIM E NÃO VIOLAÇÃO. 
 
-2. **Atribuição**: 
-   - Manter aviso de direitos autorais
-   - Incluir em todas as cópias
-   - Preservar créditos originais
-   - Documentar origem do código
+EM NENHUMA CIRCUNSTÂNCIA OS AUTORES OU TITULARES DOS DIREITOS AUTORAIS SERÃO RESPONSÁVEIS POR QUALQUER REIVINDICAÇÃO, DANOS OU OUTRA RESPONSABILIDADE, SEJA EM AÇÃO DE CONTRATO, DELITO OU DE OUTRA FORMA, DECORRENTE DE, FORA DE OU EM CONEXÃO COM O SOFTWARE OU O USO OU OUTRAS NEGOCIAÇÕES NO SOFTWARE.
 
-### O que você não pode fazer ❌
+---
 
-1. **Responsabilizar os Autores**: 
-   - Sem garantias de funcionamento
-   - Autores não são responsáveis por danos
-   - Sem suporte obrigatório
-   - Uso por conta e risco
+Para informações detalhadas sobre a Licença MIT, consulte: https://opensource.org/licenses/MIT

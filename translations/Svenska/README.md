@@ -58,9 +58,11 @@ SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) är en omfattande
   - [Versionsinformation](#versionsinformation)
     - [Versionskompatibilitet](#versionskompatibilitet)
   - [Licens](#licens)
-    - [Vad du kan göra ✅](#vad-du-kan-göra-)
-    - [Vad du måste göra ⚠️](#vad-du-måste-göra-️)
-    - [Vad du inte kan göra ❌](#vad-du-inte-kan-göra-)
+    - [Användarvillkor](#användarvillkor)
+      - [1. Beviljade rättigheter](#1-beviljade-rättigheter)
+      - [2. Obligatoriska villkor](#2-obligatoriska-villkor)
+      - [3. Upphovsrätt](#3-upphovsrätt)
+      - [4. Garantifriskrivning och ansvarsbegränsning](#4-garantifriskrivning-och-ansvarsbegränsning)
 
 ## Kärnkomponenter
 
@@ -631,79 +633,37 @@ SDK:n upprätthåller kompatibilitet genom:
 
 ## Licens
 
-Copyright © SA-MP Programming Community
+Copyright © **SA-MP Programming Community**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Denna programvara är licensierad under villkoren i MIT-licensen ("Licensen"); du får använda denna programvara i enlighet med Licensens villkor. En kopia av Licensen kan erhållas på: [MIT License](https://opensource.org/licenses/MIT)
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### Användarvillkor
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+#### 1. Beviljade rättigheter
 
-Du kan få en kopia av licensen på:
-https://opensource.org/licenses/MIT
+Denna licens ger kostnadsfritt följande rättigheter till alla som erhåller en kopia av denna programvara och tillhörande dokumentationsfiler:
 
-### Vad du kan göra ✅
+* Att använda, kopiera, modifiera, slå samman, publicera, distribuera, underlicensiera och/eller sälja kopior av programvaran utan begränsningar
+* Att tillåta personer som programvaran tillhandahålls till att göra detsamma, under förutsättning att de följer nedanstående villkor
 
-1. **Kommersiell användning**: 
-   - Total frihet för kommersiell användning
-   - Kan sälja produkter baserade på koden
-   - Inga royalties krävs
-   - Kan användas i proprietära produkter
+#### 2. Obligatoriska villkor
 
-2. **Modifiering**: 
-   - Fullständig modifiering av källkoden
-   - Skapa härledda verk
-   - Anpassa för alla ändamål
-   - Integrera med andra system
+Alla kopior eller väsentliga delar av programvaran måste innehålla:
 
-3. **Distribution**: 
-   - Distribuera originalprogramvaran
-   - Dela modifierade versioner
-   - Inkludera i andra projekt
-   - Distribuera kommersiellt
+* Ovanstående upphovsrättsmeddelande
+* Detta tillståndsmeddelande
+* Nedanstående ansvarsfriskrivning
 
-4. **Privat användning**: 
-   - Användning i privata projekt
-   - Konfidentiella modifieringar
-   - Ingen skyldighet att avslöja
-   - Obegränsad intern användning
+#### 3. Upphovsrätt
 
-5. **Underlicensiering**: 
-   - Kan ändra licensen för härledd kod
-   - Välja olika villkor för dina modifieringar
-   - Kombinera med andra licenser
-   - Skapa egna distributionsvillkor
+Programvaran och all tillhörande dokumentation skyddas av upphovsrättslagar. **SA-MP Programming Community** behåller den ursprungliga upphovsrätten till programvaran.
 
-### Vad du måste göra ⚠️
+#### 4. Garantifriskrivning och ansvarsbegränsning
 
-1. **Inkludera licens**: 
-   - Behåll en kopia av licensen med koden
-   - Inkludera i alla distributioner
-   - Bevara originaltext
-   - Håll den synlig och tillgänglig
+PROGRAMVARAN TILLHANDAHÅLLS "I BEFINTLIGT SKICK", UTAN NÅGON GARANTI AV NÅGOT SLAG, UTTRYCKLIG ELLER UNDERFÖRSTÅDD, INKLUSIVE MEN INTE BEGRÄNSAT TILL GARANTIER FÖR SÄLJBARHET, LÄMPLIGHET FÖR ETT SÄRSKILT SYFTE OCH ICKE-INTRÅNG.
 
-2. **Attribution**: 
-   - Behåll upphovsrättsmeddelande
-   - Inkludera i alla kopior
-   - Bevara ursprungliga krediter
-   - Dokumentera kodens ursprung
+UNDER INGA OMSTÄNDIGHETER SKA FÖRFATTARNA ELLER UPPHOVSRÄTTSINNEHAVARNA VARA ANSVARIGA FÖR NÅGRA ANSPRÅK, SKADOR ELLER ANNAT ANSVAR, VARE SIG I EN AVTALSHANDLING, SKADESTÅNDSANSPRÅK ELLER PÅ ANNAT SÄTT, SOM UPPSTÅR FRÅN, UT ELLER I SAMBAND MED PROGRAMVARAN ELLER ANVÄNDNINGEN ELLER ANNAT HANDHAVANDE AV PROGRAMVARAN.
 
-### Vad du inte kan göra ❌
+---
 
-1. **Hålla författarna ansvariga**: 
-   - Inga garantier för funktion
-   - Författarna är inte ansvariga för skador
-   - Inget obligatoriskt support
-   - Användning på egen risk
+För detaljerad information om MIT-licensen, besök: https://opensource.org/licenses/MIT

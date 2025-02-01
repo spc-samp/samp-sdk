@@ -58,9 +58,11 @@ Das SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) ist eine umfa
   - [Versionsinformationen](#versionsinformationen)
     - [Versionskompatibilität](#versionskompatibilität)
   - [Lizenz](#lizenz)
-    - [Was Sie tun können ✅](#was-sie-tun-können-)
-    - [Was Sie tun müssen ⚠️](#was-sie-tun-müssen-️)
-    - [Was Sie nicht tun können ❌](#was-sie-nicht-tun-können-)
+    - [Nutzungsbedingungen](#nutzungsbedingungen)
+      - [1. Gewährte Berechtigungen](#1-gewährte-berechtigungen)
+      - [2. Verpflichtende Bedingungen](#2-verpflichtende-bedingungen)
+      - [3. Urheberrecht](#3-urheberrecht)
+      - [4. Gewährleistungsausschluss und Haftungsbeschränkung](#4-gewährleistungsausschluss-und-haftungsbeschränkung)
 
 ## Kernkomponenten
 
@@ -631,79 +633,37 @@ Das SDK behält die Kompatibilität bei durch:
 
 ## Lizenz
 
-Copyright © SA-MP Programming Community
+Copyright © **SA-MP Programming Community**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Diese Software ist unter den Bedingungen der MIT-Lizenz ("Lizenz") lizenziert; Sie dürfen diese Software gemäß den Lizenzbedingungen nutzen. Eine Kopie der Lizenz finden Sie unter: [MIT License](https://opensource.org/licenses/MIT)
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### Nutzungsbedingungen
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+#### 1. Gewährte Berechtigungen
 
-Sie können eine Kopie der Lizenz hier erhalten:
-https://opensource.org/licenses/MIT
+Diese Lizenz gewährt jeder Person, die eine Kopie dieser Software und der zugehörigen Dokumentationsdateien erhält, kostenlos folgende Rechte:
 
-### Was Sie tun können ✅
+* Die Software ohne Einschränkungen zu nutzen, zu kopieren, zu modifizieren, zusammenzuführen, zu veröffentlichen, zu verteilen, zu unterlizenzieren und/oder zu verkaufen
+* Personen, denen die Software zur Verfügung gestellt wird, dies unter den folgenden Bedingungen zu gestatten
 
-1. **Kommerzielle Nutzung**: 
-   - Vollständige Freiheit zur kommerziellen Nutzung
-   - Verkauf von Produkten basierend auf dem Code
-   - Keine Lizenzgebühren erforderlich
-   - Nutzung in proprietären Produkten
+#### 2. Verpflichtende Bedingungen
 
-2. **Modifikation**: 
-   - Vollständige Änderung des Quellcodes
-   - Erstellung abgeleiteter Werke
-   - Anpassung für jeden Zweck
-   - Integration mit anderen Systemen
+Alle Kopien oder wesentliche Teile der Software müssen enthalten:
 
-3. **Vertrieb**: 
-   - Vertrieb der Originalsoftware
-   - Weitergabe modifizierter Versionen
-   - Einbindung in andere Projekte
-   - Kommerzieller Vertrieb
+* Den obigen Urheberrechtshinweis
+* Diesen Erlaubnishinweis
+* Den nachstehenden Haftungsausschluss
 
-4. **Private Nutzung**: 
-   - Nutzung in privaten Projekten
-   - Vertrauliche Änderungen
-   - Keine Offenlegungspflicht
-   - Uneingeschränkte interne Nutzung
+#### 3. Urheberrecht
 
-5. **Unterlizenzierung**: 
-   - Änderung der Lizenz für abgeleiteten Code
-   - Wahl unterschiedlicher Bedingungen für Ihre Änderungen
-   - Kombination mit anderen Lizenzen
-   - Erstellung eigener Vertriebsbedingungen
+Die Software und alle zugehörige Dokumentation sind durch Urheberrechtsgesetze geschützt. Die **SA-MP Programming Community** behält die ursprünglichen Urheberrechte an der Software.
 
-### Was Sie tun müssen ⚠️
+#### 4. Gewährleistungsausschluss und Haftungsbeschränkung
 
-1. **Lizenz einbinden**: 
-   - Lizenzkopie beim Code behalten
-   - In allen Verteilungen einschließen
-   - Originaltext bewahren
-   - Sichtbar und zugänglich halten
+DIE SOFTWARE WIRD "WIE BESEHEN" ZUR VERFÜGUNG GESTELLT, OHNE JEGLICHE AUSDRÜCKLICHE ODER IMPLIZITE GEWÄHRLEISTUNG, EINSCHLIESSLICH, ABER NICHT BESCHRÄNKT AUF DIE GEWÄHRLEISTUNG DER MARKTGÄNGIGKEIT, DER EIGNUNG FÜR EINEN BESTIMMTEN ZWECK UND DER NICHTVERLETZUNG VON RECHTEN DRITTER.
 
-2. **Attributierung**: 
-   - Urheberrechtshinweis beibehalten
-   - In allen Kopien einschließen
-   - Ursprüngliche Credits bewahren
-   - Codeursprung dokumentieren
+DIE AUTOREN ODER URHEBERRECHTSINHABER SIND IN KEINEM FALL HAFTBAR FÜR ANSPRÜCHE, SCHÄDEN ODER ANDERE VERPFLICHTUNGEN, OB IN EINER VERTRAGS- ODER DELIKTKLAGE, DIE AUS ODER IN VERBINDUNG MIT DER SOFTWARE ODER DER NUTZUNG ODER ANDEREN GESCHÄFTEN MIT DER SOFTWARE ENTSTEHEN.
 
-### Was Sie nicht tun können ❌
+---
 
-1. **Autoren haftbar machen**: 
-   - Keine Funktionsgarantien
-   - Autoren haften nicht für Schäden
-   - Keine verpflichtende Unterstützung
-   - Nutzung auf eigenes Risiko
+For detailed information about the MIT License, visit: https://opensource.org/licenses/MIT
