@@ -642,14 +642,12 @@ Diese Software ist unter den Bedingungen der MIT-Lizenz ("Lizenz") lizenziert; S
 #### 1. Gewährte Berechtigungen
 
 Diese Lizenz gewährt jeder Person, die eine Kopie dieser Software und der zugehörigen Dokumentationsdateien erhält, kostenlos folgende Rechte:
-
 * Die Software ohne Einschränkungen zu nutzen, zu kopieren, zu modifizieren, zusammenzuführen, zu veröffentlichen, zu verteilen, zu unterlizenzieren und/oder zu verkaufen
 * Personen, denen die Software zur Verfügung gestellt wird, dies unter den folgenden Bedingungen zu gestatten
 
 #### 2. Verpflichtende Bedingungen
 
 Alle Kopien oder wesentliche Teile der Software müssen enthalten:
-
 * Den obigen Urheberrechtshinweis
 * Diesen Erlaubnishinweis
 * Den nachstehenden Haftungsausschluss

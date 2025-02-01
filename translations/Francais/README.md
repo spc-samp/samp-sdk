@@ -635,21 +635,19 @@ Le SDK maintient la compatibilité via:
 
 Copyright © **SA-MP Programming Community**
 
-Ce logiciel est sous licence selon les termes de la Licence MIT ("Licence"); vous pouvez utiliser ce logiciel conformément aux conditions de la Licence. Une copie de la Licence peut être obtenue à : [MIT License](https://opensource.org/licenses/MIT)
+Ce logiciel est sous licence selon les termes de la Licence MIT ("Licence"); vous pouvez utiliser ce logiciel conformément aux conditions de la Licence. Une copie de la Licence peut être obtenue à: [MIT License](https://opensource.org/licenses/MIT)
 
 ### Conditions Générales d'Utilisation
 
 #### 1. Autorisations Accordées
 
-La présente licence accorde gratuitement à toute personne obtenant une copie de ce logiciel et des fichiers de documentation associés les droits suivants :
-
+La présente licence accorde gratuitement à toute personne obtenant une copie de ce logiciel et des fichiers de documentation associés les droits suivants:
 * Utiliser, copier, modifier, fusionner, publier, distribuer, sous-licencier et/ou vendre des copies du logiciel sans restriction
 * Permettre aux personnes à qui le logiciel est fourni de faire de même, sous réserve des conditions suivantes
 
 #### 2. Conditions Obligatoires
 
-Toutes les copies ou parties substantielles du logiciel doivent inclure :
-
+Toutes les copies ou parties substantielles du logiciel doivent inclure:
 * L'avis de droit d'auteur ci-dessus
 * Cet avis d'autorisation
 * L'avis de non-responsabilité ci-dessous
@@ -666,4 +664,4 @@ EN AUCUN CAS LES AUTEURS OU LES DÉTENTEURS DES DROITS D'AUTEUR NE SERONT RESPON
 
 ---
 
-Pour des informations détaillées sur la Licence MIT, consultez : https://opensource.org/licenses/MIT
+Pour des informations détaillées sur la Licence MIT, consultez: https://opensource.org/licenses/MIT

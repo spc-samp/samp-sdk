@@ -642,14 +642,12 @@ Questo software è concesso in licenza secondo i termini della Licenza MIT ("Lic
 #### 1. Permessi Concessi
 
 La presente licenza concede gratuitamente a chiunque ottenga una copia di questo software e dei file di documentazione associati i seguenti diritti:
-
 * Utilizzare, copiare, modificare, unire, pubblicare, distribuire, sublicenziare e/o vendere copie del software senza restrizioni
 * Permettere alle persone a cui il software viene fornito di fare lo stesso, soggetto alle seguenti condizioni
 
 #### 2. Condizioni Obbligatorie
 
 Tutte le copie o parti sostanziali del software devono includere:
-
 * L'avviso di copyright sopra riportato
 * Questo avviso di permesso
 * L'avviso di esclusione di responsabilità sotto riportato

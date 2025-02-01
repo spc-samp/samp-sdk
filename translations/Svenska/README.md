@@ -642,14 +642,12 @@ Denna programvara är licensierad under villkoren i MIT-licensen ("Licensen"); d
 #### 1. Beviljade rättigheter
 
 Denna licens ger kostnadsfritt följande rättigheter till alla som erhåller en kopia av denna programvara och tillhörande dokumentationsfiler:
-
 * Att använda, kopiera, modifiera, slå samman, publicera, distribuera, underlicensiera och/eller sälja kopior av programvaran utan begränsningar
 * Att tillåta personer som programvaran tillhandahålls till att göra detsamma, under förutsättning att de följer nedanstående villkor
 
 #### 2. Obligatoriska villkor
 
 Alla kopior eller väsentliga delar av programvaran måste innehålla:
-
 * Ovanstående upphovsrättsmeddelande
 * Detta tillståndsmeddelande
 * Nedanstående ansvarsfriskrivning

@@ -642,14 +642,12 @@ Este software está licenciado bajo los términos de la Licencia MIT ("Licencia"
 #### 1. Permisos Otorgados
 
 La presente licencia otorga, gratuitamente, a cualquier persona que obtenga una copia de este software y archivos de documentación asociados, los siguientes derechos:
-
 * Usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o vender copias del software sin restricciones
 * Permitir que las personas a las que se les proporciona el software hagan lo mismo, sujeto a las siguientes condiciones
 
 #### 2. Condiciones Obligatorias
 
 Todas las copias o partes sustanciales del software deben incluir:
-
 * El aviso de derechos de autor anterior
 * Este aviso de permiso
 * El aviso de exención de responsabilidad a continuación

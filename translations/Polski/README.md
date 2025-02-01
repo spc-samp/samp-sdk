@@ -642,14 +642,12 @@ To oprogramowanie jest licencjonowane na warunkach licencji MIT ("Licencja"); mo
 #### 1. Przyznane uprawnienia
 
 Niniejsza licencja bezpłatnie przyznaje każdej osobie otrzymującej kopię tego oprogramowania i powiązanych plików dokumentacji następujące prawa:
-
 * Używanie, kopiowanie, modyfikowanie, łączenie, publikowanie, rozpowszechnianie, sublicencjonowanie i/lub sprzedaż kopii oprogramowania bez ograniczeń
 * Zezwalanie osobom, którym oprogramowanie jest dostarczane, na to samo, pod warunkiem przestrzegania poniższych warunków
 
 #### 2. Obowiązkowe warunki
 
 Wszystkie kopie lub istotne części oprogramowania muszą zawierać:
-
 * Powyższą informację o prawach autorskich
 * Niniejsze zezwolenie
 * Poniższe wyłączenie odpowiedzialności

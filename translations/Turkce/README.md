@@ -642,14 +642,12 @@ Bu yazılım MIT Lisansı ("Lisans") şartları altında lisanslanmıştır; bu 
 #### 1. Verilen İzinler
 
 Bu lisans, bu yazılımın ve ilgili dokümantasyon dosyalarının bir kopyasını edinen herhangi bir kişiye ücretsiz olarak aşağıdaki hakları vermektedir:
-
 * Yazılımın kopyalarını kullanma, kopyalama, değiştirme, birleştirme, yayınlama, dağıtma, alt lisans verme ve/veya satma hakkı
 * Yazılımın sağlandığı kişilerin de aynısını yapmasına izin verme hakkı (aşağıdaki koşullara tabi olmak kaydıyla)
 
 #### 2. Zorunlu Koşullar
 
 Yazılımın tüm kopyaları veya önemli parçaları şunları içermelidir:
-
 * Yukarıdaki telif hakkı bildirimi
 * Bu izin bildirimi
 * Aşağıdaki sorumluluk reddi

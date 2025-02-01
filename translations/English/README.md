@@ -642,14 +642,12 @@ This software is licensed under the terms of the MIT License ("License"); you ma
 #### 1. Granted Permissions
 
 This license grants, free of charge, to any person obtaining a copy of this software and associated documentation files, the following rights:
-
 * To use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software without restriction
 * To permit persons to whom the software is furnished to do so, subject to the following conditions
 
 #### 2. Mandatory Conditions
 
 All copies or substantial portions of the software must include:
-
 * The above copyright notice
 * This permission notice
 * The disclaimer notice below
