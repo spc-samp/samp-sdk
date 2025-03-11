@@ -10,7 +10,7 @@
 [![Native Support](https://img.shields.io/badge/Natives-Supported-success.svg)](https://github.com/spc-samp/samp-sdk)
 [![Memory Safe](https://img.shields.io/badge/Memory-Safe-red.svg)](https://github.com/spc-samp/samp-sdk)
 
-The SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) is a comprehensive collection of C files and headers and items that allow developers to create plugins for the SA-MP server. This SDK provides a foundation for extending the functionality of the SA-MP server through native functions, allowing developers to implement features beyond what is available in the Pawn script.
+The SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) is a comprehensive collection of C files, headers, and components that enable developers to create plugins for the SA-MP server. This SDK provides a foundation for extending the functionality of the SA-MP server through native functions, allowing developers to implement features beyond what is available in Pawn scripts.
 
 ## Languages
 
@@ -68,13 +68,13 @@ The SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) is a comprehe
 
 ### AMX System
 
-The AMX (Abstract Machine eXecutor) is the virtual machine that executes Pawn scripts in SA-MP. The SDK provides extensive support for interacting with AMX through various C and header files:
+The AMX (Abstract Machine eXecutor) is the virtual machine that executes Pawn scripts in SA-MP. The SDK provides extensive support for interacting with the AMX system through various C files and headers.
 
 #### Core AMX Headers
 
 1. **amx.h**
 
-    The main header file that consolidates all AMX-related functionality. It includes:
+    The primary header that consolidates all AMX-related functionality:
     - Core AMX functions for script execution
     - Memory management
     - Native function registration
@@ -83,41 +83,286 @@ The AMX (Abstract Machine eXecutor) is the virtual machine that executes Pawn sc
 
     Key functions include:
     ```c
-    int AMXAPI amx_Init(AMX* amx, void* program);
-    int AMXAPI amx_Exec(AMX* amx, cell* retval, int index);
-    int AMXAPI amx_Register(AMX* amx, const AMX_NATIVE_INFO* nativelist, int number);
+    int AMXAPI amx_Init(AMX* amx, void* program);         // Initializes an AMX instance
+    int AMXAPI amx_Exec(AMX* amx, cell* retval, int index); // Executes a public function
+    int AMXAPI amx_Register(AMX* amx, const AMX_NATIVE_INFO* nativelist, int number); // Registers native functions
     ```
 
-2. **amx_cell.h**
+2. **amx_platform.h**
 
-    Defines the fundamental data types used in the AMX system:
+    Responsible for platform detection and configuration:
     ```c
-    #if PAWN_CELL_SIZE==32
-        typedef uint32_t  ucell;
-        typedef int32_t   cell;
-    #elif PAWN_CELL_SIZE==64
-        typedef uint64_t  ucell;
-        typedef int64_t   cell;
+    #if (defined __linux || defined __linux__) && !defined __LINUX__
+        #define __LINUX__
+    #endif
+    #if defined FREEBSD && !defined __FreeBSD__
+        #define __FreeBSD__
     #endif
     ```
+    - Detects systems such as Linux, FreeBSD, OpenBSD, and macOS.
+    - Includes `sclinux.h` for Unix-like systems.
+    - Identifies 64-bit architectures:
+      ```c
+      #if defined _LP64 || defined WIN64 || defined _WIN64
+          #define __64BIT__
+      #endif
+      ```
+    - Calculates GCC version if applicable:
+      ```c
+      #if defined __GNUC__
+          #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+      #endif
+      ```
 
-3. **amx_structures.h**
+3. **amx_constants.h**
 
-    Contains essential structures for AMX operation:
+    Defines essential constants for AMX operation:
+    - **Versions**:
+      ```c
+      #define CUR_FILE_VERSION  9   // Current file format version
+      #define MIN_FILE_VERSION  6   // Minimum supported version
+      #define MIN_AMX_VERSION   10  // Minimum AMX version
+      #define MAX_FILE_VER_JIT  8   // Maximum version with JIT support
+      #define MIN_AMX_VER_JIT   8   // Minimum version with JIT support
+      ```
+    - **Magic Codes**:
+      ```c
+      #define AMX_MAGIC_16    0xf1e2  // For 16-bit cells
+      #define AMX_MAGIC_32    0xf1e0  // For 32-bit cells
+      #define AMX_MAGIC_64    0xf1e1  // For 64-bit cells
+      ```
+    - **Error Codes**:
+      ```c
+      enum {
+          AMX_ERR_NONE,         // No error
+          AMX_ERR_EXIT,         // Script terminated
+          AMX_ERR_ASSERT,       // Assertion failed
+          AMX_ERR_STACKERR,     // Stack error
+          AMX_ERR_BOUNDS,       // Out-of-bounds access
+          AMX_ERR_MEMACCESS,    // Invalid memory access
+          AMX_ERR_INVINSTR,     // Invalid instruction
+          AMX_ERR_STACKLOW,     // Stack too low
+          AMX_ERR_HEAPLOW,      // Heap too low
+          AMX_ERR_CALLBACK,     // Callback error
+          AMX_ERR_NATIVE,       // Native function error
+          AMX_ERR_DIVIDE,       // Division by zero
+          AMX_ERR_SLEEP,        // Sleep mode activated
+          AMX_ERR_INVSTATE,     // Invalid state
+          AMX_ERR_MEMORY = 16,  // Insufficient memory
+          AMX_ERR_FORMAT,       // Invalid format
+          AMX_ERR_VERSION,      // Incompatible version
+          AMX_ERR_NOTFOUND,     // Resource not found
+          AMX_ERR_INDEX,        // Invalid index
+          AMX_ERR_DEBUG,        // Debugging error
+          AMX_ERR_INIT,         // Initialization failure
+          AMX_ERR_USERDATA,     // User data error
+          AMX_ERR_INIT_JIT,     // JIT initialization failure
+          AMX_ERR_PARAMS,       // Invalid parameters
+          AMX_ERR_DOMAIN,       // Domain error
+          AMX_ERR_GENERAL,      // General error
+      };
+      ```
+    - **Flags**:
+      ```c
+      #define AMX_FLAG_DEBUG      0x02   // Debug mode
+      #define AMX_FLAG_COMPACT    0x04   // Compact encoding
+      #define AMX_FLAG_SLEEP      0x08   // Sleep support
+      #define AMX_FLAG_NOCHECKS   0x10   // No safety checks
+      #define AMX_FLAG_NO_RELOC   0x200  // No relocation
+      #define AMX_FLAG_NO_SYSREQD 0x400  // No sysreq.d
+      #define AMX_FLAG_SYSREQN    0x800  // sysreq.n support
+      #define AMX_FLAG_NTVREG     0x1000 // Native registration
+      #define AMX_FLAG_JITC       0x2000 // JIT compilation
+      #define AMX_FLAG_BROWSE     0x4000 // Browse mode
+      #define AMX_FLAG_RELOC      0x8000 // Relocation enabled
+      ```
+    - **Execution Codes**:
+      ```c
+      #define AMX_EXEC_MAIN   (-1)  // Execute main function
+      #define AMX_EXEC_CONT   (-2)  // Continue execution
+      ```
 
-    ```c
-    typedef struct tagAMX {
-        unsigned char _FAR *base;    // Base address
-        unsigned char _FAR *data;    // Data segment
-        AMX_CALLBACK callback;       // Callback function
-        AMX_DEBUG debug;            // Debug callback
-        cell cip;                   // Code instruction pointer
-        cell frm;                   // Stack frame base
-        cell hea;                   // Heap base
-        cell stk;                   // Stack pointer
-        // ... additional fields
-    } AMX;
-    ```
+4. **amx_memory.h**
+
+    Manages memory allocation:
+    - Support for `alloca`:
+      ```c
+      #if defined HAVE_ALLOCA_H
+          #include <alloca.h>
+      #elif defined __BORLANDC__
+          #include <malloc.h>
+      #endif
+      #if defined __WIN32__ || defined _WIN32 || defined WIN32
+          #define alloca(n)   _alloca(n)
+      #endif
+      ```
+    - Defines compression margin:
+      ```c
+      #if !defined AMX_COMPACTMARGIN
+          #define AMX_COMPACTMARGIN 64
+      #endif
+      ```
+
+5. **amx_calling.h**
+
+    Defines calling conventions:
+    - For native functions and APIs:
+      ```c
+      #if defined PAWN_DLL
+          #define AMX_NATIVE_CALL __stdcall
+          #define AMXAPI          __stdcall
+      #endif
+      #if !defined AMX_NATIVE_CALL
+          #define AMX_NATIVE_CALL
+      #endif
+      #if defined STDECL
+          #define AMXAPI __stdcall
+      #elif defined CDECL
+          #define AMXAPI __cdecl
+      #elif defined GCC_HASCLASSVISIBILITY
+          #define AMXAPI __attribute__((visibility("default")))
+      #else
+          #define AMXAPI
+      #endif
+      ```
+
+6. **amx_types.h**
+
+    Defines standard integer types:
+    - Support for `stdint.h` or manual definitions:
+      ```c
+      #if defined HAVE_STDINT_H
+          #include <stdint.h>
+      #elif defined HAVE_INTTYPES_H
+          #include <inttypes.h>
+      #else
+          typedef short int           int16_t;
+          typedef unsigned short int  uint16_t;
+          typedef long int            int32_t;
+          typedef unsigned long int   uint32_t;
+          #if defined __WIN32__ || defined _WIN32 || defined WIN32
+              typedef __int64           int64_t;
+              typedef unsigned __int64  uint64_t;
+          #endif
+      #endif
+      ```
+
+7. **amx_macros.h**
+
+    Provides utility macros:
+    - **Address Calculation**:
+      ```c
+      #define amx_Address(amx,addr) \
+          (cell*)(((uintptr_t)((amx)->data ? (amx)->data : (amx)->base+(int)((AMX_HEADER *)(amx)->base)->dat)) + ((uintptr_t)(addr)))
+      ```
+    - **String Handling**:
+      ```c
+      #define amx_StrParam(amx,param,result) \
+          do { \
+              int result##_length_; \
+              amx_StrLen(amx_Address(amx,param),&result##_length_); \
+              if (result##_length_>0 && \
+                  ((result)=(void*)alloca((result##_length_+1)*sizeof(*(result))))!=NULL) \
+              amx_GetString((char*)(result),amx_Address(amx,param), \
+                              sizeof(*(result))>1,result##_length_+1); \
+              else (result)=NULL; \
+          } while(0)
+      ```
+    - **Parameter Count**:
+      ```c
+      #define amx_NumParams(params) ((params)[0] / (cell)sizeof(cell))
+      ```
+    - **Function Registration**:
+      ```c
+      #define amx_RegisterFunc(amx, name, func) \
+          amx_Register((amx), amx_NativeInfo((name),(func)), 1)
+      ```
+
+8. **amx_cell.h**
+
+    Defines cell types:
+    - Configures `PAWN_CELL_SIZE` (default: 32):
+      ```c
+      #if PAWN_CELL_SIZE==16
+          typedef uint16_t  ucell;
+          typedef int16_t   cell;
+      #elif PAWN_CELL_SIZE==32
+          typedef uint32_t  ucell;
+          typedef int32_t   cell;
+      #elif PAWN_CELL_SIZE==64
+          typedef uint64_t  ucell;
+          typedef int64_t   cell;
+      #endif
+      ```
+    - Floating-point support:
+      ```c
+      #if PAWN_CELL_SIZE==32
+          #define amx_ftoc(f)   (*(cell*)&(f))  // Float to cell
+          #define amx_ctof(c)   (*(float*)&(c))  // Cell to float
+      #elif PAWN_CELL_SIZE==64
+          #define amx_ftoc(f)   (*(cell*)&(f))  // Double to cell
+          #define amx_ctof(c)   (*(double*)&(c)) // Cell to double
+      #endif
+      ```
+    - Character manipulation:
+      ```c
+      #define CHARMASK (0xffffffffuL << 8*(4-sizeof(char)))  // For 32-bit
+      ```
+
+9. **amx_structures.h**
+
+    Defines core structures:
+    - **AMX**:
+      ```c
+      typedef struct tagAMX {
+          unsigned char _FAR *base;    // Base address
+          unsigned char _FAR *data;    // Data segment
+          AMX_CALLBACK callback;       // Callback function
+          AMX_DEBUG debug;            // Debug callback
+          cell cip;                   // Code instruction pointer
+          cell frm;                   // Frame base
+          cell hea;                   // Heap base
+          cell hlw;                   // Heap lower bound
+          cell stk;                   // Stack pointer
+          cell stp;                   // Stack top
+          int flags;                  // Flags
+          long usertags[AMX_USERNUM]; // User tags
+          void _FAR *userdata[AMX_USERNUM]; // User data
+          int error;                  // Error code
+          int paramcount;             // Parameter count
+          cell pri;                   // Primary register
+          cell alt;                   // Alternate register
+          cell reset_stk;             // Reset stack
+          cell reset_hea;             // Reset heap
+          cell sysreq_d;              // sysreq.d address
+          #if defined JIT
+              int reloc_size;         // Relocation size
+              long code_size;         // Code size
+          #endif
+      } AMX;
+      ```
+    - **AMX_HEADER**:
+      ```c
+      typedef struct tagAMX_HEADER {
+          int32_t size;          // File size
+          uint16_t magic;        // Signature
+          char    file_version;  // File version
+          char    amx_version;   // AMX version
+          int16_t flags;         // Flags
+          int16_t defsize;       // Definition size
+          int32_t cod;           // Code start
+          int32_t dat;           // Data start
+          int32_t hea;           // Heap start
+          int32_t stp;           // Stack top
+          int32_t cip;           // Initial instruction pointer
+          int32_t publics;       // Publics offset
+          int32_t natives;       // Natives offset
+          int32_t libraries;     // Libraries offset
+          int32_t pubvars;       // Public variables offset
+          int32_t tags;          // Tags offset
+          int32_t nametable;     // Name table offset
+      } AMX_HEADER;
+      ```
 
 ### Platform Support
 
@@ -153,8 +398,7 @@ The SDK includes robust platform-specific handling through various headers:
 
 #### plugincommon.h
 
-Defines the core plugin interface and support structures:
-
+Defines the main plugin interface and supporting structures:
 ```c
 #define SAMP_PLUGIN_VERSION 0x0200
 
@@ -174,12 +418,10 @@ enum PLUGIN_DATA_TYPE {
 
 #### amxplugin.c
 
-The `amxplugin.c` file is a crucial component of the SA-MP SDK that provides platform-specific implementations of AMX functions. It implements two different approaches based on the platform and compiler:
+The `amxplugin.c` file is a key component of the SA-MP SDK, providing platform-specific implementations for AMX functions. It implements two approaches based on platform and compiler:
 
 1. **Windows MSVC Implementation (32-bit)**
-    - Uses naked functions with assembly for direct function table access
-    - Provides optimized performance through direct jumps to AMX functions
-    - Example structure:
+    - Uses naked functions with assembly for direct function table access:
     ```c
     #define NUDE __declspec(naked)
     #define AMX_JUMP_HELPER(index) { 
@@ -189,9 +431,7 @@ The `amxplugin.c` file is a crucial component of the SA-MP SDK that provides pla
     ```
 
 2. **Cross-Platform Implementation**
-    - Uses function pointers for platform independence
-    - Implements a macro-based system for function definitions
-    - Example structure:
+    - Uses function pointers for platform independence:
     ```c
     #define DEFINE_AMX_FN_TYPE(name, ret_type, ...) \
         typedef ret_type AMXAPI (*name##_t)(__VA_ARGS__); \
@@ -201,64 +441,63 @@ The `amxplugin.c` file is a crucial component of the SA-MP SDK that provides pla
         }
     ```
 
-Key Features:
+**Key Features**:
 
 3. **Function Table Management**
-    - Uses a static pointer `pAMXFunctions` to store AMX function table
-    - Provides access to all core AMX functions
-    - Handles function resolution at runtime
+    - Uses a static pointer `pAMXFunctions` to store the AMX function table.
+    - Provides access to all core AMX functions.
+    - Handles runtime function resolution.
 
 4. **Platform-Specific Optimizations**
-    - Windows 32-bit: Uses naked functions for direct assembly implementation
-    - Other platforms: Uses function pointer indirection
-    - Special handling for 64-bit systems
+    - Windows 32-bit: Direct assembly implementation using naked functions.
+    - Other platforms: Function pointer indirection.
+    - Special handling for 64-bit systems.
 
-5. **Function Categories Implemented**
+5. **Implemented Function Categories**
 
-    a. Memory Management Functions:
+    a. **Memory Management Functions**:
     - `amx_Align16`, `amx_Align32`, `amx_Align64`
     - `amx_Allot`, `amx_Release`
 
-    b. Execution Functions:
+    b. **Execution Functions**:
     - `amx_Exec`, `amx_Callback`
     - `amx_Init`, `amx_InitJIT`
     - `amx_Cleanup`, `amx_Clone`
     
-    c. Symbol Management:
+    c. **Symbol Management**:
     - `amx_FindPublic`, `amx_FindPubVar`
     - `amx_FindNative`, `amx_FindTagId`
     - `amx_GetPublic`, `amx_GetPubVar`
     
-    d. String Handling:
+    d. **String Handling**:
     - `amx_GetString`, `amx_SetString`
     - `amx_StrLen`
     - UTF-8 support functions
     
-    e. Debug and Information:
+    e. **Debug and Information**:
     - `amx_SetDebugHook`
     - `amx_Flags`, `amx_MemInfo`
     - `amx_NameLength`
 
 6. **Conditional Compilation**
-    - Handles different platforms through preprocessor directives
-    - Special handling for 64-bit systems
-    - Optional JIT support
-    ```c
-    #if defined _I64_MAX || defined HAVE_I64
-        DEFINE_AMX_NAKED_FN(uint64_t* AMXAPI amx_Align64(uint64_t* v), 
-            PLUGIN_AMX_EXPORT_Align64)
-    #endif
-    ```
+    - Handles different platforms via preprocessor directives.
+    - Special handling for 64-bit systems.
+    - Optional JIT support:
+      ```c
+      #if defined _I64_MAX || defined HAVE_I64
+          DEFINE_AMX_NAKED_FN(uint64_t* AMXAPI amx_Align64(uint64_t* v), 
+              PLUGIN_AMX_EXPORT_Align64)
+      #endif
+      ```
 
 7. **Error Handling Integration**
-    - Implements `amx_RaiseError` for error reporting
-    - Preserves error codes across function calls
-    - Integrates with AMX debug system
+    - Implements `amx_RaiseError` for error reporting.
+    - Preserves error codes across function calls.
+    - Integrates with the AMX debug system.
 
 ### AMX Native Functions
 
 The SDK provides comprehensive support for creating and managing native functions:
-
 ```c
 typedef cell (AMX_NATIVE_CALL *AMX_NATIVE)(struct tagAMX *amx, const cell *params);
 
@@ -268,21 +507,21 @@ typedef struct tagAMX_NATIVE_INFO {
 } AMX_NATIVE_INFO;
 ```
 
-Key native function operations:
-- Registration through `amx_Register`
-- Parameter access and validation
-- Return value handling
-- Error reporting
+**Key Native Function Operations**:
+- Registration via `amx_Register`.
+- Parameter access and validation via `amx_NumParams`.
+- Return value handling.
+- Error reporting with `amx_RaiseError`.
 
 ## Technical Details
 
 ### Memory Management
 
-The SDK provides comprehensive memory management facilities:
+The SDK provides extensive memory management facilities:
 
 1. **amx_memory.h**
 
-   Handles memory allocation and platform-specific memory operations:
+    Handles memory allocation and platform-specific operations:
     ```c
     #if defined HAVE_ALLOCA_H
         #include <alloca.h>
@@ -290,6 +529,7 @@ The SDK provides comprehensive memory management facilities:
         #include <malloc.h>
     #endif
     ```
+    - Defines `AMX_COMPACTMARGIN` as 64 by default for memory compression.
 
 2. **amx_alignment.h**
 
@@ -308,30 +548,29 @@ The SDK includes several functions for memory manipulation:
     ```c
     int AMXAPI amx_Allot(AMX* amx, int cells, cell* amx_addr, cell** phys_addr);
     ```
-    - Allocates memory in the AMX heap
-    - Returns both AMX and physical addresses
-    - Handles alignment requirements
+    - Allocates memory in the AMX heap.
+    - Returns both AMX and physical addresses.
+    - Handles alignment requirements.
 
 2. **Memory Access**
     ```c
     int AMXAPI amx_GetAddr(AMX* amx, cell amx_addr, cell** phys_addr);
     ```
-    - Converts AMX addresses to physical addresses
-    - Validates memory access
-    - Handles memory boundaries
+    - Converts AMX addresses to physical addresses.
+    - Validates memory access.
+    - Handles memory boundaries.
 
 3. **Memory Information**
     ```c
     int AMXAPI amx_MemInfo(AMX* amx, long* codesize, long* datasize, long* stackheap);
     ```
-    - Retrieves memory layout information
-    - Reports segment sizes
-    - Useful for debugging and optimization
+    - Retrieves memory layout information.
+    - Reports segment sizes.
+    - Useful for debugging and optimization.
 
 ### Error Handling
 
 The SDK includes a comprehensive error handling system defined in `amx_constants.h`:
-
 ```c
 enum {
     AMX_ERR_NONE,
@@ -348,7 +587,6 @@ enum {
     AMX_ERR_DIVIDE,
     AMX_ERR_SLEEP,
     AMX_ERR_INVSTATE,
-    
     AMX_ERR_MEMORY = 16,
     AMX_ERR_FORMAT,
     AMX_ERR_VERSION,
@@ -367,19 +605,32 @@ enum {
 ### String Handling
 
 The SDK provides robust string handling capabilities through various macros and functions:
-
 ```c
 #define amx_StrParam(amx,param,result) \
     do { \
         int result##_length_; \
         amx_StrLen(amx_Address(amx,param),&result##_length_); \
         if (result##_length_>0 && \
-            ((result)=(type)alloca((result##_length_+1)*sizeof(*(result))))!=NULL) \
+            ((result)=(void*)alloca((result##_length_+1)*sizeof(*(result))))!=NULL) \
         amx_GetString((char*)(result),amx_Address(amx,param), \
                             sizeof(*(result))>1,result##_length_+1); \
         else (result)=NULL; \
     } while(0)
 ```
+- Alternative for `char*`:
+  ```c
+  #define amx_StrParamChar(amx, param, result) \
+      do { \
+          cell* amx_cstr_; \
+          int amx_length_; \
+          amx_GetAddr((amx), (param), &amx_cstr_); \
+          amx_StrLen(amx_cstr_, &amx_length_); \
+          if (amx_length_ > 0 && ((result) = (char*)alloca((amx_length_ + 1) * sizeof(*(result)))) != NULL) \
+              amx_GetString((char*)(result), amx_cstr_, sizeof(*(result)) > 1, amx_length_ + 1); \
+          else \
+              (result) = ""; \
+      } while(0)
+  ```
 
 ### String Operations
 
@@ -387,22 +638,21 @@ The SDK provides robust string handling capabilities through various macros and 
     ```c
     int AMXAPI amx_StrLen(const cell* cstring, int* length);
     ```
-    - Calculates string length
-    - Handles packed and unpacked strings
-    - Returns length in characters
+    - Calculates string length.
+    - Handles packed and unpacked strings.
+    - Returns length in characters.
 
 2. **String Conversion**
     ```c
     int AMXAPI amx_SetString(cell* dest, const char* source, int pack, int use_wchar, size_t size);
     ```
-    - Converts C strings to AMX strings
-    - Supports packed and unpacked formats
-    - Handles Unicode conversion
+    - Converts C strings to AMX strings.
+    - Supports packed and unpacked formats.
+    - Handles Unicode conversion.
 
 ## Unicode Support
 
-The SDK includes comprehensive Unicode support through UTF-8 handling functions:
-
+The SDK provides comprehensive Unicode support through UTF-8 handling functions:
 ```c
 int AMXAPI amx_UTF8Check(const char* string, int* length);
 int AMXAPI amx_UTF8Get(const char* string, const char** endptr, cell* value);
@@ -416,17 +666,17 @@ int AMXAPI amx_UTF8Put(char* string, char** endptr, int maxchars, cell value);
     ```c
     int AMXAPI amx_UTF8Check(const char* string, int* length);
     ```
-    - Validates UTF-8 encoded strings
-    - Reports string length in characters
-    - Detects encoding errors
+    - Validates UTF-8 encoded strings.
+    - Reports string length in characters.
+    - Detects encoding errors.
 
 2. **Character Conversion**
     ```c
     int AMXAPI amx_UTF8Get(const char* string, const char** endptr, cell* value);
     ```
-    - Extracts Unicode characters
-    - Handles multi-byte sequences
-    - Reports parsing errors
+    - Extracts Unicode characters.
+    - Handles multi-byte sequences.
+    - Reports parsing errors.
 
 ## Cross-Platform Compatibility
 
@@ -454,6 +704,9 @@ The SDK ensures cross-platform compatibility through:
     #endif
     ```
 
+3. **Platform-Independent Types**
+    - Defined in `amx_types.h` for consistency.
+
 ## System Requirements
 
 The SDK supports multiple platforms and compilers:
@@ -466,85 +719,85 @@ The SDK supports multiple platforms and compilers:
 ### Compiler Support
 
 1. **Microsoft Visual C++**
-   - Pragma handling
-   - Warning suppression
-   - Calling conventions
+    - Pragma handling.
+    - Warning suppression.
+    - Calling conventions via `amx_calling.h`.
 
 2. **GCC**
-   - Diagnostic controls
-   - Attribute specifications
-   - Platform-specific optimizations
+    - Diagnostic controls.
+    - Attribute specifications.
+    - Platform-specific optimizations.
 
 3. **Clang**
-   - Warning configurations
-   - Cross-platform compatibility
-   - Modern C++ features
+    - Warning configurations.
+    - Cross-platform compatibility.
+    - Modern C++ features.
 
 ## Best Practices
 
 When using the SA-MP SDK, consider the following best practices:
 
 1. **Memory Management**
-   - Always clean up allocated resources
-   - Use appropriate memory alignment
-   - Handle memory errors gracefully
-   - Monitor heap usage
-   - Implement proper memory bounds checking
-   - Use memory pools for frequent allocations
-   - Clean up resources in reverse order of allocation
+    - Always clean up allocated resources.
+    - Use appropriate memory alignment.
+    - Handle memory errors gracefully.
+    - Monitor heap usage.
+    - Implement proper memory bounds checking.
+    - Use memory pools for frequent allocations.
+    - Clean up resources in reverse order of allocation.
 
 2. **Error Handling**
-   - Check return values from AMX functions
-   - Implement proper error handling in native functions
-   - Use the provided error constants
-   - Log errors appropriately
-   - Implement error recovery mechan sms
-   - Provide meaningful error messages
-   - Handle system-specific errors
+    - Check return values from AMX functions.
+    - Implement proper error handling in native functions.
+    - Use provided error constants.
+    - Log errors appropriately.
+    - Implement error recovery mechanisms.
+    - Provide meaningful error messages.
+    - Handle system-specific errors.
 
 3. **Cross-Platform Development**
-   - Use platform-independent types
-   - Utilize provided macros for platform-specific code
-   - Test on multiple platforms
-   - Handle endianness differences
-   - Use proper path separators
-   - Consider file system differences
-   - Implement platform-specific optimizations
+    - Use platform-independent types.
+    - Utilize provided macros for platform-specific code.
+    - Test on multiple platforms.
+    - Handle endianness differences.
+    - Use appropriate path separators.
+    - Consider file system differences.
+    - Implement platform-specific optimizations.
 
 4. **Performance Considerations**
-   - Use appropriate cell sizes
-   - Implement efficient string handling
-   - Optimize native function calls
-   - Minimize memory allocations
-   - Use appropriate data structures
-   - Implement caching where appropriate
-   - Profile critical code paths
+    - Use appropriate cell sizes.
+    - Implement efficient string handling.
+    - Optimize native function calls.
+    - Minimize memory allocations.
+    - Use suitable data structures.
+    - Implement caching where appropriate.
+    - Profile critical code paths.
 
 When working with `amxplugin.c` functionality:
 
 1. **Platform-Specific Development**
-   - Consider platform differences in function implementations
-   - Test on both 32-bit and 64-bit systems
-   - Handle platform-specific alignment requirements
-   - Validate function table pointer before use
-   - Implement appropriate error checking for each platform
-   - Consider performance implications of different implementations
+    - Consider platform differences in function implementations.
+    - Test on both 32-bit and 64-bit systems.
+    - Handle platform-specific alignment requirements.
+    - Validate function table pointer before use.
+    - Implement appropriate error checking for each platform.
+    - Consider performance implications of different implementations.
 
 2. **Function Table Management**
-   - Initialize function table before use
-   - Verify function availability
-   - Handle missing functions gracefully
-   - Implement proper cleanup procedures
-   - Cache frequently used function pointers
-   - Validate function table integrity
+    - Initialize function table before use.
+    - Verify function availability.
+    - Handle missing functions gracefully.
+    - Implement proper cleanup procedures.
+    - Cache frequently used function pointers.
+    - Validate function table integrity.
 
 3. **Error Handling**
-   - Implement proper error checking for platform-specific code
-   - Handle alignment errors appropriately
-   - Validate function table entries
-   - Provide meaningful error messages
-   - Implement recovery mechanisms
-   - Log platform-specific errors
+    - Implement proper error checking for platform-specific code.
+    - Handle alignment errors appropriately.
+    - Validate function table entries.
+    - Provide meaningful error messages.
+    - Implement recovery mechanisms.
+    - Log platform-specific errors.
 
 ## Internal Structures
 
@@ -557,22 +810,22 @@ typedef struct tagAMX_HEADER {
     char    file_version;  // File format version
     char    amx_version;   // Required AMX version
     int16_t flags;         // Flags
-    int16_t defsize;      // Size of a definition record
-    int32_t cod;          // Initial value of COD - code block
-    int32_t dat;          // Initial value of DAT - data block
-    int32_t hea;          // Initial value of HEA - start of heap
-    int32_t stp;          // Initial value of STP - stack top
-    int32_t cip;          // Initial value of CIP - code instruction pointer
-    int32_t publics;      // Offset to public functions
-    int32_t natives;      // Offset to native function table
-    int32_t libraries;    // Offset to libraries
-    int32_t pubvars;      // Offset to public variables
-    int32_t tags;         // Offset to tags
-    int32_t nametable;    // Offset to name table
+    int16_t defsize;       // Size of a definition record
+    int32_t cod;           // Initial value of COD - code block
+    int32_t dat;           // Initial value of DAT - data block
+    int32_t hea;           // Initial value of HEA - start of heap
+    int32_t stp;           // Initial value of STP - stack top
+    int32_t cip;           // Initial value of CIP - code instruction pointer
+    int32_t publics;       // Offset to public functions
+    int32_t natives;       // Offset to native function table
+    int32_t libraries;     // Offset to libraries
+    int32_t pubvars;       // Offset to public variables
+    int32_t tags;          // Offset to tags
+    int32_t nametable;     // Offset to name table
 } AMX_HEADER;
 ```
 
-This structure is crucial for understanding the AMX file format and how the virtual machine loads and executes scripts.
+This structure is critical for understanding the AMX file format and how the virtual machine loads and executes scripts.
 
 ## Advanced Features
 
@@ -599,17 +852,17 @@ The SDK provides comprehensive support for working with public functions:
     ```c
     int AMXAPI amx_FindPublic(AMX* amx, const char* funcname, int* index);
     ```
-    - Locates public functions by name
-    - Returns function index
-    - Validates function existence
+    - Locates public functions by name.
+    - Returns the function index.
+    - Validates function existence.
 
 2. **Executing Public Functions**
     ```c
     int AMXAPI amx_Exec(AMX* amx, cell* retval, int index);
     ```
-    - Executes public functions
-    - Handles return values
-    - Manages execution context
+    - Executes public functions.
+    - Handles return values.
+    - Manages execution context.
 
 ## Version Information
 
@@ -625,11 +878,11 @@ The SDK includes version constants for compatibility checking:
 ### Version Compatibility
 
 The SDK maintains compatibility through:
-1. File version checking
-2. AMX version validation
-3. JIT compatibility verification
-4. Feature detection
-5. Platform-specific version handling
+1. File version checking.
+2. AMX version validation.
+3. JIT compatibility verification.
+4. Feature detection.
+5. Platform-specific version handling.
 
 ## License
 
@@ -642,15 +895,15 @@ This software is licensed under the terms of the MIT License ("License"); you ma
 #### 1. Granted Permissions
 
 This license grants, free of charge, to any person obtaining a copy of this software and associated documentation files, the following rights:
-* To use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software without restriction
-* To permit persons to whom the software is furnished to do so, subject to the following conditions
+- To use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software without restriction.
+- To permit persons to whom the software is furnished to do so, subject to the following conditions.
 
 #### 2. Mandatory Conditions
 
 All copies or substantial portions of the software must include:
-* The above copyright notice
-* This permission notice
-* The disclaimer notice below
+- The above copyright notice.
+- This permission notice.
+- The disclaimer notice below.
 
 #### 3. Copyright
 
