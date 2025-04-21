@@ -405,7 +405,8 @@ Defines the main plugin interface and supporting structures:
 enum SUPPORTS_FLAGS {
     SUPPORTS_VERSION = SAMP_PLUGIN_VERSION,
     SUPPORTS_VERSION_MASK = 0xffff,
-    SUPPORTS_AMX_NATIVES = 0x10000
+    SUPPORTS_AMX_NATIVES = 0x10000,
+    SUPPORTS_PROCESS_TICK = 0x20000
 };
 
 enum PLUGIN_DATA_TYPE {
