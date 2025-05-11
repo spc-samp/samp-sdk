@@ -1,4 +1,3 @@
-
 #ifndef AMX_H_INCLUDED
     #define AMX_H_INCLUDED
 
@@ -11,12 +10,10 @@
         #pragma warning(disable:4996)
     #elif defined __clang__
         #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wlogical-op-parentheses"
-        #pragma GCC diagnostic ignored "-Wbitwise-op-parentheses"
+        #pragma GCC diagnostic ignored "-Wparentheses"
     #elif defined __GNUC__
         #pragma GCC diagnostic push
-        #pragma GCC diagnostic ignored "-Wlogical-op-parentheses"
-        #pragma GCC diagnostic ignored "-Wbitwise-op-parentheses"
+        #pragma GCC diagnostic ignored "-Wparentheses"
     #endif
 
     #include "amx_library/amx_platform.h"
@@ -138,10 +135,10 @@
         }
     #endif
 
+    // Restore compiler
     #if defined _MSC_VER
         #pragma warning(pop)
     #elif defined __clang__ || defined __GNUC__
         #pragma GCC diagnostic pop
     #endif
-
 #endif
