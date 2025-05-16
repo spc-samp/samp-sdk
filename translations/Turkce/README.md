@@ -12,6 +12,9 @@
 
 SA-MP (San Andreas Multiplayer) Yazılım Geliştirme Kiti (SDK), geliştiricilerin SA-MP sunucusu için eklentiler oluşturmasını sağlayan kapsamlı bir C dosyaları ve header koleksiyonudur. Bu SDK, geliştiricilerin Pawn scriptinde mevcut olanın ötesinde özellikler uygulamasına olanak tanıyan native fonksiyonlar aracılığıyla SA-MP sunucusunun işlevselliğini genişletmek için bir temel sunar.
 
+> [!WARNING]
+> Bu depo, yasal hak sahibi **Kalcor** olan, **SA-MP SDK** dosyalarını sunmaktadır. **SDK** üzerinde herhangi bir telif hakkı iddiasında bulunulmamaktadır — amaç yalnızca **eklenti geliştiricileri** için materyale erişimi ve düzenlemeyi kolaylaştırmaktır. **MIT lisansı**, **orijinal SDK lisansı** bulunamadığından dolayı yalnızca **GitHub**’un standart yapısını korumak adına bir formalite olarak uygulanmıştır. Bu lisans, **SDK**'nın orijinal içeriği için geçerli değildir; yalnızca **depo** içinde yer alan iyileştirmeler veya ek dosyalar için geçerlidir.
+
 ## Diller
 
 - Português: [README](../../)

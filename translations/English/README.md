@@ -12,6 +12,9 @@
 
 The SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) is a comprehensive collection of C files, headers, and components that enable developers to create plugins for the SA-MP server. This SDK provides a foundation for extending the functionality of the SA-MP server through native functions, allowing developers to implement features beyond what is available in Pawn scripts.
 
+> [!WARNING]
+> This repository provides the files of the **SA-MP SDK**, whose legitimate rights holder is **Kalcor**, the original creator of **SA-MP**. No authorship rights over the **SDK** are claimed here — the purpose is merely to facilitate access and organization of the material for **plugin developers**. The **MIT license** was applied purely as a formality to maintain GitHub’s standard structure, since the **original SDK license** was not found. This license does not apply to the original content of the **SDK**, but only to possible improvements or additional files included in the **repository**.
+
 ## Languages
 
 - Português: [README](../../)
