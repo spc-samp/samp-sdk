@@ -1,6 +1,6 @@
 # samp-sdk
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-C-00599C.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![SDK](https://img.shields.io/badge/SA--MP-SDK-orange.svg)](https://github.com/spc-samp/samp-sdk)
 [![Platform Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)](https://github.com/spc-samp/samp-sdk)
@@ -11,9 +11,6 @@
 [![Memory Safe](https://img.shields.io/badge/Memory-Safe-red.svg)](https://github.com/spc-samp/samp-sdk)
 
 SA-MP (San Andreas Multiplayer) Yazılım Geliştirme Kiti (SDK), geliştiricilerin SA-MP sunucusu için eklentiler oluşturmasını sağlayan kapsamlı bir C dosyaları ve header koleksiyonudur. Bu SDK, geliştiricilerin Pawn scriptinde mevcut olanın ötesinde özellikler uygulamasına olanak tanıyan native fonksiyonlar aracılığıyla SA-MP sunucusunun işlevselliğini genişletmek için bir temel sunar.
-
-> [!WARNING]
-> Bu depo, yasal hak sahibi **Kalcor** olan, **SA-MP SDK** dosyalarını sunmaktadır. **SDK** üzerinde herhangi bir telif hakkı iddiasında bulunulmamaktadır — amaç yalnızca **eklenti geliştiricileri** için materyale erişimi ve düzenlemeyi kolaylaştırmaktır. **MIT lisansı**, **orijinal SDK lisansı** bulunamadığından dolayı yalnızca **GitHub**’un standart yapısını korumak adına bir formalite olarak uygulanmıştır. Bu lisans, **SDK**'nın orijinal içeriği için geçerli değildir; yalnızca **depo** içinde yer alan iyileştirmeler veya ek dosyalar için geçerlidir.
 
 ## Diller
 
@@ -62,7 +59,7 @@ SA-MP (San Andreas Multiplayer) Yazılım Geliştirme Kiti (SDK), geliştiricile
     - [Versiyon Uyumluluğu](#versiyon-uyumluluğu)
   - [Lisans](#lisans)
     - [Kullanım Şartları ve Koşulları](#kullanım-şartları-ve-koşulları)
-      - [1. Verilen İzinler](#1-verilen-i̇zinler)
+      - [1. Lisansın Kapsamı](#1-lisansın-kapsamı)
       - [2. Zorunlu Koşullar](#2-zorunlu-koşullar)
       - [3. Telif Hakları](#3-telif-hakları)
       - [4. Garanti Reddi ve Sorumluluk Sınırlaması](#4-garanti-reddi-ve-sorumluluk-sınırlaması)
@@ -890,35 +887,46 @@ SDK, uyumluluğu şu yollarla sürdürür:
 
 ## Lisans
 
-Copyright © **SA-MP Programming Community**
+**Mülkiyet Bildirimi**: Bu depoda bulunan **SA-MP SDK**, aşağıda detaylı olarak belirtildiği üzere farklı telif hakkı sahiplerine sahip dosyalardan oluşmaktadır:
+- **San Andreas Multiplayer (SA-MP)** için özel olan `amxplugin.c`, `plugin.h` ve `plugincommon.h` dosyaları, SA-MP’nin orijinal yaratıcıları olan **Kalcor ve muhtemelen SA-MP Ekibi üyelerinin** fikri mülkiyetidir.
+- **Pawn Abstract Machine (AMX)** ile ilgili dosyalar, bunlarla sınırlı olmamak üzere `amx.h`, `amx.c`, `osdefs.h` ve Pawn programlama dili için gerekli diğer başlıklar ve uygulamalar, Hollanda merkezli **CompuPhase**’in, Pawn’ın orijinal yaratıcısının fikri mülkiyetidir.
+- `sclinux.h` dosyası muhtemelen **SELinux veya özelleştirilmiş bir Linux çekirdek alt sisteminden** kaynaklanmaktadır ve Unix benzeri bir ortamın parçasıdır.
+- `getch.h` ve `getch.c` dosyaları, karakter girişi için `termios` gibi standart işlevlere dayanan POSIX uyumlu bağımsız uygulamalardır.
+- **SA-MP Programlama Topluluğu (SPC)**, **SA-MP SDK**’nın orijinal içeriği, **CompuPhase** dosyaları, `sclinux.h` veya `getch.h/c` üzerinde herhangi bir telif hakkı iddia etmez. Bu deponun tek amacı, adil kullanım ve topluluk uygulamalarına uygun olarak eklenti geliştiricileri için materyale erişimi ve organizasyonu kolaylaştırmaktır.
 
-Bu yazılım MIT Lisansı ("Lisans") şartları altında lisanslanmıştır; bu yazılımı Lisans şartlarına uygun olarak kullanabilirsiniz. Lisansın bir kopyasını şu adresten edinebilirsiniz: [MIT License](https://opensource.org/licenses/MIT)
+**İyileştirmelere Uygulanabilir Lisans**: **SA-MP Programlama Topluluğu (SPC)** tarafından oluşturulan ve bu depoya dahil edilen herhangi bir iyileştirme, değişiklik veya ek dosya, **MIT Lisansı** şartları altında lisanslanmıştır. MIT Lisansı yalnızca bu belirli katkılara uygulanır ve **SA-MP SDK**’nın orijinal içeriğine, **CompuPhase** dosyalarına, `sclinux.h` veya `getch.h/c`’ye uygulanmaz. MIT Lisansı’nın bir kopyası şu adreste bulunabilir: [MIT License](https://opensource.org/licenses/MIT).
+
+**Orijinal Dosyaların Lisansları**:
+- `amx.h`, `amx.c`, `osdefs.h` (**CompuPhase**’e ait) ve `sclinux.h` (muhtemelen **SELinux veya özelleştirilmiş bir çekirdeğe ait**) dosyaları **Apache License 2.0** altında lisanslanmıştır. Lisans detayları şu adreste bulunabilir: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+- `getch.h` ve `getch.c` dosyaları **Mozilla Public License 2.0 (MPL-2.0)** altında lisanslanmıştır. Lisans detayları şu adreste bulunabilir: [MPL-2.0](https://www.mozilla.org/en-US/MPL/2.0/).
+- `amxplugin.c`, `plugin.h` ve `plugincommon.h` dosyaları (**Kalcor ve muhtemelen SA-MP Ekibi üyelerine ait**) belirtilmiş bir lisansa sahip değildir.
 
 ### Kullanım Şartları ve Koşulları
 
-#### 1. Verilen İzinler
-
-Bu lisans, bu yazılımın ve ilgili dokümantasyon dosyalarının bir kopyasını alan her kişiye ücretsiz olarak aşağıdaki hakları verir:
-- Yazılımı sınırlama olmaksızın kullanma, kopyalama, değiştirme, birleştirme, yayınlama, dağıtma, alt lisans verme ve/veya satma.
-- Yazılımın sağlandığı kişilere aynı hakları tanıma (aşağıdaki koşullara tabi olarak).
+#### 1. Lisansın Kapsamı
+MIT Lisansı, **SPC** tarafından oluşturulan iyileştirmelerin veya ek dosyaların bir kopyasını elde eden herhangi bir kişiye ücretsiz olarak aşağıdaki hakları verir:
+- Bu katkıları kısıtlama olmaksızın kullanma, kopyalama, değiştirme, birleştirme, yayınlama, dağıtma, alt lisans verme ve/veya satma.
+- Bu katkıların sağlandığı kişilere, aşağıdaki koşullara tabi olarak aynı şeyi yapma izni verme.
 
 #### 2. Zorunlu Koşullar
-
-Yazılımın tüm kopyaları veya önemli bölümleri şunları içermelidir:
-- Yukarıdaki telif hakkı bildirimi.
+**SPC** katkılarının tüm kopyaları veya önemli kısımları şunları içermelidir:
+- İyileştirmeler için **SPC** telif hakkı bildirimi.
 - Bu izin bildirimi.
-- Aşağıdaki sorumluluk reddi.
+- Aşağıdaki sorumluluk reddi bildirimi.
 
 #### 3. Telif Hakları
-
-Yazılım ve ilgili tüm dokümantasyon telif hakkı yasalarıyla korunmaktadır. **SA-MP Programming Community**, yazılımın orijinal telif haklarını elinde tutar.
+**SPC** tarafından oluşturulan iyileştirmeler ve ek dosyalar telif hakkı yasalarıyla korunur ve **SPC**, bu belirli katkılar için telif haklarının sahipliğini korur. `amxplugin.c`, `plugin.h` ve `plugincommon.h` dosyaları **Kalcor ve muhtemelen SA-MP Ekibi üyelerinin** mülkiyetinde kalır. **Pawn Abstract Machine (AMX)** dosyaları, `osdefs.h` dahil, **CompuPhase**’in mülkiyetinde kalır. `sclinux.h` dosyası muhtemelen **SELinux veya özelleştirilmiş bir Linux çekirdek alt sistemine** aittir ve `getch.h/c` bağımsız bir POSIX uygulamasıdır. **SPC**, bu orijinal içerikler üzerinde herhangi bir yazarlık hakkı iddia etmez.
 
 #### 4. Garanti Reddi ve Sorumluluk Sınırlaması
+**SPC** KATKILARI “OLDUĞU GİBİ” SAĞLANIR, AÇIK VEYA ZIMNİ HİÇBİR GARANTİ OLMAKSIZIN, BUNLARLA SINIRLI OLMAMAK ÜZERE TİCARİ ELVERİŞLİLİK, BELİRLİ BİR AMACA UYGUNLUK VE İHLAL ETMEME GARANTİLERİ DAHİL.
 
-YAZILIM "OLDUĞU GİBİ" SAĞLANIR, HİÇBİR TÜRDEN GARANTİ VERİLMEZ, AÇIK VEYA ZIMNİ, TİCARİ ELVERİŞLİLİK, BELİRLİ BİR AMACA UYGUNLUK VE İHLAL ETMEME GARANTİLERİ DAHİL ANCAK BUNLARLA SINIRLI OLMAKSIZIN.
+HİÇBİR DURUMDA **SPC** VEYA İYİLEŞTİRMELERİN TELİF HAKKI SAHİPLERİ, SÖZLEŞME, HAKSIZ FİİL VEYA BAŞKA BİR ŞEKİLDE, **SPC** KATKILARINDAN, BUNLARIN KULLANIMINDAN VEYA BUNLARLA İLGİLİ DİĞER İŞLEMLERDEN KAYNAKLANAN, DIŞINDA VEYA BUNLARLA BAĞLANTILI HERHANGİ BİR TALEP, ZARAR VEYA DİĞER SORUMLULUKTAN SORUMLU OLMAYACAKTIR.
 
-HİÇBİR KOŞULDA YAZARLAR VEYA TELİF HAKKI SAHİPLERİ, SÖZLEŞME, HAKSIZ FİİL VEYA BAŞKA BİR ŞEKİLDE OLSUN, YAZILIMDAN, YAZILIMIN KULLANIMINDAN VEYA YAZILIMLA İLGİLİ DİĞER İŞLEMLERDEN KAYNAKLANAN HERHANGİ BİR İDDİA, HASAR VEYA DİĞER YÜKÜMLÜLÜKLERDEN SORUMLU TUTULAMAZ.
+**Orijinal Dosyalar Hakkında Not**: Kullanıcılar, **SA-MP SDK** dosyalarının kullanımının geçerli lisanslara uygun olduğundan emin olmaktan sorumludur:
+- `amx.h`, `amx.c`, `osdefs.h` ve `sclinux.h` için **Apache License 2.0** şartlarını izleyin.
+- `getch.h` ve `getch.c` için **Mozilla Public License 2.0 (MPL-2.0)** şartlarını izleyin.
+- `amxplugin.c`, `plugin.h` ve `plugincommon.h` için, belirtilmiş bir lisans olmadığından, kullanıcılar **Kalcor ve muhtemelen SA-MP Ekibi üyeleri** tarafından belirlenen herhangi bir şartı veya geçerli yasaları yerine getirmelidir. **SPC**, bu orijinal içeriklerin kullanımı için hiçbir garanti sunmaz veya sorumluluk kabul etmez.
 
 ---
 
-MIT Lisansı hakkında detaylı bilgi için: https://opensource.org/licenses/MIT
+MIT Lisansı hakkında detaylı bilgi için bkz.: [MIT License](https://opensource.org/licenses/MIT)

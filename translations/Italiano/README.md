@@ -1,6 +1,6 @@
 # samp-sdk
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Language](https://img.shields.io/badge/Language-C-00599C.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
 [![SDK](https://img.shields.io/badge/SA--MP-SDK-orange.svg)](https://github.com/spc-samp/samp-sdk)
 [![Platform Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)](https://github.com/spc-samp/samp-sdk)
@@ -11,9 +11,6 @@
 [![Memory Safe](https://img.shields.io/badge/Memory-Safe-red.svg)](https://github.com/spc-samp/samp-sdk)
 
 Il SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) è una raccolta completa di file C, header e componenti che consentono agli sviluppatori di creare plugin per il server SA-MP. Questo SDK fornisce una base per estendere le funzionalità del server SA-MP attraverso funzioni native, permettendo agli sviluppatori di implementare funzionalità che vanno oltre quelle disponibili negli script Pawn.
-
-> [!WARNING]
-> Questo repository mette a disposizione i file del **SA-MP SDK**, i cui diritti legittimi appartengono a **Kalcor**, creatore originale di **SA-MP**. Non si rivendica alcun diritto d'autore sul **SDK** — lo scopo è semplicemente quello di facilitare l'accesso e l'organizzazione del materiale per gli **sviluppatori di plugin**. La **licenza MIT** è stata applicata solo come formalità per mantenere la struttura standard di **GitHub**, poiché la **licenza originale dell’SDK** non è stata trovata. Questa licenza non si applica al contenuto originale del **SDK**, ma solo a eventuali miglioramenti o file aggiuntivi inclusi nel **repository**.
 
 ## Lingue
 
@@ -61,11 +58,11 @@ Il SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) è una raccolt
   - [Informazioni sulla Versione](#informazioni-sulla-versione)
     - [Compatibilità Versioni](#compatibilità-versioni)
   - [Licenza](#licenza)
-    - [Termini e Condizioni d'Uso](#termini-e-condizioni-duso)
-      - [1. Permessi Concessi](#1-permessi-concessi)
-      - [2. Condizioni Obbligatorie](#2-condizioni-obbligatorie)
-      - [3. Diritti d'Autore](#3-diritti-dautore)
-      - [4. Esclusione di Garanzia e Limitazione di Responsabilità](#4-esclusione-di-garanzia-e-limitazione-di-responsabilità)
+    - [Termini e condizioni d’uso](#termini-e-condizioni-duso)
+      - [1. Ambito della licenza](#1-ambito-della-licenza)
+      - [2. Condizioni obbligatorie](#2-condizioni-obbligatorie)
+      - [3. Diritti d’autore](#3-diritti-dautore)
+      - [4. Esclusione di garanzie e limitazione di responsabilità](#4-esclusione-di-garanzie-e-limitazione-di-responsabilità)
 
 ## Componenti Principali
 
@@ -890,35 +887,46 @@ L'SDK mantiene la compatibilità tramite:
 
 ## Licenza
 
-Copyright © **SA-MP Programming Community**
+**Avviso di proprietà**: L’**SA-MP SDK** contenuto in questo repository è composto da file con diversi titolari di diritti d’autore, come dettagliato di seguito:
+- I file `amxplugin.c`, `plugin.h` e `plugincommon.h`, specifici per **San Andreas Multiplayer (SA-MP)**, sono proprietà intellettuale di **Kalcor e possibilmente membri del team SA-MP**, i creatori originali di SA-MP.
+- I file relativi alla **Pawn Abstract Machine (AMX)**, inclusi, ma non limitati a, `amx.h`, `amx.c`, `osdefs.h` e altri header e implementazioni essenziali per il linguaggio di programmazione Pawn, sono proprietà intellettuale di **CompuPhase**, il creatore originale di Pawn, con sede nei Paesi Bassi.
+- Il file `sclinux.h` proviene probabilmente da **SELinux o da un sottosistema personalizzato del kernel Linux**, facendo parte di un ambiente simile a Unix.
+- I file `getch.h` e `getch.c` sono implementazioni indipendenti compatibili con POSIX, basate su funzionalità standard come `termios` per l’input di caratteri.
+- La **SA-MP Programming Community (SPC)** non rivendica alcun diritto d’autore sul contenuto originale dell’**SA-MP SDK**, sui file di **CompuPhase**, su `sclinux.h` o su `getch.h/c`. Questo repository ha il solo scopo di facilitare l’accesso e l’organizzazione del materiale per gli sviluppatori di plugin, come consentito dall’uso equo e dalle pratiche della comunità.
 
-Questo software è concesso in licenza secondo i termini della Licenza MIT ("Licenza"); puoi utilizzare questo software in conformità con i termini della Licenza. Una copia della Licenza può essere ottenuta su: [MIT License](https://opensource.org/licenses/MIT)
+**Licenza applicabile ai miglioramenti**: Qualsiasi miglioramento, modifica o file aggiuntivo creato dalla **SA-MP Programming Community (SPC)** e incluso in questo repository è concesso in licenza secondo i termini della **Licenza MIT**. La Licenza MIT si applica esclusivamente a questi contributi specifici e non al contenuto originale dell’**SA-MP SDK**, ai file di **CompuPhase**, a `sclinux.h` o a `getch.h/c`. Una copia della Licenza MIT può essere trovata qui: [MIT License](https://opensource.org/licenses/MIT).
 
-### Termini e Condizioni d'Uso
+**Licenze dei file originali**:
+- I file `amx.h`, `amx.c`, `osdefs.h` (proprietà di **CompuPhase**) e `sclinux.h` (probabilmente proprietà di **SELinux o di un kernel personalizzato**) sono concessi in licenza sotto la **Apache License 2.0**. I dettagli della licenza possono essere trovati qui: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+- I file `getch.h` e `getch.c` sono concessi in licenza sotto la **Mozilla Public License 2.0 (MPL-2.0)**. I dettagli della licenza possono essere trovati qui: [MPL-2.0](https://www.mozilla.org/en-US/MPL/2.0/).
+- I file `amxplugin.c`, `plugin.h` e `plugincommon.h` (proprietà di **Kalcor e possibilmente membri del team SA-MP**) non hanno una licenza specificata.
 
-#### 1. Permessi Concessi
+### Termini e condizioni d’uso
 
-Questa licenza concede, gratuitamente, a chiunque ottenga una copia di questo software e dei file di documentazione associati, i seguenti diritti:
-- Utilizzare, copiare, modificare, unire, pubblicare, distribuire, sublicenziare e/o vendere copie del software senza restrizioni.
-- Permettere alle persone a cui il software è fornito di fare lo stesso, soggetto alle seguenti condizioni.
+#### 1. Ambito della licenza
+La Licenza MIT concede, gratuitamente, a qualsiasi persona che ottenga una copia dei miglioramenti o dei file aggiuntivi creati dalla **SPC**, i seguenti diritti:
+- Utilizzare, copiare, modificare, unire, pubblicare, distribuire, sublicenziare e/o vendere copie di questi contributi senza restrizioni.
+- Consentire alle persone a cui questi contributi sono forniti di fare lo stesso, soggetto alle condizioni qui sotto.
 
-#### 2. Condizioni Obbligatorie
-
-Tutte le copie o parti sostanziali del software devono includere:
-- L'avviso di copyright sopra riportato.
+#### 2. Condizioni obbligatorie
+Tutte le copie o porzioni sostanziali dei contributi della **SPC** devono includere:
+- L’avviso di copyright della **SPC** per i miglioramenti.
 - Questo avviso di permesso.
-- L'avviso di esclusione di responsabilità qui sotto.
+- L’avviso di esclusione di responsabilità qui sotto.
 
-#### 3. Diritti d'Autore
+#### 3. Diritti d’autore
+I miglioramenti e i file aggiuntivi creati dalla **SPC** sono protetti dalle leggi sul diritto d’autore, e la **SPC** mantiene la titolarità dei diritti d’autore per questi contributi specifici. I file `amxplugin.c`, `plugin.h` e `plugincommon.h` rimangono proprietà di **Kalcor e possibilmente membri del team SA-MP**. I file della **Pawn Abstract Machine (AMX)**, inclusi `osdefs.h`, rimangono proprietà di **CompuPhase**. Il file `sclinux.h` è probabilmente proprietà di **SELinux o di un sottosistema personalizzato del kernel Linux**, e `getch.h/c` è un’implementazione POSIX indipendente. Nessun diritto di paternità è rivendicato dalla **SPC** su questi contenuti originali.
 
-Il software e tutta la documentazione associata sono protetti dalle leggi sul diritto d'autore. La **SA-MP Programming Community** conserva i diritti d'autore originali del software.
+#### 4. Esclusione di garanzie e limitazione di responsabilità
+I CONTRIBUTI DELLA **SPC** SONO FORNITI “COSÌ COME SONO”, SENZA GARANZIA DI ALCUN TIPO, ESPRESSA O IMPLICITA, INCLUSE, MA NON LIMITATE A, LE GARANZIE DI COMMERCIABILITÀ, IDONEITÀ PER UNO SCOPO PARTICOLARE E NON VIOLAZIONE.
 
-#### 4. Esclusione di Garanzia e Limitazione di Responsabilità
+IN NESSUN CASO LA **SPC** O I TITOLARI DEI DIRITTI D’AUTORE DEI MIGLIORAMENTI SARANNO RESPONSABILI PER QUALSIASI RECLAMO, DANNO O ALTRA RESPONSABILITÀ, SIA IN UN’AZIONE CONTRATTUALE, DELITTUOSA O DI ALTRO TIPO, DERIVANTE DA, FUORI DA O IN CONNESSIONE CON I CONTRIBUTI DELLA **SPC** O L’USO O ALTRI RAPPORTI CON QUESTI CONTRIBUTI.
 
-IL SOFTWARE È FORNITO "COSÌ COM'È", SENZA GARANZIE DI ALCUN TIPO, ESPLICITE O IMPLICITE, INCLUSE, MA NON LIMITATE A, GARANZIE DI COMMERCIABILITÀ, IDONEITÀ PER UNO SCOPO PARTICOLARE E NON VIOLAZIONE.
-
-IN NESSUN CASO GLI AUTORI O I TITOLARI DEI DIRITTI D'AUTORE SARANNO RESPONSABILI PER QUALSIASI RECLAMO, DANNO O ALTRA RESPONSABILITÀ, SIA IN UN'AZIONE DI CONTRATTO, ILLECITO O ALTRO, DERIVANTE DA, FUORI O IN CONNESSIONE CON IL SOFTWARE O L'USO O ALTRE OPERAZIONI NEL SOFTWARE.
+**Nota sui file originali**: Gli utenti sono responsabili di garantire che l’uso dei file dell’**SA-MP SDK** sia conforme alle licenze applicabili:
+- Per `amx.h`, `amx.c`, `osdefs.h` e `sclinux.h`, seguire i termini della **Apache License 2.0**.
+- Per `getch.h` e `getch.c`, seguire i termini della **Mozilla Public License 2.0 (MPL-2.0)**.
+- Per `amxplugin.c`, `plugin.h` e `plugincommon.h`, poiché non hanno una licenza specificata, gli utenti devono garantire la conformità con eventuali termini stabiliti da **Kalcor e possibilmente membri del team SA-MP** o con le leggi applicabili. La **SPC** non offre garanzie né assume responsabilità per l’uso di questi contenuti originali.
 
 ---
 
-Per informazioni dettagliate sulla Licenza MIT, consulta: https://opensource.org/licenses/MIT
+Per informazioni dettagliate sulla Licenza MIT, consulta: [MIT License](https://opensource.org/licenses/MIT)
