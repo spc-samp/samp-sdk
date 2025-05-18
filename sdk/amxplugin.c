@@ -1,3 +1,14 @@
+/*  SA:MP Multiplayer Modification For GTA:SA
+ *
+ *  Copyright (c) SA:MP Team, 2004-2007
+ *
+ *  Copyright (c) SPC (SA-MP Programming Community)
+ *  The SA-MP Programming Community holds copyright solely for the improvements
+ *  made to this file and does not claim any rights to the original content.
+ *  SPC improvements are licensed under the MIT License, available at:
+ *  https://opensource.org/licenses/MIT
+ */
+
 #include "plugin.h"
 
 static void *pAMXFunctions = NULL;
