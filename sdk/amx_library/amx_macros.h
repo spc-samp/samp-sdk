@@ -34,58 +34,50 @@
 
     #include "amx_structures.h"
 
-    // Utility macros
     #if !defined arraysize
         #define arraysize(array)  (sizeof(array) / sizeof((array)[0]))
     #endif
 
-    // Address calculation
     #define amx_Address(amx,addr) \
         (cell*)(((uintptr_t)((amx)->data ? (amx)->data : (amx)->base+(int)((AMX_HEADER *)(amx)->base)->dat)) + ((uintptr_t)(addr)))
 
-    // String parameter handling
-    #if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
-        #define amx_StrParam_Type(amx,param,result,type) \
+    #ifdef __cplusplus
+        #define amx_StrParam_Type(amx, param, result, type) \
             do { \
+                cell* amx_addr_ = amx_Address(amx, param); \
                 int result##_length_; \
-                amx_StrLen(amx_Address(amx,param),&result##_length_); \
-                char result##_vla_[(result##_length_+1)*sizeof(*(result))]; \
-                (result)=(type)result##_vla_; \
-                amx_GetString((char*)(result),amx_Address(amx,param), \
-                            sizeof(*(result))>1,result##_length_+1); \
-            } while(0)
-        #define amx_StrParam(amx,param,result) amx_StrParam_Type(amx,param,result,void*)
+                amx_StrLen(amx_addr_, &result##_length_); \
+                if (result##_length_ > 0) { \
+                    void* mem_block_ = alloca((result##_length_ + 1) * sizeof(*(result))); \
+                    if (mem_block_ != NULL) { \
+                        result = static_cast<type>(mem_block_); \
+                        amx_GetString(reinterpret_cast<char*>(result), amx_addr_, sizeof(*(result)) > 1, result##_length_ + 1); \
+                    } \
+                    else \
+                        result = NULL; \
+                } \
+                else \
+                    result = NULL; \
+            } \
+            while (0)
     #else
         #define amx_StrParam_Type(amx,param,result,type) \
             do { \
                 int result##_length_; \
                 amx_StrLen(amx_Address(amx,param),&result##_length_); \
-                if (result##_length_>0 && \
-                    ((result)=(type)alloca((result##_length_+1)*sizeof(*(result))))!=NULL) \
-                amx_GetString((char*)(result),amx_Address(amx,param), \
-                                sizeof(*(result))>1,result##_length_+1); \
+                if (result##_length_ > 0 && \
+                    ((result)=(type)alloca((result##_length_ + 1) * sizeof(*(result)))) != NULL) \
+                amx_GetString((char*)(result), amx_Address(amx,param), \
+                                sizeof(*(result)) > 1, result##_length_ + 1); \
                 else (result)=NULL; \
-            } while(0)
-        #define amx_StrParam(amx,param,result) amx_StrParam_Type(amx,param,result,void*)
+            } \
+            while (0)
     #endif
 
-    // Enhanced string parameter handling for char*
-    #define amx_StrParamChar(amx, param, result) \
-        do { \
-            cell* amx_cstr_; \
-            int amx_length_; \
-            amx_GetAddr((amx), (param), &amx_cstr_); \
-            amx_StrLen(amx_cstr_, &amx_length_); \
-            if (amx_length_ > 0 && ((result) = (char*)alloca((amx_length_ + 1) * sizeof(*(result)))) != NULL) \
-                amx_GetString((char*)(result), amx_cstr_, sizeof(*(result)) > 1, amx_length_ + 1); \
-            else \
-                (result) = ""; \
-        } while(0)
+    #define amx_StrParam(amx,param,result) amx_StrParam_Type(amx,param,result,char*)
 
-    // Parameter count utility
     #define amx_NumParams(params) ((params)[0] / (cell)sizeof(cell))
 
-    // Function registration helper
     #define amx_RegisterFunc(amx, name, func) \
         amx_Register((amx), amx_NativeInfo((name),(func)), 1)
 #endif
