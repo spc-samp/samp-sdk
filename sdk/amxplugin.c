@@ -11,7 +11,7 @@
 
 #include "plugin.h"
 
-static void *pAMXFunctions = NULL;
+void *pAMXFunctions = NULL;
 
 #if (defined(WIN32) || defined(_WIN32)) && defined(_MSC_VER) && !defined(__64BIT__)
     #define NUDE __declspec(naked)
