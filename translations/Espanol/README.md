@@ -1,16 +1,15 @@
-# samp-sdk
+# SAMP SDK
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Language](https://img.shields.io/badge/Language-C-00599C.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
-[![SDK](https://img.shields.io/badge/SA--MP-SDK-orange.svg)](https://github.com/spc-samp/samp-sdk)
-[![Platform Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)](https://github.com/spc-samp/samp-sdk)
-[![Platform Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)](https://github.com/spc-samp/samp-sdk)
-[![Platform FreeBSD](https://img.shields.io/badge/FreeBSD-AB2B28?style=flat&logo=freebsd&logoColor=white)](https://github.com/spc-samp/samp-sdk)
-[![AMX](https://img.shields.io/badge/AMX-Powered-yellow.svg)](https://github.com/spc-samp/samp-sdk)
-[![Native Support](https://img.shields.io/badge/Natives-Supported-success.svg)](https://github.com/spc-samp/samp-sdk)
-[![Memory Safe](https://img.shields.io/badge/Memory-Safe-red.svg)](https://github.com/spc-samp/samp-sdk)
+<div align="center">
 
-El SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) es una colección integral de archivos C, headers y componentes que permiten a los desarrolladores crear plugins para el servidor SA-MP. Este SDK proporciona una base para extender la funcionalidad del servidor SA-MP a través de funciones nativas, permitiendo a los desarrolladores implementar características más allá de lo disponible en los scripts Pawn.
+![C++](https://img.shields.io/badge/C%2B%2B-14/17/20-00599C?style=for-the-badge&logo=cplusplus)
+![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-blue?style=for-the-badge&logo=windows&logoColor=white)
+![Architecture](https://img.shields.io/badge/Architecture-x86%20(32--bit)-lightgrey?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+
+**Un SDK C++ moderno, header-only y de alto nivel para el desarrollo de plugins y módulos para SA-MP.**
+
+</div>
 
 ## Idiomas
 
@@ -26,907 +25,1224 @@ El SA-MP (San Andreas Multiplayer) Software Development Kit (SDK) es una colecci
 
 ## Índice
 
-- [samp-sdk](#samp-sdk)
+- [SAMP SDK](#samp-sdk)
   - [Idiomas](#idiomas)
   - [Índice](#índice)
-  - [Componentes Principales](#componentes-principales)
-    - [Sistema AMX](#sistema-amx)
-      - [Headers AMX Principales](#headers-amx-principales)
-    - [Soporte de Plataformas](#soporte-de-plataformas)
-    - [Sistema de Plugins](#sistema-de-plugins)
-      - [plugincommon.h](#plugincommonh)
-      - [amxplugin.c](#amxpluginc)
-    - [Funciones Nativas AMX](#funciones-nativas-amx)
-  - [Detalles Técnicos](#detalles-técnicos)
-    - [Gestión de Memoria](#gestión-de-memoria)
-    - [Operaciones de Memoria](#operaciones-de-memoria)
-    - [Manejo de Errores](#manejo-de-errores)
-    - [Manejo de Strings](#manejo-de-strings)
-    - [Operaciones de Strings](#operaciones-de-strings)
-  - [Soporte Unicode](#soporte-unicode)
-    - [Operaciones Unicode](#operaciones-unicode)
-  - [Compatibilidad Multiplataforma](#compatibilidad-multiplataforma)
-  - [Requisitos del Sistema](#requisitos-del-sistema)
-    - [Soporte de Compiladores](#soporte-de-compiladores)
-  - [Mejores Prácticas](#mejores-prácticas)
-  - [Estructuras Internas](#estructuras-internas)
-    - [Estructura del Header AMX](#estructura-del-header-amx)
-  - [Características Avanzadas](#características-avanzadas)
-    - [Soporte de Compilación JIT](#soporte-de-compilación-jit)
-    - [Interfaz de Depuración](#interfaz-de-depuración)
-    - [Interfaz de Funciones Públicas](#interfaz-de-funciones-públicas)
-  - [Información de Versión](#información-de-versión)
-    - [Compatibilidad de Versiones](#compatibilidad-de-versiones)
+  - [1. Introducción y Filosofía de Diseño](#1-introducción-y-filosofía-de-diseño)
+    - [El Problema con la API C Estándar de SA-MP](#el-problema-con-la-api-c-estándar-de-sa-mp)
+    - [La Solución del SAMP SDK: Abstracción con Seguridad y Performance](#la-solución-del-samp-sdk-abstracción-con-seguridad-y-performance)
+    - [Modelo Header-Only: Ventajas e Implicaciones](#modelo-header-only-ventajas-e-implicaciones)
+  - [2. Configuración y Ambiente](#2-configuración-y-ambiente)
+    - [Requisitos de Compilación](#requisitos-de-compilación)
+    - [Estructura de Archivos Recomendada](#estructura-de-archivos-recomendada)
+    - [Macros Esenciales de Configuración\*\*](#macros-esenciales-de-configuración)
+      - [`SAMP_SDK_IMPLEMENTATION`](#samp_sdk_implementation)
+      - [`SAMP_SDK_WANT_AMX_EVENTS`](#samp_sdk_want_amx_events)
+      - [`SAMP_SDK_WANT_PROCESS_TICK`](#samp_sdk_want_process_tick)
+    - [Definiciones y Constantes del SA-MP (`samp_defs.hpp`)](#definiciones-y-constantes-del-sa-mp-samp_defshpp)
+  - [3. Guía de Uso Abrangente de la API](#3-guía-de-uso-abrangente-de-la-api)
+    - [3.1. El Ciclo de Vida del Plugin](#31-el-ciclo-de-vida-del-plugin)
+      - [`bool OnLoad()`](#bool-onload)
+      - [`void OnUnload()`](#void-onunload)
+      - [`unsigned int GetSupportFlags()`](#unsigned-int-getsupportflags)
+      - [`void OnAmxLoad(AMX* amx)`](#void-onamxloadamx-amx)
+      - [`void OnAmxUnload(AMX* amx)`](#void-onamxunloadamx-amx)
+      - [`void OnProcessTick()`](#void-onprocesstick)
+    - [3.2. `Plugin_Public`: Interceptando Eventos del Pawn](#32-plugin_public-interceptando-eventos-del-pawn)
+      - [Sintaxis y Declaración](#sintaxis-y-declaración)
+      - [Marshalling Automático de Parámetros](#marshalling-automático-de-parámetros)
+      - [Control de Flujo: `PLUGIN_PUBLIC_CONTINUE` vs `PLUGIN_PUBLIC_STOP`](#control-de-flujo-plugin_public_continue-vs-plugin_public_stop)
+    - [3.3. `Plugin_Native`: Creando Funciones Nativas en C++](#33-plugin_native-creando-funciones-nativas-en-c)
+      - [Sintaxis y Firma Fija](#sintaxis-y-firma-fija)
+      - [Registro Automático de Nativas](#registro-automático-de-nativas)
+      - [Extracción de Parámetros: `Register_Parameters` vs. `Native_Params`](#extracción-de-parámetros-register_parameters-vs-native_params)
+        - [`Register_Parameters(...)`](#register_parameters)
+        - [`Native_Params` (API Completa: `Get`, `Get_REF`, `Set_REF`)](#native_params-api-completa-get-get_ref-set_ref)
+          - [`p.Count()`](#pcount)
+          - [`p.Get<T>(size_t index)`](#pgettsize_t-index)
+          - [`p.Get_REF<T>(size_t index, T& out_value)`](#pget_reftsize_t-index-t-out_value)
+          - [`p.Get_REF<T>(size_t index)` (C++17+)](#pget_reftsize_t-index-c17)
+          - [`p.Set_REF<T>(size_t index, T value)`](#pset_reftsize_t-index-t-value)
+      - [Retorno de Valores](#retorno-de-valores)
+    - [3.4. `Pawn_*` Macros: Llamando Funciones del Pawn a Partir de C++](#34-pawn_-macros-llamando-funciones-del-pawn-a-partir-de-c)
+      - [`Pawn_Native(NomeDaNativa, ...)`](#pawn_nativenomedanativa-)
+      - [`Pawn_Public(NomeDaPublic, ...)`](#pawn_publicnomedapublic-)
+      - [`Pawn(NomeDaFuncao, ...)`](#pawnnomedafuncao-)
+      - [Sintaxis y Convenciones](#sintaxis-y-convenciones)
+      - [Marshalling de Parámetros de Entrada](#marshalling-de-parámetros-de-entrada)
+      - [Marshalling de Parámetros de Salida (Referencias: `int&`, `float&`, `std::string&`)](#marshalling-de-parámetros-de-salida-referencias-int-float-stdstring)
+      - [El Objeto `Callback_Result`: Análisis Completo](#el-objeto-callback_result-análisis-completo)
+    - [3.5. `Plugin_Module`: Gestión de Módulos Dinámicos](#35-plugin_module-gestión-de-módulos-dinámicos)
+      - [Sintaxis y Propósito](#sintaxis-y-propósito)
+      - [Ciclo de Vida de un Módulo](#ciclo-de-vida-de-un-módulo)
+      - [Beneficios de la Modularización](#beneficios-de-la-modularización)
+    - [3.6. `Plugin_Call`: Llamando Nativas Internas del Plugin](#36-plugin_call-llamando-nativas-internas-del-plugin)
+      - [Sintaxis y Ventajas de Performance](#sintaxis-y-ventajas-de-performance)
+    - [**3.7. Funciones Utilitarias del SDK**](#37-funciones-utilitarias-del-sdk)
+      - [`Samp_SDK::Log(const char* format, ...)`](#samp_sdklogconst-char-format-)
+      - [`std::string Plugin_Format(const char* format, ...)` (Recomendado)](#stdstring-plugin_formatconst-char-format--recomendado)
+      - [`std::string Samp_SDK::Format(const char* format, ...)` (Detalle de Implementación)](#stdstring-samp_sdkformatconst-char-format--detalle-de-implementación)
+      - [`std::string Samp_SDK::Get_String(AMX* amx, cell amx_addr)`](#stdstring-samp_sdkget_stringamx-amx-cell-amx_addr)
+  - [4. **Anatomía Interna y Arquitectura del SDK**](#4-anatomía-interna-y-arquitectura-del-sdk)
+    - [4.1. `core.hpp`: La Fundación Minimalista](#41-corehpp-la-fundación-minimalista)
+    - [**4.2. `platform.hpp` y `version.hpp`: Compatibilidad y Metadatos**](#42-platformhpp-y-versionhpp-compatibilidad-y-metadatos)
+    - [4.3. `function_hook.hpp`: El Motor de Interceptación x86](#43-function_hookhpp-el-motor-de-interceptación-x86)
+    - [4.4. `interceptor_manager.hpp`: El Controlador de Hooks del AMX](#44-interceptor_managerhpp-el-controlador-de-hooks-del-amx)
+    - [4.5. `amx_manager.hpp`: Gestionando Instancias `AMX*`](#45-amx_managerhpp-gestionando-instancias-amx)
+    - [4.6. `public_dispatcher.hpp`: El Enrutador de Callbacks `Plugin_Public`](#46-public_dispatcherhpp-el-enrutador-de-callbacks-plugin_public)
+    - [4.7. `native.hpp`: Gestionando y Llamando Nativas del Plugin](#47-nativehpp-gestionando-y-llamando-nativas-del-plugin)
+    - [4.8. `callbacks.hpp` \& `amx_memory.hpp`: Llamadas C++ -\> Pawn y RAII](#48-callbackshpp--amx_memoryhpp-llamadas-c---pawn-y-raii)
+    - [4.9. `amx_api.hpp` \& `amx_helpers.hpp` \& `amx_defs.h`: Acceso Abstraído a la AMX](#49-amx_apihpp--amx_helpershpp--amx_defsh-acceso-abstraído-a-la-amx)
+  - [5. Compilación y Deploy](#5-compilación-y-deploy)
+    - [Requisitos de Arquitectura y Plataforma](#requisitos-de-arquitectura-y-plataforma)
+    - [Ejemplos de Comandos de Compilación](#ejemplos-de-comandos-de-compilación)
+      - [**MSVC (Visual Studio)**](#msvc-visual-studio)
+      - [**GCC / Clang (Linux)**](#gcc--clang-linux)
+      - [**GCC / Clang (MinGW en Windows)**](#gcc--clang-mingw-en-windows)
+    - [Consideraciones para la Distribución](#consideraciones-para-la-distribución)
   - [Licencia](#licencia)
     - [Términos y Condiciones de Uso](#términos-y-condiciones-de-uso)
-      - [1. Alcance de la Licencia](#1-alcance-de-la-licencia)
+      - [1. Permisos Otorgados](#1-permisos-otorgados)
       - [2. Condiciones Obligatorias](#2-condiciones-obligatorias)
       - [3. Derechos de Autor](#3-derechos-de-autor)
       - [4. Exención de Garantías y Limitación de Responsabilidad](#4-exención-de-garantías-y-limitación-de-responsabilidad)
 
-## Componentes Principales
+## 1. Introducción y Filosofía de Diseño
 
-### Sistema AMX
+### El Problema con la API C Estándar de SA-MP
 
-El AMX (Abstract Machine eXecutor) es la máquina virtual que ejecuta scripts Pawn en SA-MP. El SDK proporciona soporte extenso para interactuar con el sistema AMX a través de varios archivos C y headers.
+La API de plugins de SA-MP es una interfaz de programación en C. Aunque funcional y fundamental, presenta los desafíos inherentes a la programación de bajo nivel:
+- **Gestión Manual de Memoria:** Funciones como `amx_Allot` y `amx_Release` exigen que el desarrollador asigne y desasigne explícitamente la memoria en la heap de la AMX. Esto es una fuente común de fugas de memoria y fallos de runtime.
+- **Tipado Débil y Conversiones Manuales:** Los parámetros se pasan como un array de `cell`s, forzando conversiones explícitas (y muchas veces inseguras) entre `cell`, `int`, `float`, y `char*`.
+- **Verbosidad y Boilerplate:** Extraer múltiples parámetros de un array `cell* params`, lidiar con tamaños de strings, y gestionar la stack de la AMX para llamadas de retorno C++ a Pawn exige código repetitivo.
+- **Fragilidad de la Interfaz:** La falta de verificación en tiempo de compilación (type safety) significa que los errores en la pasada de parámetros o tipos pueden pasar desapercibidos hasta la ejecución, causando crashes o comportamientos indefinidos.
 
-#### Headers AMX Principales
+### La Solución del SAMP SDK: Abstracción con Seguridad y Performance
 
-1. **amx.h**
+El SAMP SDK aborda estos problemas proporcionando una poderosa capa de abstracción en C++:
+- **RAII (Resource Acquisition Is Initialization):** Gestión automática de memoria en la AMX. `Amx_Scoped_Memory` garantiza que la memoria asignada sea liberada.
+- **Seguridad de Tipos:** Conversión automática y segura de parámetros entre C++ y Pawn. Usted maneja `int`, `float`, `std::string` directamente.
+- **Sintaxis Concisa e Idiomática:** Macros y plantillas proporcionan una API limpia que se asemeja más al C++ moderno que a la API C tradicional.
+- **Interceptación Robusta:** Un motor de hooking avanzado permite la interceptación transparente de callbacks del Pawn (`Plugin_Public`) y el registro dinámico de nativas.
+- **Alto Rendimiento:** Uso extensivo de hashing en tiempo de compilación (FNV1a), caché de funciones y optimizaciones de `thread_local` para minimizar la sobrecarga de las abstracciones.
 
-    El header principal que consolida toda la funcionalidad relacionada con AMX:
-    - Funciones principales para la ejecución de scripts
-    - Gestión de memoria
-    - Registro de funciones nativas
-    - Manejo de strings
-    - Soporte UTF-8
+### Modelo Header-Only: Ventajas e Implicaciones
 
-    Funciones clave incluyen:
-    ```c
-    int AMXAPI amx_Init(AMX* amx, void* program);         // Inicializa una instancia AMX
-    int AMXAPI amx_Exec(AMX* amx, cell* retval, int index); // Ejecuta una función pública
-    int AMXAPI amx_Register(AMX* amx, const AMX_NATIVE_INFO* nativelist, int number); // Registra funciones nativas
-    ```
+El SDK está compuesto exclusivamente por archivos de cabecera (`.hpp`, `.h`).
+- **Ventajas:**
+   - **Integración Simplificada:** No hay bibliotecas para construir, vincular o distribuir. Basta con incluir los headers.
+   - **Optimizaciones del Compilador:** El compilador tiene visibilidad completa del código del SDK y de su plugin, permitiendo inlining agresivo y optimizaciones en tiempo de enlazado, lo que puede resultar en binarios más rápidos.
+- **Implicaciones:**
+   - **Tiempo de Compilación:** Para proyectos muy grandes, la compilación puede llevar más tiempo debido a la inclusión repetida del código del SDK. Esto se mitiga con guardas de inclusión y por la naturaleza de "incluir solo lo que es necesario" de C++.
+   - **Macros de Implementación:** La necesidad de la macro `SAMP_SDK_IMPLEMENTATION` es una consecuencia del modelo header-only para evitar redefiniciones de símbolos.
 
-2. **amx_platform.h**
+## 2. Configuración y Ambiente
 
-    Responsable de la detección y configuración de plataformas:
-    ```c
-    #if (defined __linux || defined __linux__) && !defined __LINUX__
-        #define __LINUX__
-    #endif
-    #if defined FREEBSD && !defined __FreeBSD__
-        #define __FreeBSD__
-    #endif
-    ```
-    - Detecta sistemas como Linux, FreeBSD, OpenBSD y macOS.
-    - Incluye `sclinux.h` para sistemas tipo Unix.
-    - Identifica arquitecturas de 64 bits:
-      ```c
-      #if defined _LP64 || defined WIN64 || defined _WIN64
-          #define __64BIT__
+### Requisitos de Compilación
+
+- **Compilador C++:** Compatible con C++14 o superior (el SDK utiliza características de C++14, C++17 y C++20 para optimizaciones específicas, pero C++14 es el mínimo).
+   - GCC (versión 7+)
+   - Clang (versión 5+)
+   - MSVC (Visual Studio 2015/2017/2019/2022)
+- **Arquitectura:** **x86 (32-bit)**. SA-MP opera exclusivamente en esta arquitectura. El SDK incluye verificaciones en `platform.hpp` que emitirán errores de compilación si se detecta la arquitectura incorrecta.
+- **Sistema Operativo:** Windows o Linux.
+
+### Estructura de Archivos Recomendada
+
+Para mayor claridad y organización, es común organizar el SDK en una subcarpeta `samp-sdk`.
+
+```
+meu_plugin/
+├── samp-sdk/
+│   ├── // Outros arquivos do SDK
+│   └── samp_sdk.hpp             // O principal header a ser incluído
+│
+├── src/
+│   ├── main.cpp                  // Onde SAMP_SDK_IMPLEMENTATION é definido
+│   └── my_custom_logic.cpp       // Opcional, para organizar código
+│
+└── CMakeLists.txt (ou .vcxproj, Makefile)
+```
+
+### Macros Esenciales de Configuración**
+
+Siempre defina estas macros *antes* de incluir `samp_sdk.hpp`.
+
+#### `SAMP_SDK_IMPLEMENTATION`
+
+- **Propósito:** Señala al compilador que este archivo `.cpp` debe generar las implementaciones de las funciones de exportación del plugin (`Supports`, `Load`, `Unload`, `AmxLoad`, `AmxUnload`, `ProcessTick`). **El SDK se encarga de la exportación de estas funciones automáticamente, eliminando la necesidad de archivos `.def` (en Windows) o declaraciones `__attribute__((visibility("default")))` (en Linux) para estas funciones.**
+- **Impacto Técnico:** Sin esta macro, el enlazador no encontrará las exportaciones necesarias, y el servidor SA-MP no podrá cargar su plugin.
+- **Regla Fundamental:** **Defina esta macro en SOLO UN archivo `.cpp` en todo su proyecto.** Definirla en más de un archivo causará un error de enlazado de "símbolo duplicado".
+
+```cpp
+// main.cpp
+#define SAMP_SDK_IMPLEMENTATION // A macro faz o SDK exportar as funções necessárias automaticamente.
+#include "samp-sdk/samp_sdk.hpp"
+
+// ... seu código de plugin ...
+```
+
+#### `SAMP_SDK_WANT_AMX_EVENTS`
+
+- **Propósito:** Habilita las funcionalidades del SDK relacionadas con la interacción con el entorno de la AMX (máquina virtual de Pawn).
+- **Funcionalidades Activadas:**
+   - Declaración y registro de nativas C++ usando `Plugin_Native`.
+   - Callbacks `OnAmxLoad(AMX* amx)` y `OnAmxUnload(AMX* amx)`.
+   - La macro `Plugin_Call` para invocar nativas del propio plugin.
+- **Impacto Técnico:** Cuando esta macro se define, el SDK recolecta automáticamente todas sus `Plugin_Native`s. En la función `Supports()`, la flag `SUPPORTS_AMX_NATIVES` se añade automáticamente.
+- **Flexibilidad:** **Puede definir esta macro en múltiples archivos `.cpp`**. El sistema de registro estático del SDK (`Native_Registrar`) consolidará todas las nativas de diferentes unidades de compilación en una única lista global.
+
+```cpp
+// my_natives.cpp (pode ser um arquivo separado do main.cpp)
+#define SAMP_SDK_WANT_AMX_EVENTS // Apenas para habilitar Plugin_Native
+#include "samp-sdk/samp_sdk.hpp"
+
+Plugin_Native(MyCustomNative, AMX* amx, cell* params) {
+    // ...
+    return 0;
+}
+```
+
+#### `SAMP_SDK_WANT_PROCESS_TICK`
+
+- **Propósito:** Habilita el callback `OnProcessTick()`, que es invocado regularmente por el servidor.
+- **Impacto Técnico:** Añade automáticamente la flag `SUPPORTS_PROCESS_TICK` en la función `Supports()`.
+
+```cpp
+// main.cpp
+#define SAMP_SDK_IMPLEMENTATION
+#define SAMP_SDK_WANT_PROCESS_TICK
+#include "samp-sdk/samp_sdk.hpp"
+
+void OnProcessTick() {
+    // Lógica executada a cada "tick" do servidor (ex: 20ms)
+    // Cuidado com operações pesadas aqui!
+}
+```
+
+### Definiciones y Constantes del SA-MP (`samp_defs.hpp`)
+
+Este archivo proporciona todas las constantes y límites conocidos del SA-MP, como `MAX_PLAYERS`, `INVALID_PLAYER_ID`, `PLAYER_STATE_ONFOOT`, `WEAPON_DEAGLE`, `DIALOG_STYLE_LIST`, etc. Se incluye automáticamente por `samp_sdk.hpp` y debe usarse para garantizar la compatibilidad y legibilidad del código.
+
+## 3. Guía de Uso Abrangente de la API
+
+### 3.1. El Ciclo de Vida del Plugin
+
+Las siguientes funciones son los puntos de entrada y salida de su plugin, exportadas automáticamente por el SDK.
+
+#### `bool OnLoad()`
+
+- **Descripción:** Primera función llamada por el servidor SA-MP después de la carga exitosa de su plugin en memoria.
+- **Uso:** Ideal para inicializar cualquier sistema, cargar configuraciones, abrir conexiones con bases de datos o cargar módulos (`Plugin_Module`).
+- **Retorno:**
+   - `true`: El plugin se inicializó con éxito y la carga continúa.
+   - `false`: El plugin falló al inicializar. La carga se abortará y el plugin se descargará.
+
+```cpp
+// main.cpp
+bool OnLoad() {
+    Samp_SDK::Log("Inicializando MeuPlugin v1.0...");
+
+    // Exemplo: Carregar um módulo (mais detalhes na seção 3.5)
+    if (!Plugin_Module("my_database_module", "plugins/db_connector", "Módulo de Banco de Dados carregado.")) {
+        Samp_SDK::Log("ERRO: Falha ao carregar o módulo de banco de dados!");
+
+        return false; // Aborta o carregamento do plugin principal
+    }
+
+    return true;
+}
+```
+
+#### `void OnUnload()`
+
+- **Descripción:** Última función llamada por el servidor SA-MP antes de descargar su plugin de la memoria.
+- **Uso:** Ideal para limpiar recursos, cerrar conexiones, guardar estados y asegurar que no se filtren recursos. El SDK gestiona la descarga de módulos (`Plugin_Module`) automáticamente.
+
+```cpp
+// main.cpp
+void OnUnload() {
+    Samp_SDK::Log("MeuPlugin descarregado. Liberando recursos...");
+    // Nenhuma ação manual é necessária para módulos carregados via Plugin_Module;
+    // o SDK cuida disso.
+}
+```
+
+#### `unsigned int GetSupportFlags()`
+
+- **Descripción:** Informa al servidor SA-MP qué recursos soporta y desea usar su plugin.
+- **Uso:** **Siempre devuelva `SUPPORTS_VERSION` (o `SAMP_PLUGIN_VERSION`).** Las otras flags (`SUPPORTS_AMX_NATIVES`, `SUPPORTS_PROCESS_TICK`) son añadidas automáticamente por el SDK si las macros `SAMP_SDK_WANT_AMX_EVENTS` y `SAMP_SDK_WANT_PROCESS_TICK` están definidas. Esto simplifica el mantenimiento y evita errores.
+
+```cpp
+// main.cpp
+unsigned int GetSupportFlags() {
+    return SUPPORTS_VERSION; // O SDK adiciona as flags necessárias automaticamente.
+}
+```
+
+#### `void OnAmxLoad(AMX* amx)`
+
+- **Requiere:** `SAMP_SDK_WANT_AMX_EVENTS`
+- **Descripción:** Se llama siempre que se carga e inicializa un nuevo script Pawn (un Gamemode o Filterscript) en el servidor.
+- **Uso:** Si necesita lógica específica para cada script AMX, como registrar nativas personalizadas (aunque `Plugin_Native` lo hace automáticamente), o inicializar datos específicos por script.
+
+```cpp
+// main.cpp (com SAMP_SDK_WANT_AMX_EVENTS definido)
+void OnAmxLoad(AMX* amx) {
+    // amx representa a nova instância do script carregado.
+    // Você pode, por exemplo, chamar uma public específica neste script:
+    // Pawn_Public_OnAmx("OnMyPluginLoaded", amx); // Exemplo hipotético de uma API mais avançada.
+    Samp_SDK::Log("Script AMX carregado: %p", (void*)amx);
+}
+```
+
+#### `void OnAmxUnload(AMX* amx)`
+
+- **Requiere:** `SAMP_SDK_WANT_AMX_EVENTS`
+- **Descripción:** Se llama cuando un script Pawn se descarga del servidor.
+- **Uso:** Para limpiar cualquier recurso específico que haya asignado o asociado a ese `AMX*` en particular.
+
+```cpp
+// main.cpp (com SAMP_SDK_WANT_AMX_EVENTS definido)
+void OnAmxUnload(AMX* amx) {
+    Samp_SDK::Log("Script AMX descarregado: %p", (void*)amx);
+}
+```
+
+#### `void OnProcessTick()`
+
+- **Requiere:** `SAMP_SDK_WANT_PROCESS_TICK`
+- **Descripción:** Se llama repetidamente en cada "tick" del servidor (generalmente 20 veces por segundo, o cada 50ms).
+- **Uso:** Para lógica de fondo continua, temporizadores, actualizaciones de estado que no dependen de eventos de jugador, o sincronización de datos.
+- **Cuidado:** Evite operaciones de bloqueo o computacionalmente pesadas aquí, ya que pueden causar lag en el servidor.
+
+```cpp
+// main.cpp (com SAMP_SDK_WANT_PROCESS_TICK definido)
+static int tick_count = 0;
+
+void OnProcessTick() {
+    tick_count++;
+
+    if (tick_count % 200 == 0) // A cada 10 segundos (20 ticks/seg * 10 seg = 200 ticks)
+        Samp_SDK::Log("Servidor ativo por %d segundos.", tick_count / 20);
+}
+```
+
+### 3.2. `Plugin_Public`: Interceptando Eventos del Pawn
+
+La macro `Plugin_Public` es el puente principal para recibir callbacks del Pawn en su código C++.
+
+#### Sintaxis y Declaración
+
+- `Plugin_Public(NomeDaPublic, Tipo1 Param1, Tipo2 Param2, ...)`
+- El nombre de la función C++ que usted declara **debe ser el mismo** del callback Pawn (ej: `OnPlayerConnect`).
+- Los tipos de parámetros C++ (`int`, `float`, `std::string`) son automáticamente convertidos por el SDK.
+
+```cpp
+// Intercepta OnPlayerText(playerid, text[])
+Plugin_Public(OnPlayerText, int playerid, std::string text) {
+    // ...
+}
+```
+
+#### Marshalling Automático de Parámetros
+
+El SDK automáticamente maneja la lectura de la `cell stack` de la AMX y la conversión a los tipos C++ especificados:
+- `int`: Convertido directamente de `cell`.
+- `float`: Convertido de `cell` usando `amx::AMX_CTOF`.
+- `std::string`: El SDK lee la dirección de la string en la AMX, asigna un `std::string` en C++ y copia el contenido.
+
+#### Control de Flujo: `PLUGIN_PUBLIC_CONTINUE` vs `PLUGIN_PUBLIC_STOP`
+
+El valor devuelto por su función `Plugin_Public` es crucial y determina el flujo de ejecución del callback:
+- `return PLUGIN_PUBLIC_CONTINUE;` (valor `1`): Indica que la ejecución del callback debe **continuar**. Si hay otros plugins que también interceptan este callback, serán llamados. Luego, la `public` original en el script Pawn será invocada.
+- `return PLUGIN_PUBLIC_STOP;` (valor `0`): Indica que la ejecución del callback debe ser **interrumpida**. Ningún otro plugin o la `public` original en el script Pawn será invocado para este evento. Esto es ideal para implementar un sistema que "sobrescribe" o "bloquea" un comportamiento estándar de SA-MP.
+
+```cpp
+// main.cpp
+Plugin_Public(OnPlayerCommandText, int playerid, std::string cmdtext) {
+    if (cmdtext == "/freeze") {
+        Pawn_Native(TogglePlayerControllable, playerid, 0); // Congela o jogador
+        Pawn_Native(SendClientMessage, playerid, -1, Pawn_Format("Jogador %d congelado.", playerid));
+
+        return PLUGIN_PUBLIC_STOP; // Impede que o comando seja processado por outros scripts.
+    }
+
+    return PLUGIN_PUBLIC_CONTINUE; // Permite que outros comandos sejam processados.
+}
+```
+
+### 3.3. `Plugin_Native`: Creando Funciones Nativas en C++
+
+`Plugin_Native` le permite extender la funcionalidad de Pawn con código C++ de alto rendimiento.
+
+#### Sintaxis y Firma Fija
+
+- `Plugin_Native(NomeDaNativa, AMX* amx, cell* params)`
+- La función C++ debe tener exactamente esta firma: `cell NomeDaNativa(AMX* amx, cell* params)`.
+- `NomeDaNativa` es el nombre que usarán los scripts Pawn.
+
+```cpp
+// Pawn: native GetPlayerPingAverage(playerid);
+Plugin_Native(GetPlayerPingAverage, AMX* amx, cell* params) {
+    // ... Implementação ...
+    return 0;
+}
+```
+
+#### Registro Automático de Nativas
+
+> [!NOTE]
+> Usted **no necesita** llamar a `amx_Register` manualmente. El SDK detecta todas sus `Plugin_Native`s (en cualquier archivo `.cpp` con `SAMP_SDK_WANT_AMX_EVENTS`) y las registra automáticamente en cada script AMX cargado (`OnAmxLoad`).
+
+#### Extracción de Parámetros: `Register_Parameters` vs. `Native_Params`
+
+##### `Register_Parameters(...)`
+
+- **Descripción:** Un ayudante más simple para extraer múltiples parámetros secuencialmente.
+- **Uso:** `Register_Parameters(variable1, variable2, ...)`
+- **Limitaciones:** Para parámetros de entrada. No maneja parámetros opcionales o acceso por índice.
+- **Tipos Soportados:** `int`, `float`, `std::string`.
+
+```cpp
+// Pawn: native SetPlayerSkinAndMoney(playerid, skinid, money);
+Plugin_Native(SetPlayerSkinAndMoney, AMX* amx, cell* params) {
+    int playerid, skinid, money;
+    Register_Parameters(playerid, skinid, money); // Extrai os 3 parâmetros
+    
+    Pawn_Native(SetPlayerSkin, playerid, skinid);
+    Pawn_Native(GivePlayerMoney, playerid, money);
+    
+    return 1;
+}
+```
+
+##### `Native_Params` (API Completa: `Get`, `Get_REF`, `Set_REF`)
+
+- **Descripción:** Una clase envoltorio que proporciona una interfaz orientada a objetos para acceder a los parámetros de una nativa. Más potente para escenarios complejos.
+- **Construcción:** `Native_Params p(amx, params);`
+
+###### `p.Count()`
+
+- **Descripción:** Retorna el número de parámetros pasados a la nativa.
+- **Uso:** Esencial para manejar parámetros opcionales.
+
+###### `p.Get<T>(size_t index)`
+
+- **Descripción:** Extrae un parámetro de entrada por índice y lo convierte al tipo `T`.
+- **Tipos Soportados:** `int`, `float`, `std::string`.
+
+```cpp
+// Pawn: native GetPlayerWeaponAmmo(playerid, weaponid = -1);
+Plugin_Native(GetPlayerWeaponAmmo, AMX* amx, cell* params) {
+    Native_Params p(amx, params);
+    
+    int playerid = p.Get<int>(0);
+    int weaponid = (p.Count() > 1) ? p.Get<int>(1) : Pawn_Native(GetPlayerWeapon, playerid);
+    
+    return Pawn_Native(GetPlayerAmmo, playerid, weaponid);
+}
+```
+
+###### `p.Get_REF<T>(size_t index, T& out_value)`
+
+- **Descripción:** Obtiene el valor de un parámetro de **referencia** (puntero Pawn) y lo almacena en `out_value`.
+- **Uso:** Para leer valores que fueron pasados por referencia de Pawn.
+- **Retorno:** `true` si la dirección AMX es válida, `false` en caso contrario.
+
+```cpp
+// Pawn: native CheckPlayerStats(playerid, &Float:health, &money);
+Plugin_Native(CheckPlayerStats, AMX* amx, cell* params) {
+    Native_Params p(amx, params);
+    
+    int playerid = p.Get<int>(0);
+    float health = 0.0f;
+    int money = 0;
+
+    // Obtém os valores das referências (o Pawn passou endereços)
+    p.Get_REF(1, health); // Lê o valor de Float:health
+    p.Get_REF(2, money);   // Lê o valor de money
+    
+    Samp_SDK::Log("Jogador %d, Health: %.1f, Money: %d", playerid, health, money);
+    
+    // Agora, modifique-os
+    health = 50.0f;
+    money += 100;
+    
+    // E os escreve de volta na memória do Pawn
+    p.Set_REF(1, health);
+    p.Set_REF(2, money);
+    
+    return 1;
+}
+```
+
+###### `p.Get_REF<T>(size_t index)` (C++17+)
+
+- **Descripción:** Retorna un `std::optional<T>` para leer un parámetro de referencia. Más seguro para C++17 y superior.
+
+###### `p.Set_REF<T>(size_t index, T value)`
+
+- **Descripción:** Escribe un valor `T` en un parámetro de **referencia** Pawn (la dirección que Pawn pasó).
+- **Uso:** Para modificar valores que fueron pasados por referencia, haciendo que Pawn vea la alteración.
+- **Retorno:** `true` si la escritura fue exitosa, `false` en caso contrario.
+
+#### Retorno de Valores
+
+- Su función `Plugin_Native` debe retornar una `cell`.
+- Para retornar un `int` o `bool`, use un cast a `cell`.
+- Para retornar un `float`, use `amx::AMX_FTOC(mi_float)`.
+
+```cpp
+// Retorna um bool
+Plugin_Native(IsPlayerSpawned, AMX* amx, cell* params) {
+    Native_Params p(amx, params);
+    int playerid = p.Get<int>(0);
+
+    return (Pawn_Native(GetPlayerState, playerid) == PLAYER_STATE_SPAWNED) ? 1 : 0;
+}
+
+// Retorna um float
+Plugin_Native(GetPlayerMaxHealth, AMX* amx, cell* params) {
+    return amx::AMX_FTOC(100.0f); // Retorna 100.0f
+}
+```
+
+### 3.4. `Pawn_*` Macros: Llamando Funciones del Pawn a Partir de C++
+
+Estas macros son lo inverso de `Plugin_Public` y `Plugin_Native`: permiten que su código C++ invoque funciones Pawn.
+
+#### `Pawn_Native(NomeDaNativa, ...)`
+
+- **Propósito:** La forma recomendada de llamar a funciones nativas de SA-MP (o de otros plugins) desde C++.
+- **Mecanismo:** Busca el puntero de la nativa en la caché interna del SDK (rellenada por `Amx_Register_Detour`). Si se encuentra, ejecuta la nativa en un entorno `Amx_Sandbox` (una instancia AMX falsa y aislada).
+- **Rendimiento:** La más eficiente, ya que evita la costosa búsqueda de `publics` e interactúa directamente con el puntero de la nativa.
+
+#### `Pawn_Public(NomeDaPublic, ...)`
+
+- **Propósito:** Llama a una función pública específica en un script Pawn.
+- **Mecanismo:** Recorre las instancias `AMX*` gestionadas por el `Amx_Manager`, busca la `public` por su nombre y la ejecuta.
+- **Rendimiento:** Menos eficiente que `Pawn_Native` debido a la búsqueda y al `amx_Exec` real. Generalmente, las `publics` son más lentas que las `natives`.
+- **Uso:** Ideal para invocar eventos personalizados en su Gamemode/Filterscripts que no son nativas.
+
+#### `Pawn(NomeDaFuncao, ...)`
+
+- **Propósito:** Una macro de conveniencia que intenta adivinar si la función es una nativa o una pública.
+- **Mecanismo:** Primero, intenta llamar como `Pawn_Native`. Si falla (no se encuentra la nativa), intenta llamar como `Pawn_Public`.
+- **Rendimiento:** Puede ser un poco más lenta que `Pawn_Native` si la función es nativa, debido al intento de doble búsqueda. Para `publics`, el rendimiento es el mismo que `Pawn_Public`.
+- **Uso:** Para funciones donde no está seguro si son nativas o públicas, o para evitar el código repetitivo de intentar una y luego la otra.
+
+#### Sintaxis y Convenciones
+
+- **Nombre de la Función:** Siempre use el nombre de la función Pawn **directamente, sin comillas**. El SDK lo convertirá a string internamente.
+- **Parámetros:** Pase los parámetros C++ directamente.
+
+```cpp
+// Certo:
+Pawn_Native(SetPlayerPos, playerid, 100.0f, 200.0f, 300.0f); 
+
+// Errado (mas tecnicamente funcionaria devido ao hash, evite):
+Pawn_Native("SetPlayerPos", playerid, 100.0f, 200.0f, 300.0f); 
+```
+
+#### Marshalling de Parámetros de Entrada
+
+El SDK convierte sus tipos C++ al formato `cell` de la AMX, gestionando la memoria según sea necesario:
+-   `int`, `bool`, `long`, `enum` -> `cell`
+-   `float`, `double` -> `cell` (usando `amx::AMX_FTOC`)
+-   `const char*`, `std::string`, `std::string_view` (C++17+) -> `cell` (asigna memoria en la AMX, copia la string, y pasa la dirección `amx_addr`)
+
+```cpp
+void Send_Formatted_Message(int playerid, const std::string& msg) {
+    Pawn_Native(SendClientMessage, playerid, 0xFFFFFFFF, msg);
+}
+```
+
+#### Marshalling de Parámetros de Salida (Referencias: `int&`, `float&`, `std::string&`)
+
+Esta es una funcionalidad clave para la conveniencia y seguridad. Para funciones Pawn que esperan un puntero (referencia), el SDK automatiza todo el proceso de asignación/liberación de memoria y copia de datos.
+
+- **Cómo usar:** Basta con pasar su variable por referencia (`&`).
+- **Mecanismo:** El SDK asigna memoria en la heap de la AMX, pasa la dirección AMX a la función Pawn, espera que la función Pawn rellene esa dirección, lee el valor de vuelta y libera la memoria de la AMX. Todo de forma transparente.
+- **Con `std::string&`:** El SDK asigna un búfer estándar (256 celdas) en la AMX para la string.
+
+```cpp
+void Get_Player_Location(int playerid) {
+    float x, y, z;
+    int interiorid, worldid;
+    std::string name;
+
+    Pawn_Native(GetPlayerPos, playerid, x, y, z);
+    Pawn_Native(GetPlayerInterior, playerid, interiorid);
+    Pawn_Native(GetPlayerVirtualWorld, playerid, worldid);
+    Pawn_Native(GetPlayerName, playerid, name, MAX_PLAYER_NAME);
+
+    Samp_SDK::Log("Localização de %s (ID:%d): Pos(%.2f, %.2f, %.2f) Interior:%d World:%d", name.c_str(), playerid, x, y, z, interiorid, worldid);
+}
+```
+
+#### El Objeto `Callback_Result`: Análisis Completo
+
+Todas las llamadas `Pawn_*` retornan un objeto `Callback_Result`. Este objeto es un envoltorio seguro para el resultado de la llamada Pawn.
+
+- `Callback_Result() noexcept`: Constructor estándar, indica fallo (`success_ = false`).
+- `Callback_Result(bool success, cell value) noexcept`: Constructor para éxito o fallo con valor.
+- `explicit operator bool() const`: Permite usar `if (result)` para verificar si la llamada fue exitosa.
+- `operator cell() const`: Permite convertir el resultado a `cell` para obtener el valor.
+- `float As_Float() const`: Conveniencia para obtener el resultado como `float`.
+- `cell Value() const`: Retorna el valor bruto `cell`.
+- `bool Success() const`: Retorna `true` si la llamada Pawn fue exitosa.
+- `int Get_Amx_Error() const`: Retorna el código de error de la AMX si la llamada falló (0 para éxito).
+
+```cpp
+// Exemplo: Obtendo a vida de um jogador.
+// A nativa GetPlayerHealth(playerid, &Float:health) espera um playerid e uma referência para a vida.
+int playerid = 0; // Exemplo de ID de jogador
+float player_health = 0.0f;
+
+// Chamamos GetPlayerHealth, passando playerid e player_health por referência.
+// O SDK cuidará do marshalling para o parâmetro de saída 'health'.
+Callback_Result result = Pawn_Native(GetPlayerHealth, playerid, player_health);
+
+if (result) { // Verifica se a chamada foi bem-sucedida (operator bool)
+    // O valor retornado por result.As_Float() ou result (operator cell)
+    // seria o valor de retorno da *nativa*, não o parâmetro de saída.
+    // O valor da vida já foi atualizado em 'player_health' devido ao marshalling do parâmetro de saída.
+    Samp_SDK::Log("Jogador %d tem %.1f de vida.", playerid, player_health);
+} else {
+    // A chamada falhou, talvez o jogador não exista ou a nativa não foi encontrada.
+    Samp_SDK::Log("Erro ao obter vida do jogador %d. Código AMX: %d", playerid, result.Get_Amx_Error());
+}
+
+// Para nativas que retornam um valor e usam parâmetros de saída (menos comum, mas possível),
+// você usaria ambos:
+// Callback_Result other_result = Pawn_Native(SomeNative, param1, output_param, param2);
+// if (other_result) {
+//     cell returned_value = other_result;
+//     // output_param já está atualizado
+// }
+```
+
+### 3.5. `Plugin_Module`: Gestión de Módulos Dinámicos
+
+La macro `Plugin_Module` permite que su plugin actúe como un "cargador" para otros plugins, creando una arquitectura modular y extensible.
+
+#### Sintaxis y Propósito
+
+- `Plugin_Module(const char* nombre_del_archivo_base, const char* directorio_del_modulo, const char* mensaje_exito_opcional)`
+- `nome_do_arquivo_base`: El nombre *base* del archivo del módulo, **sin la extensión** (ej: para `my_module.dll` o `my_module.so`, use `"my_module"`). El SDK añadirá automáticamente la extensión `.dll` o `.so` apropiada.
+- `diretorio_do_modulo`: La ruta del directorio donde se encuentra el archivo del módulo (ej: `"plugins/my_custom_modules"`). **No incluya el nombre del archivo aquí.** El SDK concatenará la ruta completa (`diretorio_do_modulo/nome_do_arquivo_base.ext`).
+- `mensagem_sucesso_opcional`: Un mensaje opcional que se registrará en la consola del servidor si el módulo se carga con éxito.
+
+```cpp
+// main.cpp, dentro de OnLoad()
+
+// Carrega o módulo 'core_logic.dll' (ou 'core_logic.so')
+// que está localizado na pasta 'modules/custom/' do servidor.
+if (!Plugin_Module("core_logic", "modules/custom", "Módulo de Lógica Core carregado com sucesso!"))
+    return (Samp_SDK::Log("ERRO FATAL: Falha ao carregar o módulo 'core_logic'!"), false);
+
+// Carrega o módulo 'admin_system.dll' (ou 'admin_system.so')
+// que está localizado diretamente na pasta 'plugins/' do servidor.
+if (!Plugin_Module("admin_system", "plugins", "Módulo de Administração ativado."))
+    Samp_SDK::Log("AVISO: Módulo de Administração não pôde ser carregado.");
+```
+
+#### Ciclo de Vida de un Módulo
+
+- **Carga:** Cuando se llama a `Plugin_Module`, el SDK:
+   1. Construye la ruta completa del archivo (ej: `plugins/custom/core_logic.dll`).
+   2. Usa `Dynamic_Library` (`LoadLibrary`/`dlopen`) para cargar el binario.
+   3. Obtiene los punteros a las funciones del ciclo de vida del módulo: `Load`, `Unload` y `Supports`.
+   4. Llama a la función `Load` del módulo, pasando `ppData` del plugin principal.
+   5. Si `Load` devuelve `true`, el módulo se añade a la lista interna de módulos cargados.
+- **Descarga:** Durante `OnUnload` de su plugin principal, el SDK descarga todos los módulos que fueron cargados vía `Plugin_Module`. Esto se hace en **orden inverso** a la carga (el último en cargarse es el primero en descargarse), lo cual es crucial para gestionar dependencias y garantizar la liberación correcta de recursos.
+
+#### Beneficios de la Modularización
+
+- **Organización del Código:** Divida plugins grandes en componentes más pequeños y manejables, cada uno en su propio archivo de módulo.
+- **Reusabilidad:** Cree módulos genéricos (ej: un módulo de base de datos, un módulo de sistema de registro avanzado) que puedan ser utilizados por diferentes plugins, promoviendo la reutilización de código.
+- **Actualizaciones Dinámicas:** En escenarios controlados, permite la actualización de partes de su sistema (sustituyendo un `.dll` o `.so` de módulo) sin la necesidad de recompilar y reiniciar el plugin principal o el servidor entero (aunque esto exige una gestión de versiones y compatibilidad rigurosas).
+
+### 3.6. `Plugin_Call`: Llamando Nativas Internas del Plugin
+
+Use `Plugin_Call` para invocar una `Plugin_Native` definida **dentro de su propio plugin**.
+
+#### Sintaxis y Ventajas de Performance
+
+- `Plugin_Call(NomeDaNativa, Param1, Param2, ...)`
+- **Ventaja:** Evita la sobrecarga de buscar la nativa en el array de nativas de la AMX. El SDK mantiene un mapa directo de hashes de nombre a punteros de función para sus propias nativas, haciendo de esta la forma más rápida de llamarlas internamente.
+- **Requiere:** `SAMP_SDK_WANT_AMX_EVENTS`.
+
+```cpp
+// main.cpp
+Plugin_Native(InternalCheckPlayerLevel, AMX* amx, cell* params) {
+    int playerid;
+    Register_Parameters(playerid);
+
+    // Lógica para verificar o nível
+    return (playerid % 2 == 0) ? 1 : 0; // Exemplo: nível par para IDs pares
+}
+
+void CheckAllPlayersLevel() {
+    for (int i = 0; i < MAX_PLAYERS; ++i) {
+        if (Pawn_Native(IsPlayerConnected, i)) {
+            if (Plugin_Call(InternalCheckPlayerLevel, i)) // Chama sua própria nativa
+                Samp_SDK::Log("Jogador %d está em um nível alto!", i);
+        }
+    }
+}
+```
+
+### **3.7. Funciones Utilitarias del SDK**
+
+#### `Samp_SDK::Log(const char* format, ...)`
+
+- **Descripción:** Imprime mensajes en la consola del servidor y en el archivo `server_log.txt`. Un envoltorio seguro para `logprintf`.
+- **Uso:** Para depuración, mensajes de estado y errores.
+- **Mecanismo:** Internamente, el SDK obtiene el puntero a `logprintf` a través de `ppData[PLUGIN_DATA_LOGPRINTF]`. La función maneja el formateo de la string de forma segura.
+
+```cpp
+// Em qualquer lugar do seu plugin
+Samp_SDK::Log("O plugin foi inicializado com um valor %d e uma string '%s'.", 123, "teste");
+```
+
+#### `std::string Plugin_Format(const char* format, ...)` (Recomendado)
+
+- **Descripción:** Formatea una string de forma segura (similar a `sprintf`) y retorna un `std::string`. Esta es la forma **recomendada y más idiomática** de formatear strings para usar dentro de su plugin.
+- **Uso:** Ideal para construir mensajes formateados antes de pasarlos a `Samp_SDK::Log`, `Pawn_Native(SendClientMessage, ...)`, o para cualquier otra necesidad de string dentro de su código C++.
+- **Mecanismo:** Internamente, `Plugin_Format` es una macro que llama a `Samp_SDK::Format`. Utiliza `vsnprintf` para determinar el tamaño exacto de la string formateada y asigna un `std::string` con capacidad suficiente, evitando desbordamientos de búfer.
+
+```cpp
+int playerid = 0; // Exemplo de ID
+int health = 50;
+std::string status_message = Plugin_Format("Jogador %d, sua vida atual é %d.", playerid, health); // Usando a macro Plugin_Format
+Pawn_Native(SendClientMessage, playerid, 0xFFFFFFFF, status_message);
+
+// Também pode ser usado para logs internos
+Samp_SDK::Log(Plugin_Format("DEBUG: Processando status para o ID %d", playerid).c_str());
+```
+
+#### `std::string Samp_SDK::Format(const char* format, ...)` (Detalle de Implementación)
+
+- **Descripción:** La función de implementación subyacente para el formateo de strings, ubicada dentro del namespace `Samp_SDK`.
+- **Uso:** Generalmente no es llamada directamente por el usuario. La macro `Plugin_Format` se proporciona como una conveniencia para esta función, alineándose con la convención de nomenclatura de otras macros del SDK (`Plugin_Public`, `Plugin_Native`). Solo la llamaría directamente si quisiera evitar la macro `Plugin_Format` por alguna razón específica.
+
+```cpp
+// Exemplo de como Samp_SDK::Format funciona, mas prefira Plugin_Format
+std::string raw_status = Samp_SDK::Format("Apenas para uso interno: %d.", 42);
+```
+
+#### `std::string Samp_SDK::Get_String(AMX* amx, cell amx_addr)`
+
+- **Descripción:** Convierte una dirección de string de la AMX (`cell amx_addr`) en un `std::string` C++.
+- **Uso:** Principalmente dentro de `Plugin_Native` cuando necesita acceder a strings que no son convertidas automáticamente por `Register_Parameters` o `Native_Params` (ej: si el parámetro Pawn es un `const` `string` y no fue declarado como `std::string` en su `Plugin_Native` o `Plugin_Public` para el Marshalling automático).
+
+```cpp
+Plugin_Native(PrintRawAmxString, AMX* amx, cell* params) {
+    Native_Params p(amx, params);
+    cell amx_string_addr = p.Get<cell>(0); // Obtém o endereço da string na AMX
+
+    std::string cpp_string = Samp_SDK::Get_String(amx, amx_string_addr);
+    Samp_SDK::Log("String da AMX: %s", cpp_string.c_str());
+
+    return 1;
+}
+```
+
+## 4. **Anatomía Interna y Arquitectura del SDK**
+
+Esta sección desvela los mecanismos subyacentes del SAMP SDK, explorando su arquitectura, los componentes clave y cómo interactúan para proporcionar la abstracción de alto nivel. Una comprensión profunda de estas entrañas capacita al desarrollador a optimizar el uso del SDK, depurar problemas complejos e incluso extender sus funcionalidades.
+
+### 4.1. `core.hpp`: La Fundación Minimalista
+
+El `Samp_SDK::Core` es un `singleton` que sirve como punto de acceso inicial y centralizado a los datos de bajo nivel proporcionados por el entorno del plugin SA-MP. Su principal responsabilidad es encapsular y exponer las funcionalidades esenciales.
+
+- **`Samp_SDK::Core::Instance()`**:
+   - **Descripción:** Devuelve la única instancia global de la clase `Core`. Este es un patrón de diseño `singleton` para garantizar que el acceso a los datos del plugin (`ppData`) sea consistente y centralizado.
+   - **Mecanismo:** La instancia se inicializa una única vez cuando `Core::Instance().Load(ppData)` es llamado en la función `Load()` de su plugin.
+
+- **`Get_AMX_Export(PLUGIN_AMX_EXPORT_...)`**:
+   - **Descripción:** Permite acceso seguro e indexado a los punteros de función de la API AMX. El array `pAMXFunctions` (recibido vía `ppData[PLUGIN_DATA_AMX_EXPORTS]`) contiene las direcciones de funciones críticas como `amx_Exec`, `amx_Register`, etc.
+   - **Impacto:** En lugar de usar `((MyFuncType)((void**)Core::Instance().Get_AMX_Data())[INDEX])(...)`, el SDK ofrece envoltorios type-safe en el namespace `amx::` (ej: `amx::Exec(...)`), haciendo el código más legible y menos propenso a errores de cast.
+   - **Ejemplo Interno (`amx_api.hpp`):**
+      ```cpp
+      // Trecho simplificado de amx_api.hpp
+      namespace amx {
+          template <typename Func, int Index, typename... Args>
+          inline auto Call(Args... args) -> decltype(std::declval<Func>()(args...)) {
+              using Return_Type = decltype(std::declval<Func>()(args...));
+              auto func_ptr = reinterpret_cast<Func>(Core::Instance().Get_AMX_Export(Index));
+
+              if (SAMP_SDK_UNLIKELY(!func_ptr))
+                  return (Samp_SDK::Log("[SAMP SDK] Fatal: Attempted to call AMX export at index %d, but pAMXFunctions was not loaded!", Index),
+                  Samp_SDK::amx::Detail::Amx_Call_Error_Handler<Return_Type>(typename std::is_pointer<Return_Type>::type{}));
+
+              return func_ptr(args...);
+          }
+
+          inline int Exec(AMX* amx, cell* retval, int index) {
+              return Call<Exec_t, PLUGIN_AMX_EXPORT_Exec>(amx, retval, index);
+          }
+      } // namespace amx
+      ```
+
+- **`logprintf_ptr`**:
+   - **Descripción:** Un puntero a la función `logprintf` de SA-MP, que es la interfaz estándar para imprimir mensajes en la consola del servidor y en `server_log.txt`.
+   - **Mecanismo:** El `Samp_SDK::Log` es un envoltorio seguro que utiliza este puntero, garantizando que sus mensajes se muestren correctamente en el entorno de SA-MP.
+
+### **4.2. `platform.hpp` y `version.hpp`: Compatibilidad y Metadatos**
+
+Estos headers son la base para la portabilidad y optimización del SDK, adaptándolo a diferentes entornos de compilación y aprovechando características específicas del C++ moderno.
+
+- **Detección de Plataforma y Arquitectura:**
+   - **Mecanismo:** Utiliza macros de preprocesador (`#if defined(WIN32)`, `#if defined(__linux__)`, etc.) para identificar el sistema operativo.
+   - **Verificación de Arquitectura:** Contiene `static_assert` o `#error` para garantizar que el plugin se esté compilando para x86 (32-bit), un requisito crítico para la compatibilidad con SA-MP y el mecanismo de hooking.
+   - **Gestión de Exportación de Símbolos:**
+      - `SAMP_SDK_EXPORT`: Una macro definida en `platform.hpp` que se expande a `extern "C"` y, en Linux, añade `__attribute__((visibility("default")))`. En Windows, solo garantiza `extern "C"` porque el SDK utiliza `pragma comment(linker, "/EXPORT:...")` (para MSVC) o el estándar MinGW para exportar las funciones principales.
+      - Esto garantiza que las funciones del ciclo de vida del plugin (`Supports`, `Load`, `Unload`, etc.) se exporten correctamente desde su DLL/SO, independientemente del entorno de compilación, **sin la necesidad de archivos `.def` o de añadir `__attribute__((visibility("default")))` manualmente** en su implementación.
+   - **Ejemplo (`platform.hpp` - fragmento relevante):**
+      ```cpp
+      #if defined(SAMP_SDK_WINDOWS)
+          // Para MSVC, a exportação é gerenciada por pragma linker commands
+          #define SAMP_SDK_EXPORT SAMP_SDK_EXTERN_C
+      #else // Linux
+          // Para GCC/Clang no Linux, usamos o atributo de visibilidade
+          #define SAMP_SDK_EXPORT SAMP_SDK_EXTERN_C __attribute__((visibility("default")))
+      #endif
+      // ... outras definições ...
+      ```
+   - **Ejemplo (`samp_sdk.hpp` - fragmento relevante de la implementación):**
+      ```cpp
+      #if defined(SAMP_SDK_IMPLEMENTATION)
+
+      #if defined(SAMP_SDK_WINDOWS)
+          // No Windows (MSVC), usamos pragma comment para exportar as funções.
+          // Isso elimina a necessidade de um arquivo .def.
+          #pragma comment(linker, "/EXPORT:Supports=_Supports@0")
+          #pragma comment(linker, "/EXPORT:Load=_Load@4")
+          #pragma comment(linker, "/EXPORT:Unload=_Unload@0")
+          // ... outras exports ...
+      #endif
+
+      // Implementação das funções exportadas
+      SAMP_SDK_EXPORT unsigned int SAMP_SDK_CALL Supports() { /* ... */ }
+      SAMP_SDK_EXPORT bool SAMP_SDK_CALL Load(void** ppData) { /* ... */ }
+      SAMP_SDK_EXPORT void SAMP_SDK_CALL Unload() { /* ... */ }
+      // ... outras funções ...
       #endif
       ```
-    - Calcula la versión de GCC si aplica:
-      ```c
-      #if defined __GNUC__
-          #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+
+- **Macros de Optimización y Predicción de Ramas:**
+   - `SAMP_SDK_FORCE_INLINE`:
+      - **Mecanismo:** `__forceinline` (MSVC) o `__attribute__((always_inline)) inline` (GCC/Clang). Sugiere fuertemente al compilador que inserte el cuerpo de la función directamente en el lugar de la llamada, eliminando la sobrecarga de una llamada de función real.
+      - **Uso:** Aplicado a funciones pequeñas y críticas para el rendimiento dentro del SDK.
+   - `SAMP_SDK_LIKELY(x)` / `SAMP_SDK_UNLIKELY(x)`:
+      - **Mecanismo:** `[[likely]]` / `[[unlikely]]` (C++20) o `__builtin_expect` (GCC/Clang). Pistas para el compilador sobre qué camino de un `if/else` es más probable que se tome.
+      - **Impacto:** Ayuda al compilador a generar código más eficiente para la predicción de desvíos (branch prediction), reduciendo la latencia de la CPU.
+      - **Ejemplo (`platform.hpp`):**
+         ```cpp
+         #if defined(__cplusplus) && __cplusplus >= 202002L
+             #define SAMP_SDK_LIKELY(x) (x) [[likely]]
+             #define SAMP_SDK_UNLIKELY(x) (x) [[unlikely]]
+         #elif defined(__GNUC__) || defined(__clang__)
+             #define SAMP_SDK_LIKELY(x) __builtin_expect(!!(x), 1)
+             #define SAMP_SDK_UNLIKELY(x) __builtin_expect(!!(x), 0)
+         #else
+             #define SAMP_SDK_LIKELY(x) (x)
+             #define SAMP_SDK_UNLIKELY(x) (x)
+         #endif
+         ```
+
+- **Definiciones C++ Estándar (`SAMP_SDK_CXX14`, `SAMP_SDK_CXX_MODERN`):**
+   - **Mecanismo:** Macros definidas en base al valor de `__cplusplus` y `_MSVC_LANG`.
+   - **Uso:** Permiten que el SDK utilice funcionalidades más recientes de C++ (como `std::apply` e `if constexpr` de C++17, o `std::is_same_v` de C++17) cuando estén disponibles, manteniendo la compatibilidad con estándares más antiguos.
+   - **Ejemplo (`version.hpp` - uso de `if constexpr`):**
+      ```cpp
+      // Trecho simplificado de public_dispatcher.hpp
+      template<typename First, typename... Rest>
+      inline void Get_Public_Params_Recursive(AMX* amx, int index, First& first, Rest&... rest) {
+          cell value;
+
+          if (Get_Stack_Cell(amx, index, value)) {
+      #if defined(SAMP_SDK_CXX_MODERN)
+                  if constexpr (std::is_same_v<decay_t<First>, std::string>)
+                      first = Samp_SDK::Get_String(amx, value);
+                  else if constexpr (std::is_floating_point_v<decay_t<First>>)
+                      first = amx::AMX_CTOF(value);
+                  else
+                      first = static_cast<decay_t<First>>(value);
+      #elif defined(SAMP_SDK_CXX14)
+                  Assign_Parameter_By_Type(amx, &value, -1, first);
       #endif
+          }
+
+          Get_Public_Params_Recursive(amx, index + 1, rest...);
+      }
       ```
 
-3. **amx_constants.h**
+### 4.3. `function_hook.hpp`: El Motor de Interceptación x86
 
-    Define constantes esenciales para la operación de AMX:
-    - **Versiones**:
-      ```c
-      #define CUR_FILE_VERSION  9   // Versión actual del formato de archivo
-      #define MIN_FILE_VERSION  6   // Versión mínima soportada
-      #define MIN_AMX_VERSION   10  // Versión mínima de AMX
-      #define MAX_FILE_VER_JIT  8   // Versión máxima con soporte JIT
-      #define MIN_AMX_VER_JIT   8   // Versión mínima con soporte JIT
+Este header define el mecanismo de bajo nivel para realizar hooks (interceptaciones) de funciones, lo cual es fundamental para el funcionamiento del SDK. Es estrictamente dependiente de la arquitectura x86 (32-bit).
+
+- **`X86_Detour`**:
+   - **Descripción:** Una clase que encapsula la lógica de sobrescribir el inicio de una función en la memoria con una instrucción de salto a una función de desvío.
+   - **`JUMP_INSTRUCTION_SIZE = 5`**:
+      - **Mecanismo:** En x86, la instrucción de salto (`JMP`) relativa generalmente tiene 5 bytes: `0xE9` (opcode para JMP near, relative) seguido de 4 bytes que representan el desplazamiento (offset) de la dirección del objetivo en relación con la siguiente instrucción.
+      - **Ejemplo de instrucción:** `E9 XX XX XX XX` (donde `XX` son los bytes del desplazamiento).
+   - **`Apply(void* target, void* detour)`**:
+      - **Acción:** Instala el hook. Primero, almacena los `JUMP_INSTRUCTION_SIZE` bytes originales de la función `target` (`original_bytes_`). Luego, calcula la dirección relativa del `detour` en relación con el `target` y sobrescribe el inicio de `target` con la instrucción `JMP`.
+      - **Ejemplo del cálculo de la dirección relativa:**
+         ```cpp
+         // (uintptr_t)detour_func_ - ((uintptr_t)target_func_ + JUMP_INSTRUCTION_SIZE)
+         // Endereço do desvio - (Endereço do alvo + Tamanho da instrução de JMP)
+         ```
+   - **`Revert()`**:
+      - **Acción:** Desinstala el hook, restaurando los `original_bytes_` en la función `target`.
+   - **`Unprotect_Memory(void* address, size_t size)`**:
+      - **Mecanismo:** En Windows, usa `VirtualProtect`; en Linux, `mprotect`. Estas llamadas al sistema cambian los permisos de la página de memoria donde reside la función a `EXECUTE_READWRITE` (Windows) o `PROT_WRITE | PROT_EXEC` (Linux), permitiendo que el código se modifique en tiempo de ejecución.
+      - **Ejemplo (`Unprotect_Memory`):**
+         ```cpp
+         // Trecho simplificado de function_hook.hpp
+         #if defined(SAMP_SDK_WINDOWS)
+             DWORD old_protect;
+             VirtualProtect(address, size, PAGE_EXECUTE_READWRITE, &old_protect);
+         #elif defined(SAMP_SDK_LINUX)
+             long pagesize = sysconf(_SC_PAGESIZE);
+             uintptr_t page_start = reinterpret_cast<uintptr_t>(address) & -pagesize;
+             mprotect(reinterpret_cast<void*>(page_start), size + (reinterpret_cast<uintptr_t>(address) - page_start), PROT_READ | PROT_WRITE | PROT_EXEC);
+         #endif
+         ```
+
+- **`Function_Hook<FuncPtr>`**:
+   - **Descripción:** Un envoltorio C++ `type-safe` para `X86_Detour`, garantizando que los tipos de puntero de función sean correctos.
+   - `Install(void* target, void* detour)`: Encapsula la llamada a `X86_Detour::Apply`.
+   - `Uninstall()`: Encapsula la llamada a `X86_Detour::Revert`.
+   - **`Call_Original(Args... args)`**:
+      - **Mecanismo de Seguridad (Guarda de Recursión):** Esta función es crítica para evitar bucles infinitos cuando el desvío necesita llamar a la función original. **Temporalmente desinstala el hook (`detour_.Revert()`)**, llama a la función original (`Get_Original()(args...)`), y luego **reinstala el hook (`detour_.Reapply()`)**.
+      - **`static thread_local int recursion_guard`**: Un contador que garantiza que el hook solo se reinstale cuando la llamada original de nivel superior haya terminado, permitiendo llamadas recursivas seguras de la función original (si la función original es recursiva, por ejemplo). `thread_local` garantiza que `recursion_guard` esté aislado para cada hilo, importante en entornos multihilo.
+      - **Ejemplo (`Call_Original` con Scope_Guard):**
+         ```cpp
+         // Trecho simplificado de function_hook.hpp
+         template<typename... Args>
+         auto Call_Original(Args... args) -> decltype(Get_Original()(args...)) {
+             static thread_local int recursion_guard = 0;
+
+             if (recursion_guard == 0)
+                 detour_.Revert();
+
+             recursion_guard++;
+
+             struct Scope_Guard {
+                 int& guard_ref;
+                 X86_Detour& detour_ref;
+
+                 ~Scope_Guard() {
+                     guard_ref--;
+
+                     if (guard_ref == 0)
+                         detour_ref.Reapply();
+                 }
+             };
+
+             Scope_Guard guard{recursion_guard, detour_};
+             
+             return Get_Original()(args...);
+         }
+         ```
+
+### 4.4. `interceptor_manager.hpp`: El Controlador de Hooks del AMX
+
+Este `singleton` es el centro neurálgico de la interacción del SDK con la máquina virtual AMX de SA-MP. Coordina la instalación de los hooks proporcionados por `function_hook.hpp` en las funciones de la API AMX expuestas por el servidor, redirigiendo el flujo de ejecución a la lógica del SDK.
+
+- **`Activate()` / `Deactivate()`**:
+   - **Descripción:** Métodos públicos para instalar y desinstalar todos los hooks necesarios. Se llaman en `OnLoad()` y `OnUnload()` de su plugin, respectivamente.
+   - **Mecanismo:** Obtiene los punteros de las funciones AMX (como `amx_Register`, `amx_Exec`, etc.) usando `Core::Instance().Get_AMX_Export(...)` e instala los desvíos.
+- **`int SAMP_SDK_AMX_API Amx_Register_Detour(...)`**:
+   - **Función Hooked:** `amx_Register`
+   - **Propósito:** Intercepta el registro de *todas* las nativas (por SA-MP, otros plugins o gamemode).
+   - **Acción:** Llama a `Interceptor_Manager::Instance().Cache_Natives()` para almacenar los punteros y nombres de las nativas en una caché interna.
+   - **Impacto:** Esta caché es fundamental para el rendimiento de `Pawn_Native`, permitiendo una búsqueda extremadamente rápida del puntero de la nativa en lugar de una búsqueda costosa en la AMX.
+- **`int SAMP_SDK_AMX_API Amx_Exec_Detour(...)`**:
+   - **Función Hooked:** `amx_Exec`
+   - **Propósito:** **Este es el hook más crítico.** Intercepta *cualquier* ejecución de código en la AMX, incluyendo la llamada de `publics` del Pawn.
+   - **Mecanismo de Interceptación de `Plugin_Public`:**
+      1. Cuando se llama a `amx_Exec` para una `public` (o `AMX_EXEC_MAIN`), se ejecuta `Amx_Exec_Detour`.
+      2. Obtiene el nombre de la `public` (usando `Get_Public_Name_By_Index` o `tl_public_name`).
+      3. Consulta `Public_Dispatcher::Instance().Dispatch()` para verificar si hay handlers C++ registrados para este nombre.
+      4. Si hay handlers, los ejecuta. `Public_Dispatcher` maneja el `marshalling` de los parámetros de la AMX a los tipos C++ correctos.
+      5. Basado en el valor de retorno de `Public_Dispatcher` (`PLUGIN_PUBLIC_STOP`/`PLUGIN_PUBLIC_CONTINUE`), decide si llama a la `amx_Exec` original (`Get_Amx_Exec_Hook().Call_Original(...)`) o si finaliza la ejecución de la `public` Pawn.
+      6. **Manipulación de la Stack:** Si la ejecución de la `public` Pawn se interrumpe (`PLUGIN_PUBLIC_STOP`), el `Amx_Exec_Detour` corrige la stack de la AMX (`amx->stk += amx->paramcount * sizeof(cell); amx->paramcount = 0;`) para evitar inconsistencias.
+   - **Ejemplo (`Amx_Exec_Detour`):**
+      ```cpp
+      // Trecho simplificado de interceptor_manager.hpp
+      inline int SAMP_SDK_AMX_API Amx_Exec_Detour(AMX* amx, cell* retval, int index) {
+          // ... lógica para determinar o nome da public ...
+          std::unique_ptr<std::string> public_name_ptr;
+
+          if (index == AMX_EXEC_MAIN) {
+              Interceptor_Manager::Instance().Set_Gamemode_Amx(amx);
+              public_name_ptr = std::make_unique<std::string>("OnGameModeInit");
+          }
+          else if (Interceptor_Manager::Instance().Is_Gamemode_Amx(amx) && index != AMX_EXEC_CONT) {
+              if (tl_public_name)
+                  public_name_ptr = std::move(tl_public_name);
+          }
+
+          if (public_name_ptr) {
+              cell result = 1;
+              bool should_continue = Public_Dispatcher::Instance().Dispatch(FNV1a_Hash(public_name_ptr->c_str()), amx, result);
+              
+              if (!should_continue) {
+                  if (retval)
+                      *retval = result;
+
+                  if (*public_name_ptr == "OnPlayerCommandText") {
+                      if (retval)
+                          *retval = 1;
+                  }
+
+                  amx->stk += amx->paramcount * sizeof(cell);
+                  amx->paramcount = 0;
+                  
+                  return static_cast<int>(AmxError::None);
+              }
+          }
+          
+          return Get_Amx_Exec_Hook().Call_Original(amx, retval, index);
+      }
       ```
-    - **Códigos Mágicos**:
-      ```c
-      #define AMX_MAGIC_16    0xf1e2  // Para celdas de 16 bits
-      #define AMX_MAGIC_32    0xf1e0  // Para celdas de 32 bits
-      #define AMX_MAGIC_64    0xf1e1  // Para celdas de 64 bits
+
+- **`int SAMP_SDK_AMX_API Amx_Find_Public_Detour(...)`**:
+   - **Función Hooked:** `amx_FindPublic`
+   - **Propósito:** Intercepta la búsqueda de `publics` por nombre.
+   - **Mecanismo de "Ghost Publics":** Si `amx_FindPublic` original no encuentra una `public` en Pawn, pero el `Public_Dispatcher` tiene un handler C++ registrado para ese nombre, este hook devuelve `AMX_ERR_NONE` y un `index` especial (`PLUGIN_EXEC_GHOST_PUBLIC`). Esto hace que la API de SA-MP "piense" que la `public` existe, permitiendo que la llamada `amx_Exec` posterior (para este índice especial) sea interceptada por el `Amx_Exec_Detour`, que luego redirige al handler C++.
+   - **`static thread_local std::unique_ptr<std::string> tl_public_name`**: Se utiliza para pasar el nombre de la `public` al `Amx_Exec_Detour` cuando se detecta un "ghost public", ya que `amx_Exec` solo recibe el índice, no el nombre.
+- **`int SAMP_SDK_AMX_API Amx_Init_Detour(...)` / `Amx_Cleanup_Detour(...)`**:
+   - **Funciones Hooked:** `amx_Init` / `amx_Cleanup`
+   - **Propósito:** Gestionar la lista de instancias `AMX*` activas.
+   - **Acción:** `Amx_Init_Detour` llama a `Amx_Manager::Instance().Add_Amx()`, y `Amx_Cleanup_Detour` llama a `Amx_Manager::Instance().Remove_Amx()`.
+
+### 4.5. `amx_manager.hpp`: Gestionando Instancias `AMX*`
+
+Este `singleton` mantiene un registro dinámico de todas las máquinas virtuales AMX actualmente cargadas en el servidor. Es esencial para funciones que necesitan interactuar con "todos los scripts" o encontrar un script específico.
+
+- **`std::vector<AMX*> loaded_amx_`**:
+   - **Descripción:** Una lista de punteros a todas las instancias `AMX*` que han sido inicializadas (gamemode y filterscripts).
+   - **Gestión:** Rellenada por los hooks `Amx_Init_Detour` y vaciada por `Amx_Cleanup_Detour`.
+- **`std::shared_mutex mtx_` (C++17+) / `std::mutex mtx_` (C++14)**:
+   - **Propósito:** Protege `loaded_amx_` contra el acceso concurrente en entornos multihilo (aunque SA-MP es predominantemente monohilo, esta es una buena práctica de seguridad). `std::shared_mutex` permite múltiples lectores simultáneamente, pero solo un escritor.
+- **`std::atomic<uint32_t> generation_`**:
+   - **Propósito:** Un contador que se incrementa cada vez que se añade o elimina una AMX.
+   - **Uso:** Lo utiliza `Caller_Cache` en `callbacks.hpp` para detectar cuándo ha cambiado la lista de AMXs, invalidando las cachés de búsqueda de `publics` y garantizando que las llamadas a `Pawn_Public` siempre operen con información actualizada. Esto optimiza el rendimiento al evitar búsquedas repetitivas en un estado que no ha cambiado.
+- **`AMX* Find_Public(const char* name, int& index)`**:
+   - **Descripción:** Recorre `loaded_amx_` (del más reciente al más antiguo, lo que generalmente coloca el gamemode o el filterscript más relevante primero) para encontrar la `public` con el nombre especificado.
+   - **Mecanismo:** Usa `amx::Find_Public` para cada instancia `AMX*`.
+   - **Impacto:** Es la base para `Pawn_Public`.
+
+### 4.6. `public_dispatcher.hpp`: El Enrutador de Callbacks `Plugin_Public`
+
+Este `singleton` es el componente que mapea nombres de `publics` de Pawn a sus funciones C++ `Plugin_Public`.
+
+- **`std::unordered_map<uint32_t, std::vector<Amx_Handler_Func>> handlers_`**:
+   - **Clave:** El hash FNV1a del nombre de la `public` (ej: `FNV1a_Hash_Const("OnPlayerConnect")`).
+   - **Valor:** Un `std::vector` de `std::function<cell(AMX*)>`, donde cada `std::function` es un handler C++ registrado para esa `public`.
+   - **Mecanismo:** El `std::vector` permite que múltiples `Plugin_Public`s se registren para el mismo callback (ej: varios plugins queriendo interceptar `OnPlayerCommandText`). Los handlers se ejecutan en orden inverso de registro.
+- **`Public_Registrar`**:
+   - **Mecanismo:** Esta es una clase plantilla cuya macro `PLUGIN_PUBLIC_REGISTRATION` crea una instancia estática global. En el constructor estático (`static bool registered = [...]`), registra su handler `Plugin_Public` en el `Public_Dispatcher`. Este es un patrón de "registro estático en tiempo de compilación/inicialización".
+   - **Ejemplo (`public_dispatcher.hpp`):**
+      ```cpp
+      #define PLUGIN_PUBLIC_REGISTRATION(name) \
+          constexpr uint32_t hash_##name = Samp_SDK::Detail::FNV1a_Hash_Const(#name); \
+          Samp_SDK::Detail::Public_Registrar<decltype(&name), &name, hash_##name> registrar_##name;
       ```
-    - **Códigos de Error**:
-      ```c
-      enum {
-          AMX_ERR_NONE,         // Sin error
-          AMX_ERR_EXIT,         // Script terminado
-          AMX_ERR_ASSERT,       // Afirmación fallida
-          AMX_ERR_STACKERR,     // Error de pila
-          AMX_ERR_BOUNDS,       // Acceso fuera de límites
-          AMX_ERR_MEMACCESS,    // Acceso a memoria inválido
-          AMX_ERR_INVINSTR,     // Instrucción inválida
-          AMX_ERR_STACKLOW,     // Pila demasiado baja
-          AMX_ERR_HEAPLOW,      // Heap demasiado bajo
-          AMX_ERR_CALLBACK,     // Error de callback
-          AMX_ERR_NATIVE,       // Error en función nativa
-          AMX_ERR_DIVIDE,       // División por cero
-          AMX_ERR_SLEEP,        // Modo sleep activado
-          AMX_ERR_INVSTATE,     // Estado inválido
-          AMX_ERR_MEMORY = 16,  // Memoria insuficiente
-          AMX_ERR_FORMAT,       // Formato inválido
-          AMX_ERR_VERSION,      // Versión incompatible
-          AMX_ERR_NOTFOUND,     // Recurso no encontrado
-          AMX_ERR_INDEX,        // Índice inválido
-          AMX_ERR_DEBUG,        // Error de depuración
-          AMX_ERR_INIT,         // Fallo de inicialización
-          AMX_ERR_USERDATA,     // Error en datos de usuario
-          AMX_ERR_INIT_JIT,     // Fallo de inicialización JIT
-          AMX_ERR_PARAMS,       // Parámetros inválidos
-          AMX_ERR_DOMAIN,       // Error de dominio
-          AMX_ERR_GENERAL,      // Error general
+
+- **`Public_Traits` y `Wrapper()`**:
+   - **Mecanismo:** `Public_Traits` es una plantilla de trait que, usando metaprogramación, genera una función `static cell Wrapper(AMX* amx)`.
+   - **Propósito:** Esta `Wrapper` es la `Amx_Handler_Func` que el `Public_Dispatcher` realmente almacena y llama. Es responsable de:
+      1. Llamar a `Public_Param_Reader::Get_Public_Params(amx, args...)` para extraer los parámetros de la stack de la AMX.
+      2. Llamar a su función `Plugin_Public` C++ real (`func_ptr`) con los parámetros ya convertidos a los tipos C++ correctos.
+- **`Public_Param_Reader::Get_Public_Params(...)`**:
+   - **Descripción:** Un conjunto de funciones plantilla recursivas que leen los valores de la stack de la AMX y los convierten a los tipos C++ especificados en la declaración de `Plugin_Public`.
+   - **Mecanismo:** Usa `Get_Stack_Cell()` para acceder a las `cell`s en la stack. Utiliza `if constexpr` (C++17+) o `std::is_same<T>::value` (C++14) para aplicar la conversión correcta (`amx::AMX_CTOF` para float, `Samp_SDK::Get_String` para string, cast directo para int).
+
+### 4.7. `native.hpp`: Gestionando y Llamando Nativas del Plugin
+
+Este header está dedicado a la creación y gestión de nativas C++ que su plugin expone a Pawn.
+
+- **`Native_List_Holder`**:
+   - **Descripción:** Un `singleton` global que almacena todas las `Plugin_Native`s declaradas en su plugin (de todos los archivos `.cpp` que usan `SAMP_SDK_WANT_AMX_EVENTS`).
+   - **`std::vector<Native> natives_`**: Contiene objetos `Native` (que almacenan el nombre de la nativa y el puntero a la función C++ `Native_Handler`).
+   - **`std::unordered_map<uint32_t, Native_Handler> plugin_natives_`**: Un mapa optimizado por hash para búsquedas rápidas de `Plugin_Native`s internas (usado por `Plugin_Call`).
+- **`Native_Registrar`**:
+   - **Mecanismo:** Al igual que `Public_Registrar`, esta es una clase plantilla cuya macro `Plugin_Native` crea una instancia estática global. En su constructor, añade la nativa a `Native_List_Holder`.
+   - **Impacto:** Permite declarar `Plugin_Native`s en múltiples archivos `.cpp` sin preocuparse por el registro manual. Todas se recopilarán automáticamente.
+- **`Native_Registry`**:
+   - **Descripción:** Una clase auxiliar que, en `OnAmxLoad`, toma la lista completa de `Native`s de `Native_List_Holder` y las formatea en un array `AMX_NATIVE_INFO`.
+   - **Mecanismo:** Llama a `amx::Register(amx, amx_natives_info_.data(), -1)` para registrar todas sus nativas en la instancia AMX que acaba de ser cargada.
+- **`Plugin_Call_Impl(...)`**:
+   - **Descripción:** La implementación subyacente de la macro `Plugin_Call`.
+   - **Mecanismo:** Utiliza `Native_List_Holder::Instance().Find_Plugin_Native(native_hash)` para obtener directamente el puntero de la función C++.
+   - **Entorno:** Ejecuta la nativa en un entorno `Amx_Sandbox` (aislado) para gestionar la stack y la heap temporales, de forma similar a cómo funciona `Pawn_Native`.
+
+### 4.8. `callbacks.hpp` & `amx_memory.hpp`: Llamadas C++ -> Pawn y RAII
+
+Estos headers forman la columna vertebral para llamar funciones de Pawn desde C++ (macros `Pawn_*`) y garantizan la seguridad de la memoria.
+
+- **`Amx_Sandbox`**:
+   - **Descripción:** Una estructura `thread_local` que simula un entorno `AMX` minimalista y aislado para llamadas `Pawn_Native` y `Plugin_Call`.
+   - **Mecanismo:** Tiene su propia estructura `AMX`, `AMX_HEADER` y un `std::vector<unsigned char> heap` para simular la memoria de un script. Esto permite que se llamen `amx::Push`, `amx::Allot`, etc., sin interferir con el estado de los scripts Pawn reales en ejecución.
+   - **`thread_local`:** Garantiza que cada hilo tenga su propia `Amx_Sandbox`, evitando condiciones de carrera si el SDK se utiliza en un contexto multihilo (ej: un futuro pool de hilos para operaciones no-Pawn).
+   - **Ejemplo (`Amx_Sandbox`):**
+      ```cpp
+      // Trecho simplificado de callbacks.hpp
+      struct Amx_Sandbox {
+          AMX amx;
+          AMX_HEADER amx_header;
+          std::vector<unsigned char> heap; // Memória simulada para stack/heap
+
+          Amx_Sandbox(size_t heap_size = 64 * 1024) : heap(heap_size) {
+              Reset(); // Inicializa a AMX e a header
+          }
+
+          void Reset() {
+              memset(&amx, 0, sizeof(amx));
+              memset(&amx_header, 0, sizeof(amx_header));
+              amx_header.magic = AMX_MAGIC;
+              amx_header.file_version = MIN_FILE_VERSION;
+              amx_header.amx_version = MIN_AMX_VERSION;
+              amx_header.dat = reinterpret_cast<ucell>(heap.data()) - reinterpret_cast<ucell>(&amx_header);
+              amx.base = reinterpret_cast<unsigned char*>(&amx_header);
+              amx.data = heap.data();
+              amx.callback = amx::Callback;
+              amx.stp = heap.size();
+              amx.stk = heap.size();
+              amx.hea = 0;
+              amx.flags = AMX_FLAG_NTVREG | AMX_FLAG_RELOC;
+          }
       };
       ```
-    - **Banderas**:
-      ```c
-      #define AMX_FLAG_DEBUG      0x02   // Modo de depuración
-      #define AMX_FLAG_COMPACT    0x04   // Codificación compacta
-      #define AMX_FLAG_SLEEP      0x08   // Soporte de sleep
-      #define AMX_FLAG_NOCHECKS   0x10   // Sin verificaciones de seguridad
-      #define AMX_FLAG_NO_RELOC   0x200  // Sin relocación
-      #define AMX_FLAG_NO_SYSREQD 0x400  // Sin sysreq.d
-      #define AMX_FLAG_SYSREQN    0x800  // Soporte sysreq.n
-      #define AMX_FLAG_NTVREG     0x1000 // Registro de nativas
-      #define AMX_FLAG_JITC       0x2000 // Compilación JIT
-      #define AMX_FLAG_BROWSE     0x4000 // Modo exploración
-      #define AMX_FLAG_RELOC      0x8000 // Relocación habilitada
+
+- **`Parameter_Processor`**:
+   - **Descripción:** Un conjunto de funciones plantilla sobrecargadas que gestiona el `marshalling` de *cada* parámetro C++ al formato `cell` esperado por la AMX, y viceversa para los parámetros de salida.
+   - **Procesamiento de Entrada:**
+       - Para `int`, `float`, `bool`: Convierte directamente a `cell`.
+       - Para `const char*`, `std::string`: Asigna memoria en la heap de `Amx_Sandbox` (o AMX real para `Pawn_Public`), copia la string, y empuja la dirección AMX a la stack.
+   - **Procesamiento de Salida (`is_output_arg`):**
+       - **Mecanismo:** Cuando un argumento es una referencia de lvalue no-const (detectado por el trait `is_output_arg`), `Parameter_Processor` no empuja el valor, sino una *dirección AMX* para una `cell` asignada temporalmente en la heap.
+       - **`std::vector<std::function<void()>> post_call_updaters`**: Después de la llamada a la nativa Pawn, se ejecuta una lista de lambdas (`post_call_updaters`). Cada lambda es responsable de leer el valor final de la `cell` asignada en la AMX y asignarlo de nuevo a la variable C++ original (ej: `x = amx::AMX_CTOF(*phys_addr)`).
+- **`is_output_arg`**:
+   - **Mecanismo:** Una `std::integral_constant` (trait de tipo) que, en tiempo de compilación, evalúa si un tipo de parámetro C++ es una referencia modificable (ej: `int&`, `float&`, `std::string&`). Esto permite que el `Parameter_Processor` diferencie los parámetros de entrada de los de salida.
+   - **Ejemplo (`is_output_arg`):**
+      ```cpp
+      // Trecho simplificado de callbacks.hpp
+      template <typename T>
+      struct is_output_arg : std::integral_constant<bool, std::is_lvalue_reference<T>::value && !std::is_const<typename std::remove_reference<T>::type>::value> {};
       ```
-    - **Códigos de Ejecución**:
-      ```c
-      #define AMX_EXEC_MAIN   (-1)  // Ejecutar función principal
-      #define AMX_EXEC_CONT   (-2)  // Continuar ejecución
-      ```
+- **`Amx_Scoped_Memory`**:
+   - **Descripción:** Una clase RAII (`Resource Acquisition Is Initialization`) que encapsula la asignación y desasignación de memoria en la AMX.
+   - **Mecanismo:** En el constructor, llama a `amx::Allot` para obtener una `amx_addr` y una `phys_addr`. En el destructor, llama a `amx::Release` para liberar esa memoria.
+   - **Impacto:** **Crucial para prevenir fugas de memoria en la heap de la AMX.** Garantiza que la memoria temporal utilizada para strings o parámetros de salida siempre se libere, incluso si ocurren excepciones o retornos anticipados.
 
-4. **amx_memory.h**
+### 4.9. `amx_api.hpp` & `amx_helpers.hpp` & `amx_defs.h`: Acceso Abstraído a la AMX
 
-    Gestiona la asignación de memoria:
-    - Soporte para `alloca`:
-      ```c
-      #if defined HAVE_ALLOCA_H
-          #include <alloca.h>
-      #elif defined __BORLANDC__
-          #include <malloc.h>
-      #endif
-      #if defined __WIN32__ || defined _WIN32 || defined WIN32
-          #define alloca(n)   _alloca(n)
-      #endif
-      ```
-    - Define el margen de compresión:
-      ```c
-      #if !defined AMX_COMPACTMARGIN
-          #define AMX_COMPACTMARGIN 64
-      #endif
-      ```
+Estos headers proporcionan las definiciones fundamentales y las herramientas de alto nivel para interactuar con Pawn.
 
-5. **amx_calling.h**
+- **`amx_defs.h`**:
+   - **Contenido:** Contiene las definiciones brutas de las estructuras de la AMX (`AMX`, `AMX_HEADER`), tipos (`cell`, `ucell`), y enums de error (`AmxError`). También define `AMX_NATIVE` y `AMX_CALLBACK`.
+   - **`SAMP_SDK_PACKED`**: Utiliza atributos de empaquetamiento (`#pragma pack(push, 1)` / `__attribute__((packed))`) para garantizar que las estructuras de la AMX tengan el diseño de memoria correcto, fundamental para la interoperabilidad.
+- **`Samp_SDK::amx::Call<Func, Index, ...>`**:
+   - **Descripción:** La función plantilla principal para invocar las funciones de la API AMX expuestas por el servidor.
+   - **Mecanismo:** Obtiene el puntero de la función a través de `Core::Instance().Get_AMX_Export(Index)` y lo llama. Centraliza el manejo de errores si el puntero de la función no está disponible.
+   - **Impacto:** Convierte llamadas de bajo nivel (`Core::Instance().Get_AMX_Export(PLUGIN_AMX_EXPORT_Exec)`) en llamadas C++ idiomáticas y type-safe (`amx::Exec`).
+- **`Samp_SDK::amx::AMX_CTOF(cell c)` / `AMX_FTOC(float f)`**:
+   - **Descripción:** Funciones esenciales para convertir valores `cell` a `float` y viceversa, realizando una reinterpretación bit a bit de la memoria.
+   - **`static_assert`:** Incluyen `static_assert` para garantizar que `sizeof(cell) == sizeof(float)` en tiempo de compilación, previniendo errores en plataformas con diferentes tamaños de tipo.
+- **`Samp_SDK::Get_String(AMX* amx, cell amx_addr)`**:
+   - **Descripción:** Ayudante para convertir una dirección AMX de string en `std::string`.
+   - **Mecanismo:** Primero, obtiene la dirección física (`cell* phys_addr`) de la string en la AMX usando `amx::Get_Addr`. Luego, usa `amx::STR_Len` para determinar la longitud y `amx::Get_String` para copiar los bytes a un `std::string`.
+- **`std::string Samp_SDK::Format(const char* format, ...)`**:
+   - **Descripción:** La función base de formateo de strings (`printf`-like) para el SDK.
+   - **Mecanismo:** Utiliza `vsnprintf` en dos pasadas: primero para determinar el tamaño necesario de la string, y luego para formatear la string en el `std::string` asignado dinámicamente. Esto evita desbordamientos de búfer.
 
-    Define convenciones de llamada:
-    - Para funciones nativas y APIs:
-      ```c
-      #if defined PAWN_DLL
-          #define AMX_NATIVE_CALL __stdcall
-          #define AMXAPI          __stdcall
-      #endif
-      #if !defined AMX_NATIVE_CALL
-          #define AMX_NATIVE_CALL
-      #endif
-      #if defined STDECL
-          #define AMXAPI __stdcall
-      #elif defined CDECL
-          #define AMXAPI __cdecl
-      #elif defined GCC_HASCLASSVISIBILITY
-          #define AMXAPI __attribute__((visibility("default")))
-      #else
-          #define AMXAPI
-      #endif
-      ```
+## 5. Compilación y Deploy
 
-6. **amx_types.h**
+### Requisitos de Arquitectura y Plataforma
 
-    Define tipos enteros estandarizados:
-    - Soporte para `stdint.h` o definiciones manuales:
-      ```c
-      #if defined HAVE_STDINT_H
-          #include <stdint.h>
-      #elif defined HAVE_INTTYPES_H
-          #include <inttypes.h>
-      #else
-          typedef short int           int16_t;
-          typedef unsigned short int  uint16_t;
-          typedef long int            int32_t;
-          typedef unsigned long int   uint32_t;
-          #if defined __WIN32__ || defined _WIN32 || defined WIN32
-              typedef __int64          Sunday, October 20, 2024 int64_t;
-              typedef unsigned __int64  uint64_t;
-          #endif
-      #endif
-      ```
+- Su plugin **DEBE** ser compilado para la arquitectura **x86 (32-bit)**. El mecanismo de hooking del SDK es específico para esta arquitectura.
+- Plataformas Soportadas: Windows (.dll) y Linux (.so).
 
-7. **amx_macros.h**
+### Ejemplos de Comandos de Compilación
 
-    Proporciona macros útiles:
-    - **Cálculo de Dirección**:
-      ```c
-      #define amx_Address(amx,addr) \
-          (cell*)(((uintptr_t)((amx)->data ? (amx)->data : (amx)->base+(int)((AMX_HEADER *)(amx)->base)->dat)) + ((uintptr_t)(addr)))
-      ```
-    - **Manejo de Strings**:
-      ```c
-      #define amx_StrParam(amx,param,result) \
-          do { \
-              int result##_length_; \
-              amx_StrLen(amx_Address(amx,param),&result##_length_); \
-              if (result##_length_>0 && \
-                  ((result)=(void*)alloca((result##_length_+1)*sizeof(*(result))))!=NULL) \
-              amx_GetString((char*)(result),amx_Address(amx,param), \
-                              sizeof(*(result))>1,result##_length_+1); \
-              else (result)=NULL; \
-          } while(0)
-      ```
-    - **Conteo de Parámetros**:
-      ```c
-      #define amx_NumParams(params) ((params)[0] / (cell)sizeof(cell))
-      ```
-    - **Registro de Funciones**:
-      ```c
-      #define amx_RegisterFunc(amx, name, func) \
-          amx_Register((amx), amx_NativeInfo((name),(func)), 1)
-      ```
+#### **MSVC (Visual Studio)**
 
-8. **amx_cell.h**
+1. Cree un nuevo proyecto de "Dynamic-Link Library (DLL)".
+2. En la configuración del proyecto, establezca la "Plataforma de Solución" a **x86**.
+3. Asegúrese de que el Estándar del Lenguaje C++ sea al menos C++14.
 
-    Define tipos de celdas:
-    - Configura `PAWN_CELL_SIZE` (por defecto: 32):
-      ```c
-      #if PAWN_CELL_SIZE==16
-          typedef uint16_t  ucell;
-          typedef int16_t   cell;
-      #elif PAWN_CELL_SIZE==32
-          typedef uint32_t  ucell;
-          typedef int32_t   cell;
-      #elif PAWN_CELL_SIZE==64
-          typedef uint64_t  ucell;
-          typedef int64_t   cell;
-      #endif
-      ```
-    - Soporte para punto flotante:
-      ```c
-      #if PAWN_CELL_SIZE==32
-          #define amx_ftoc(f)   (*(cell*)&(f))  // Float a celda
-          #define amx_ctof(c)   (*(float*)&(c))  // Celda a float
-      #elif PAWN_CELL_SIZE==64
-          #define amx_ftoc(f)   (*(cell*)&(f))  // Double a celda
-          #define amx_ctof(c)   (*(double*)&(c)) // Celda a double
-      #endif
-      ```
-    - Manipulación de caracteres:
-      ```c
-      #define CHARMASK (0xffffffffuL << 8*(4-sizeof(char)))  // Para 32 bits
-      ```
+#### **GCC / Clang (Linux)**
 
-9. **amx_structures.h**
-
-    Define estructuras principales:
-    - **AMX**:
-      ```c
-      typedef struct tagAMX {
-          unsigned char _FAR *base;    // Dirección base
-          unsigned char _FAR *data;    // Segmento de datos
-          AMX_CALLBACK callback;       // Función de callback
-          AMX_DEBUG debug;            // Callback de depuración
-          cell cip;                   // Puntero de instrucción de código
-          cell frm;                   // Base del marco
-          cell hea;                   // Base del heap
-          cell hlw;                   // Límite inferior del heap
-          cell stk;                   // Puntero de pila
-          cell stp;                   // Tope de pila
-          int flags;                  // Banderas
-          long usertags[AMX_USERNUM]; // Etiquetas de usuario
-          void _FAR *userdata[AMX_USERNUM]; // Datos de usuario
-          int error;                  // Código de error
-          int paramcount;             // Conteo de parámetros
-          cell pri;                   // Registro primario
-          cell alt;                   // Registro alternativo
-          cell reset_stk;             // Pila reiniciada
-          cell reset_hea;             // Heap reiniciado
-          cell sysreq_d;              // Dirección sysreq.d
-          #if defined JIT
-              int reloc_size;         // Tamaño de relocación
-              long code_size;         // Tamaño de código
-          #endif
-      } AMX;
-      ```
-    - **AMX_HEADER**:
-      ```c
-      typedef struct tagAMX_HEADER {
-          int32_t size;          // Tamaño del archivo
-          uint16_t magic;        // Firma
-          char    file_version;  // Versión del archivo
-          char    amx_version;   // Versión de AMX
-          int16_t flags;         // Banderas
-          int16_t defsize;       // Tamaño de definición
-          int32_t cod;           // Inicio del código
-          int32_t dat;           // Inicio de datos
-          int32_t hea;           // Inicio del heap
-          int32_t stp;           // Tope de pila
-          int32_t cip;           // Puntero de instrucción inicial
-          int32_t publics;       // Offset a funciones públicas
-          int32_t natives;       // Offset a funciones nativas
-          int32_t libraries;     // Offset a bibliotecas
-          int32_t pubvars;       // Offset a variables públicas
-          int32_t tags;          // Offset a etiquetas
-          int32_t nametable;     // Offset a tabla de nombres
-      } AMX_HEADER;
-      ```
-
-### Soporte de Plataformas
-
-El SDK incluye un manejo robusto específico de plataformas a través de varios headers:
-
-1. **amx_platform.h**
-
-    Proporciona detección y configuración de plataformas:
-    ```c
-    #if (defined __linux || defined __linux__) && !defined __LINUX__
-        #define __LINUX__
-    #endif
-    #if defined FREEBSD && !defined __FreeBSD__
-        #define __FreeBSD__
-    #endif
-    ```
-
-2. **osdefs.h**
-
-    Maneja definiciones específicas del sistema operativo:
-    ```c
-    #if defined(__WATCOMC__)
-        #if defined(__WINDOWS__) || defined(__NT__)
-            #define _Windows 1
-        #endif
-        #ifdef __386__
-            #define __32BIT__ 1
-        #endif
-    #endif
-    ```
-
-### Sistema de Plugins
-
-#### plugincommon.h
-
-Define la interfaz principal del plugin y estructuras de soporte:
-```c
-#define SAMP_PLUGIN_VERSION 0x0200
-
-enum SUPPORTS_FLAGS {
-    SUPPORTS_VERSION = SAMP_PLUGIN_VERSION,
-    SUPPORTS_VERSION_MASK = 0xffff,
-    SUPPORTS_AMX_NATIVES = 0x10000,
-    SUPPORTS_PROCESS_TICK = 0x20000
-};
-
-enum PLUGIN_DATA_TYPE {
-    PLUGIN_DATA_LOGPRINTF = 0x00,
-    PLUGIN_DATA_AMX_EXPORTS = 0x10,
-    PLUGIN_DATA_CALLPUBLIC_FS = 0x11,
-    PLUGIN_DATA_CALLPUBLIC_GM = 0x12
-};
+```bash
+# Para un plugin llamado 'my_plugin.so' a partir de 'main.cpp'
+g++ -m32 -shared -std=c++17 -O2 -fPIC -Wall -Wextra -Wl,--no-undefined main.cpp -o my_plugin.so
 ```
+- `-m32`: Compila para 32-bit.
+- `-shared`: Crea una biblioteca compartida (`.so`).
+- `-std=c++17`: Define el estándar C++ para C++17 (puede ser `c++14` o `c++20`).
+- `-O2`: Nivel de optimización 2.
+- `-fPIC`: Genera código independiente de posición, necesario para bibliotecas compartidas.
+- `-Wall -Wextra`: Activa advertencias adicionales para ayudar a detectar errores.
+- `-Wl,--no-undefined`: Impide la creación de la biblioteca si hay símbolos indefinidos.
 
-#### amxplugin.c
+#### **GCC / Clang (MinGW en Windows)**
 
-El archivo `amxplugin.c` es un componente clave del SA-MP SDK, proporcionando implementaciones específicas de plataforma para funciones AMX. Implementa dos enfoques basados en la plataforma y el compilador:
-
-1. **Implementación Windows MSVC (32-bit)**
-    - Usa funciones "naked" con ensamblador para acceso directo a la tabla de funciones:
-    ```c
-    #define NUDE __declspec(naked)
-    #define AMX_JUMP_HELPER(index) { 
-        _asm { mov eax, pAMXFunctions } 
-        _asm { jmp dword ptr[eax + index * 4] } 
-    }
-    ```
-
-2. **Implementación Multiplataforma**
-    - Usa punteros de funciones para independencia de plataforma:
-    ```c
-    #define DEFINE_AMX_FN_TYPE(name, ret_type, ...) \
-        typedef ret_type AMXAPI (*name##_t)(__VA_ARGS__); \
-        ret_type AMXAPI name(__VA_ARGS__) { \
-            name##_t fn = ((name##_t*)pAMXFunctions)[PLUGIN_AMX_EXPORT_##name]; \
-            return fn(__VA_ARGS__); \
-        }
-    ```
-
-**Características Clave**:
-
-3. **Gestión de Tabla de Funciones**
-    - Usa un puntero estático `pAMXFunctions` para almacenar la tabla de funciones AMX.
-    - Proporciona acceso a todas las funciones principales de AMX.
-    - Maneja la resolución de funciones en tiempo de ejecución.
-
-4. **Optimizaciones Específicas de Plataforma**
-    - Windows 32-bit: Implementación directa en ensamblador con funciones naked.
-    - Otras plataformas: Indirección de punteros de funciones.
-    - Manejo especial para sistemas de 64 bits.
-
-5. **Categorías de Funciones Implementadas**
-
-    a. **Funciones de Gestión de Memoria**:
-    - `amx_Align16`, `amx_Align32`, `amx_Align64`
-    - `amx_Allot`, `amx_Release`
-
-    b. **Funciones de Ejecución**:
-    - `amx_Exec`, `amx_Callback`
-    - `amx_Init`, `amx_InitJIT`
-    - `amx_Cleanup`, `amx_Clone`
-    
-    c. **Gestión de Símbolos**:
-    - `amx_FindPublic`, `amx_FindPubVar`
-    - `amx_FindNative`, `amx_FindTagId`
-    - `amx_GetPublic`, `amx_GetPubVar`
-    
-    d. **Manejo de Strings**:
-    - `amx_GetString`, `amx_SetString`
-    - `amx_StrLen`
-    - Funciones de soporte UTF-8
-    
-    e. **Depuración e Información**:
-    - `amx_SetDebugHook`
-    - `amx_Flags`, `amx_MemInfo`
-    - `amx_NameLength`
-
-6. **Compilación Condicional**
-    - Maneja diferentes plataformas mediante directivas de preprocesador.
-    - Manejo especial para sistemas de 64 bits.
-    - Soporte opcional para JIT:
-      ```c
-      #if defined _I64_MAX || defined HAVE_I64
-          DEFINE_AMX_NAKED_FN(uint64_t* AMXAPI amx_Align64(uint64_t* v), 
-              PLUGIN_AMX_EXPORT_Align64)
-      #endif
-      ```
-
-7. **Integración de Manejo de Errores**
-    - Implementa `amx_RaiseError` para reportes de errores.
-    - Preserva códigos de error a través de llamadas a funciones.
-    - Se integra con el sistema de depuración de AMX.
-
-### Funciones Nativas AMX
-
-El SDK proporciona soporte completo para crear y gestionar funciones nativas:
-```c
-typedef cell (AMX_NATIVE_CALL *AMX_NATIVE)(struct tagAMX *amx, const cell *params);
-
-typedef struct tagAMX_NATIVE_INFO {
-    const char _FAR *name;
-    AMX_NATIVE func;
-} AMX_NATIVE_INFO;
+```bash
+# Para un plugin llamado 'my_plugin.dll' a partir de 'main.cpp'
+g++ -m32 -shared -std=c++17 -O2 -static-libstdc++ -static-libgcc -Wl,--no-undefined main.cpp -o my_plugin.dll
 ```
+- `-static-libstdc++`: Enlaza la biblioteca estándar C++ estáticamente. Esencial para evitar que su plugin dependa de DLLs de runtime específicas del compilador que podrían no estar presentes en el sistema del usuario.
+- `-static-libgcc`: Enlaza la biblioteca GCC estáticamente.
 
-**Operaciones Clave con Funciones Nativas**:
-- Registro mediante `amx_Register`.
-- Acceso y validación de parámetros mediante `amx_NumParams`.
-- Manejo de valores de retorno.
-- Reporte de errores con `amx_RaiseError`.
+### Consideraciones para la Distribución
 
-## Detalles Técnicos
-
-### Gestión de Memoria
-
-El SDK ofrece instalaciones completas de gestión de memoria:
-
-1. **amx_memory.h**
-
-    Maneja la asignación de memoria y operaciones específicas de plataforma:
-    ```c
-    #if defined HAVE_ALLOCA_H
-        #include <alloca.h>
-    #elif defined __BORLANDC__
-        #include <malloc.h>
-    #endif
-    ```
-    - Define `AMX_COMPACTMARGIN` como 64 por defecto para compresión de memoria.
-
-2. **amx_alignment.h**
-
-    Gestiona requisitos de alineación de memoria:
-    ```c
-    #if (defined SN_TARGET_PS2 || defined __GNUC__) && !defined AMX_NO_ALIGN
-        #define AMX_NO_ALIGN
-    #endif 
-    ```
-
-### Operaciones de Memoria
-
-El SDK incluye varias funciones para manipulación de memoria:
-
-1. **Asignación de Memoria**
-    ```c
-    int AMXAPI amx_Allot(AMX* amx, int cells, cell* amx_addr, cell** phys_addr);
-    ```
-    - Asigna memoria en el heap de AMX.
-    - Devuelve direcciones AMX y físicas.
-    - Maneja requisitos de alineación.
-
-2. **Acceso a Memoria**
-    ```c
-    int AMXAPI amx_GetAddr(AMX* amx, cell amx_addr, cell** phys_addr);
-    ```
-    - Convierte direcciones AMX a direcciones físicas.
-    - Valida el acceso a memoria.
-    - Maneja límites de memoria.
-
-3. **Información de Memoria**
-    ```c
-    int AMXAPI amx_MemInfo(AMX* amx, long* codesize, long* datasize, long* stackheap);
-    ```
-    - Recupera información del diseño de memoria.
-    - Reporta tamaños de segmentos.
-    - Útil para depuración y optimización.
-
-### Manejo de Errores
-
-El SDK incluye un sistema completo de manejo de errores definido en `amx_constants.h`:
-```c
-enum {
-    AMX_ERR_NONE,
-    AMX_ERR_EXIT,
-    AMX_ERR_ASSERT,
-    AMX_ERR_STACKERR,
-    AMX_ERR_BOUNDS,
-    AMX_ERR_MEMACCESS,
-    AMX_ERR_INVINSTR,
-    AMX_ERR_STACKLOW,
-    AMX_ERR_HEAPLOW,
-    AMX_ERR_CALLBACK,
-    AMX_ERR_NATIVE,
-    AMX_ERR_DIVIDE,
-    AMX_ERR_SLEEP,
-    AMX_ERR_INVSTATE,
-    AMX_ERR_MEMORY = 16,
-    AMX_ERR_FORMAT,
-    AMX_ERR_VERSION,
-    AMX_ERR_NOTFOUND,
-    AMX_ERR_INDEX,
-    AMX_ERR_DEBUG,
-    AMX_ERR_INIT,
-    AMX_ERR_USERDATA,
-    AMX_ERR_INIT_JIT,
-    AMX_ERR_PARAMS,
-    AMX_ERR_DOMAIN,
-    AMX_ERR_GENERAL,
-};
-```
-
-### Manejo de Strings
-
-El SDK proporciona capacidades robustas de manejo de strings a través de varios macros y funciones:
-```c
-#define amx_StrParam(amx,param,result) \
-    do { \
-        int result##_length_; \
-        amx_StrLen(amx_Address(amx,param),&result##_length_); \
-        if (result##_length_>0 && \
-            ((result)=(void*)alloca((result##_length_+1)*sizeof(*(result))))!=NULL) \
-        amx_GetString((char*)(result),amx_Address(amx,param), \
-                            sizeof(*(result))>1,result##_length_+1); \
-        else (result)=NULL; \
-    } while(0)
-```
-- Alternativa para `char*`:
-  ```c
-  #define amx_StrParamChar(amx, param, result) \
-      do { \
-          cell* amx_cstr_; \
-          int amx_length_; \
-          amx_GetAddr((amx), (param), &amx_cstr_); \
-          amx_StrLen(amx_cstr_, &amx_length_); \
-          if (amx_length_ > 0 && ((result) = (char*)alloca((amx_length_ + 1) * sizeof(*(result)))) != NULL) \
-              amx_GetString((char*)(result), amx_cstr_, sizeof(*(result)) > 1, amx_length_ + 1); \
-          else \
-              (result) = ""; \
-      } while(0)
-  ```
-
-### Operaciones de Strings
-
-1. **Longitud de String**
-    ```c
-    int AMXAPI amx_StrLen(const cell* cstring, int* length);
-    ```
-    - Calcula la longitud del string.
-    - Maneja strings empaquetados y no empaquetados.
-    - Devuelve la longitud en caracteres.
-
-2. **Conversión de Strings**
-    ```c
-    int AMXAPI amx_SetString(cell* dest, const char* source, int pack, int use_wchar, size_t size);
-    ```
-    - Convierte strings C a strings AMX.
-    - Soporta formatos empaquetados y no empaquetados.
-    - Maneja conversión Unicode.
-
-## Soporte Unicode
-
-El SDK proporciona soporte completo para Unicode a través de funciones de manejo UTF-8:
-```c
-int AMXAPI amx_UTF8Check(const char* string, int* length);
-int AMXAPI amx_UTF8Get(const char* string, const char** endptr, cell* value);
-int AMXAPI amx_UTF8Len(const cell* cstr, int* length);
-int AMXAPI amx_UTF8Put(char* string, char** endptr, int maxchars, cell value);
-```
-
-### Operaciones Unicode
-
-1. **Validación UTF-8**
-    ```c
-    int AMXAPI amx_UTF8Check(const char* string, int* length);
-    ```
-    - Valida strings codificados en UTF-8.
-    - Reporta la longitud del string en caracteres.
-    - Detecta errores de codificación.
-
-2. **Conversión de Caracteres**
-    ```c
-    int AMXAPI amx_UTF8Get(const char* string, const char** endptr, cell* value);
-    ```
-    - Extrae caracteres Unicode.
-    - Maneja secuencias multi-byte.
-    - Reporta errores de análisis.
-
-## Compatibilidad Multiplataforma
-
-El SDK asegura compatibilidad multiplataforma mediante:
-
-1. **Manejo de Endianness**
-    ```c
-    #ifndef BYTE_ORDER
-        #if defined(UCLINUX)
-            #define BYTE_ORDER BIG_ENDIAN
-        #else
-            #define BYTE_ORDER LITTLE_ENDIAN
-        #endif
-    #endif
-    ```
-
-2. **Manejo de Rutas**
-    ```c
-    #if defined(__MSDOS__) || defined(__WIN32__) || defined(_Windows)
-        #define DIRSEP_CHAR '\\'
-    #elif defined(macintosh)
-        #define DIRSEP_CHAR ':'
-    #else
-        #define DIRSEP_CHAR '/'
-    #endif
-    ```
-
-3. **Tipos Independientes de Plataforma**
-    - Definidos en `amx_types.h` para consistencia.
-
-## Requisitos del Sistema
-
-El SDK soporta múltiples plataformas y compiladores:
-- Windows (MSVC, MinGW)
-- Linux (GCC)
-- FreeBSD
-- OpenBSD
-- macOS
-
-### Soporte de Compiladores
-
-1. **Microsoft Visual C++**
-    - Manejo de pragmas.
-    - Supresión de advertencias.
-    - Convenciones de llamada mediante `amx_calling.h`.
-
-2. **GCC**
-    - Controles de diagnóstico.
-    - Especificaciones de atributos.
-    - Optimizaciones específicas de plataforma.
-
-3. **Clang**
-    - Configuraciones de advertencias.
-    - Compatibilidad multiplataforma.
-    - Características modernas de C++.
-
-## Mejores Prácticas
-
-Al usar el SA-MP SDK, considere las siguientes mejores prácticas:
-
-1. **Gestión de Memoria**
-    - Siempre limpie los recursos asignados.
-    - Use alineación de memoria adecuada.
-    - Maneje errores de memoria con elegancia.
-    - Monitoree el uso del heap.
-    - Implemente verificación adecuada de límites de memoria.
-    - Use pools de memoria para asignaciones frecuentes.
-    - Limpie recursos en orden inverso de asignación.
-
-2. **Manejo de Errores**
-    - Verifique los valores de retorno de las funciones AMX.
-    - Implemente manejo adecuado de errores en funciones nativas.
-    - Use las constantes de error proporcionadas.
-    - Registre errores de manera apropiada.
-    - Implemente mecanismos de recuperación de errores.
-    - Proporcione mensajes de error significativos.
-    - Maneje errores específicos del sistema.
-
-3. **Desarrollo Multiplataforma**
-    - Use tipos independientes de plataforma.
-    - Utilice macros proporcionados para código específico de plataforma.
-    - Pruebe en múltiples plataformas.
-    - Maneje diferencias de endianness.
-    - Use separadores de ruta apropiados.
-    - Considere diferencias del sistema de archivos.
-    - Implemente optimizaciones específicas de plataforma.
-
-4. **Consideraciones de Rendimiento**
-    - Use tamaños de celda adecuados.
-    - Implemente manejo eficiente de strings.
-    - Optimice las llamadas a funciones nativas.
-    - Minimice las asignaciones de memoria.
-    - Use estructuras de datos apropiadas.
-    - Implemente caché donde sea adecuado.
-    - Perfile rutas críticas de código.
-
-Cuando trabaje con la funcionalidad de `amxplugin.c`:
-
-1. **Desarrollo Específico de Plataforma**
-    - Considere diferencias de plataforma en implementaciones de funciones.
-    - Pruebe en sistemas de 32 y 64 bits.
-    - Maneje requisitos de alineación específicos de plataforma.
-    - Valide el puntero de la tabla de funciones antes de usarlo.
-    - Implemente verificación de errores adecuada para cada plataforma.
-    - Considere las implicaciones de rendimiento de diferentes implementaciones.
-
-2. **Gestión de Tabla de Funciones**
-    - Inicialice la tabla de funciones antes de usarla.
-    - Verifique la disponibilidad de funciones.
-    - Maneje funciones faltantes con elegancia.
-    - Implemente procedimientos de limpieza adecuados.
-    - Almacene en caché punteros de funciones usados frecuentemente.
-    - Valide la integridad de la tabla de funciones.
-
-3. **Manejo de Errores**
-    - Implemente verificación adecuada de errores para código específico de plataforma.
-    - Maneje errores de alineación de manera apropiada.
-    - Valide las entradas de la tabla de funciones.
-    - Proporcione mensajes de error significativos.
-    - Implemente mecanismos de recuperación.
-    - Registre errores específicos de plataforma.
-
-## Estructuras Internas
-
-### Estructura del Header AMX
-
-```c
-typedef struct tagAMX_HEADER {
-    int32_t size;          // Tamaño del "archivo"
-    uint16_t magic;        // Firma
-    char    file_version;  // Versión del formato de archivo
-    char    amx_version;   // Versión AMX requerida
-    int16_t flags;         // Banderas
-    int16_t defsize;       // Tamaño de un registro de definición
-    int32_t cod;           // Valor inicial de COD - bloque de código
-    int32_t dat;           // Valor inicial de DAT - bloque de datos
-    int32_t hea;           // Valor inicial de HEA - inicio del heap
-    int32_t stp;           // Valor inicial de STP - tope de pila
-    int32_t cip;           // Valor inicial de CIP - puntero de instrucción de código
-    int32_t publics;       // Offset a funciones públicas
-    int32_t natives;       // Offset a tabla de funciones nativas
-    int32_t libraries;     // Offset a bibliotecas
-    int32_t pubvars;       // Offset a variables públicas
-    int32_t tags;          // Offset a etiquetas
-    int32_t nametable;     // Offset a tabla de nombres
-} AMX_HEADER;
-```
-
-Esta estructura es crucial para entender el formato de archivo AMX y cómo la máquina virtual carga y ejecuta scripts.
-
-## Características Avanzadas
-
-### Soporte de Compilación JIT
-
-El SDK incluye soporte para compilación Just-In-Time:
-```c
-int AMXAPI amx_InitJIT(AMX* amx, void* reloc_table, void* native_code);
-```
-
-### Interfaz de Depuración
-
-El soporte de depuración se proporciona mediante:
-```c
-typedef int (AMXAPI *AMX_DEBUG)(struct tagAMX *amx);
-int AMXAPI amx_SetDebugHook(AMX* amx, AMX_DEBUG debug);
-```
-
-### Interfaz de Funciones Públicas
-
-El SDK proporciona soporte completo para trabajar con funciones públicas:
-
-1. **Búsqueda de Funciones Públicas**
-    ```c
-    int AMXAPI amx_FindPublic(AMX* amx, const char* funcname, int* index);
-    ```
-    - Localiza funciones públicas por nombre.
-    - Devuelve el índice de la función.
-    - Valida la existencia de la función.
-
-2. **Ejecución de Funciones Públicas**
-    ```c
-    int AMXAPI amx_Exec(AMX* amx, cell* retval, int index);
-    ```
-    - Ejecuta funciones públicas.
-    - Maneja valores de retorno.
-    - Gestiona el contexto de ejecución.
-
-## Información de Versión
-
-El SDK incluye constantes de versión para verificación de compatibilidad:
-```c
-#define CUR_FILE_VERSION  9
-#define MIN_FILE_VERSION  6
-#define MIN_AMX_VERSION   10
-#define MAX_FILE_VER_JIT  8
-#define MIN_AMX_VER_JIT   8
-```
-
-### Compatibilidad de Versiones
-
-El SDK mantiene compatibilidad mediante:
-1. Verificación de la versión del archivo.
-2. Validación de la versión AMX.
-3. Verificación de compatibilidad JIT.
-4. Detección de características.
-5. Manejo de versiones específico de plataforma.
+- **Nombre del Archivo:** Su plugin debe tener la extensión `.dll` (Windows) o `.so` (Linux). Ej: `my_plugin.dll`.
+- **Ubicación:** Coloque el archivo compilado en la carpeta `plugins/` de su servidor SA-MP.
+- **server.cfg:** Añada el nombre de su plugin (si es Windows, sin la extensión) a la línea `plugins` en `server.cfg`.
+   ```
+   plugins my_plugin (se for Linux, my_plugin.so)
+   ```
 
 ## Licencia
 
-**Aviso de Propiedad**: El **SA-MP SDK** contenido en este repositorio está compuesto por archivos con diferentes titulares de derechos de autor, como se detalla a continuación:
-- Los archivos `amxplugin.c`, `plugin.h` y `plugincommon.h`, específicos de **San Andreas Multiplayer (SA-MP)**, son propiedad intelectual de **Kalcor y posiblemente miembros del equipo de SA-MP**, los creadores originales de SA-MP.
-- Los archivos relacionados con la **Pawn Abstract Machine (AMX)**, incluyendo, pero no limitados a `amx.h`, `amx.c`, `osdefs.h` y otros encabezados e implementaciones esenciales para el lenguaje de programación Pawn, son propiedad intelectual de **CompuPhase**, el creador original de Pawn, con sede en los Países Bajos.
-- El archivo `sclinux.h` probablemente proviene de **SELinux o de un subsistema personalizado del kernel de Linux**, formando parte de un entorno similar a Unix.
-- Los archivos `getch.h` y `getch.c` son implementaciones independientes compatibles con POSIX, basadas en funcionalidades estándar como `termios` para la entrada de caracteres.
-- La **SA-MP Programming Community (SPC)** no reclama ningún derecho de autor sobre el contenido original del **SA-MP SDK**, los archivos de **CompuPhase**, `sclinux.h` o `getch.h/c`. Este repositorio tiene como único propósito facilitar el acceso y la organización del material para desarrolladores de complementos, según lo permitido por el uso justo y las prácticas de la comunidad.
+Copyright © **SA-MP Programming Community**
 
-**Licencia Aplicable a las Mejoras**: Cualquier mejora, modificación o archivo adicional creado por la **SA-MP Programming Community (SPC)** e incluido en este repositorio está licenciado bajo los términos de la **Licencia MIT**. La Licencia MIT se aplica exclusivamente a estas contribuciones específicas y no al contenido original del **SA-MP SDK**, los archivos de **CompuPhase**, `sclinux.h` o `getch.h/c`. Una copia de la Licencia MIT se puede encontrar en: [MIT License](https://opensource.org/licenses/MIT).
-
-**Licencias de los Archivos Originales**:
-- Los archivos `amx.h`, `amx.c`, `osdefs.h` (propiedad de **CompuPhase**) y `sclinux.h` (probablemente propiedad de **SELinux o un kernel personalizado**) están licenciados bajo la **Apache License 2.0**. Los detalles de la licencia se pueden encontrar en: [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
-- Los archivos `getch.h` y `getch.c` están licenciados bajo la **Mozilla Public License 2.0 (MPL-2.0)**. Los detalles de la licencia se pueden encontrar en: [MPL-2.0](https://www.mozilla.org/en-US/MPL/2.0/).
-- Los archivos `amxplugin.c`, `plugin.h` y `plugincommon.h` (propiedad de **Kalcor y posiblemente miembros del equipo de SA-MP**) no tienen una licencia especificada.
+Este software está licenciado bajo los términos de la Licencia MIT ("Licencia"); puede utilizar este software de acuerdo con las condiciones de la Licencia. Puede obtener una copia de la Licencia en: [MIT License](https://opensource.org/licenses/MIT)
 
 ### Términos y Condiciones de Uso
 
-#### 1. Alcance de la Licencia
-La Licencia MIT otorga, de forma gratuita, a cualquier persona que obtenga una copia de las mejoras o archivos adicionales creados por la **SPC**, los siguientes derechos:
-- Usar, copiar, modificar, combinar, publicar, distribuir, sublicenciar y/o vender copias de estas contribuciones sin restricciones.
-- Permitir que las personas a las que se les proporcionen estas contribuciones hagan lo mismo, sujeto a las condiciones a continuación.
+#### 1. Permisos Otorgados
+
+La presente licencia otorga, gratuitamente, a cualquier persona que obtenga una copia de este software y archivos de documentación asociados, los siguientes derechos:
+* Usar, copiar, modificar, fusionar, publicar, distribuir, sublicenciar y/o vender copias del software sin restricciones
+* Permitir que las personas a las que se les proporciona el software hagan lo mismo, sujeto a las siguientes condiciones
 
 #### 2. Condiciones Obligatorias
-Todas las copias o partes sustanciales de las contribuciones de la **SPC** deben incluir:
-- El aviso de derechos de autor de la **SPC** para las mejoras.
-- Este aviso de permiso.
-- El aviso de exención de responsabilidad a continuación.
+
+Todas las copias o partes sustanciales del software deben incluir:
+* El aviso de derechos de autor anterior
+* Este aviso de permiso
+* El aviso de exención de responsabilidad a continuación
 
 #### 3. Derechos de Autor
-Las mejoras y archivos adicionales creados por la **SPC** están protegidos por las leyes de derechos de autor, y la **SPC** conserva la titularidad de los derechos de autor sobre estas contribuciones específicas. Los archivos `amxplugin.c`, `plugin.h` y `plugincommon.h` siguen siendo propiedad de **Kalcor y posiblemente miembros del equipo de SA-MP**. Los archivos de la **Pawn Abstract Machine (AMX)**, incluyendo `osdefs.h`, siguen siendo propiedad de **CompuPhase**. El archivo `sclinux.h` es probablemente propiedad de **SELinux o un subsistema personalizado del kernel de Linux**, y `getch.h/c` es una implementación independiente POSIX. La **SPC** no reclama ningún derecho de autoría sobre estos contenidos originales.
+
+El software y toda la documentación asociada están protegidos por leyes de derechos de autor. La **SA-MP Programming Community** mantiene la titularidad de los derechos de autor originales del software.
 
 #### 4. Exención de Garantías y Limitación de Responsabilidad
-LAS CONTRIBUCIONES DE LA **SPC** SE PROPORCIONAN “TAL CUAL”, SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO, PERO NO LIMITADO A, LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN.
 
-EN NINGÚN CASO LA **SPC** O LOS TITULARES DE LOS DERECHOS DE AUTOR DE LAS MEJORAS SERÁN RESPONSABLES POR CUALQUIER RECLAMO, DAÑOS U OTRA RESPONSABILIDAD, YA SEA EN UNA ACCIÓN DE CONTRATO, TORTURA O DE OTRO TIPO, QUE SURJA DE, FUERA DE O EN CONEXIÓN CON LAS CONTRIBUCIONES DE LA **SPC** O EL USO U OTROS TRATOS EN ESTAS CONTRIBUCIONES.
+EL SOFTWARE SE PROPORCIONA "TAL CUAL", SIN GARANTÍA DE NINGÚN TIPO, EXPRESA O IMPLÍCITA, INCLUYENDO PERO NO LIMITADO A LAS GARANTÍAS DE COMERCIABILIDAD, IDONEIDAD PARA UN PROPÓSITO PARTICULAR Y NO INFRACCIÓN.
 
-**Nota sobre los Archivos Originales**: Los usuarios son responsables de garantizar que el uso de los archivos del **SA-MP SDK** cumpla con las licencias aplicables:
-- Para `amx.h`, `amx.c`, `osdefs.h` y `sclinux.h`, siga los términos de la **Apache License 2.0**.
-- Para `getch.h` y `getch.c`, siga los términos de la **Mozilla Public License 2.0 (MPL-2.0)**.
-- Para `amxplugin.c`, `plugin.h` y `plugincommon.h`, dado que no tienen una licencia especificada, los usuarios deben garantizar el cumplimiento de los términos establecidos por **Kalcor y posiblemente miembros del equipo de SA-MP** o las leyes aplicables. La **SPC** no ofrece garantías ni asume responsabilidades por el uso de estos contenidos originales.
+EN NINGÚN CASO LOS AUTORES O TITULARES DE LOS DERECHOS DE AUTOR SERÁN RESPONSABLES DE CUALQUIER RECLAMACIÓN, DAÑOS U OTRA RESPONSABILIDAD, YA SEA EN UNA ACCIÓN DE CONTRATO, AGRAVIO O DE OTRO MODO, QUE SURJA DE, FUERA DE O EN CONEXIÓN CON EL SOFTWARE O EL USO U OTROS TRATOS EN EL SOFTWARE.
 
 ---
 
-Para información detallada sobre la Licencia MIT, consulte: [MIT License](https://opensource.org/licenses/MIT)
+Para información detallada sobre la Licencia MIT, consulte: https://opensource.org/licenses/MIT
