@@ -166,11 +166,14 @@ SAMP_SDK_EXPORT void SAMP_SDK_CALL Unload() {
 #if defined(SAMP_SDK_WANT_AMX_EVENTS)
 SAMP_SDK_EXPORT void SAMP_SDK_CALL AmxLoad(AMX* amx) {
     Samp_SDK::Detail::Get_Registered_Natives().Register_All(amx);
-
     OnAmxLoad(amx);
+
+    Samp_SDK::Detail::Module_Manager::Instance().Forward_AmxLoad(amx);
 }
 
 SAMP_SDK_EXPORT void SAMP_SDK_CALL AmxUnload(AMX* amx) {
+    Samp_SDK::Detail::Module_Manager::Instance().Forward_AmxUnload(amx);
+
     OnAmxUnload(amx);
 }
 #endif
@@ -178,6 +181,8 @@ SAMP_SDK_EXPORT void SAMP_SDK_CALL AmxUnload(AMX* amx) {
 #if defined(SAMP_SDK_WANT_PROCESS_TICK)
 SAMP_SDK_EXPORT void SAMP_SDK_CALL ProcessTick() {
     OnProcessTick();
+
+    Samp_SDK::Detail::Module_Manager::Instance().Forward_ProcessTick();
 }
 #endif
 

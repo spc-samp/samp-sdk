@@ -80,12 +80,16 @@
 //
 #include "dynamic_library.hpp"
 #include "logger.hpp"
+#include "amx_defs.h"
 
 namespace Samp_SDK {
     namespace Detail {
         using Module_Load_t = bool (SAMP_SDK_CALL *)(void** ppPluginData);
         using Module_Unload_t = void (SAMP_SDK_CALL *)();
         using Module_Supports_t = unsigned int (SAMP_SDK_CALL *)();
+        using Module_AmxLoad_t = void (SAMP_SDK_CALL *)(AMX *amx);
+        using Module_AmxUnload_t = void (SAMP_SDK_CALL *)(AMX *amx);
+        using Module_ProcessTick_t = void (SAMP_SDK_CALL *)();
 
         class Module {
             public:
@@ -101,15 +105,21 @@ namespace Samp_SDK {
 
                     auto load_func = library_.Get_Function<Module_Load_t>("Load");
                     auto unload_func = library_.Get_Function<Module_Unload_t>("Unload");
+                    auto supports_func = library_.Get_Function<Module_Supports_t>("Supports");
 
-                    if (!load_func || !unload_func) {
-                        Log("[SAMP-SDK] Error: Module '%s' does not export required 'Load' and 'Unload' functions.", name_.c_str());
+                    if (!load_func || !unload_func || !supports_func) {
+                        Log("[SAMP-SDK] Error: Module '%s' does not export required 'Load', 'Unload', and 'Supports' functions.", name_.c_str());
                         library_.Unload();
 
                         return false;
                     }
 
                     unload_func_ = unload_func;
+                    supports_func_ = supports_func;
+
+                    amx_load_func_ = library_.Get_Function<Module_AmxLoad_t>("AmxLoad");
+                    amx_unload_func_ = library_.Get_Function<Module_AmxUnload_t>("AmxUnload");
+                    process_tick_func_ = library_.Get_Function<Module_ProcessTick_t>("ProcessTick");
                     
                     if (!load_func(ppData)) {
                         Log("[SAMP-SDK] Error: Module '%s' failed to initialize (Load function returned false).", name_.c_str());
@@ -128,10 +138,17 @@ namespace Samp_SDK {
                     }
                 }
 
+                Module_AmxLoad_t Get_AmxLoad_Func() const { return amx_load_func_; }
+                Module_AmxUnload_t Get_AmxUnload_Func() const { return amx_unload_func_; }
+                Module_ProcessTick_t Get_ProcessTick_Func() const { return process_tick_func_; }
             private:
                 std::string name_;
                 Dynamic_Library library_;
                 Module_Unload_t unload_func_ = nullptr;
+                Module_Supports_t supports_func_ = nullptr;
+                Module_AmxLoad_t amx_load_func_ = nullptr;
+                Module_AmxUnload_t amx_unload_func_ = nullptr;
+                Module_ProcessTick_t process_tick_func_ = nullptr;
         };
 
         class Module_Manager {
@@ -182,6 +199,27 @@ namespace Samp_SDK {
                         (*it)->Unload();
 
                     loaded_modules_.clear();
+                }
+                
+                void Forward_AmxLoad(AMX* amx) {
+                    for (const auto& module : loaded_modules_) {
+                        if (auto func = module->Get_AmxLoad_Func())
+                            func(amx);
+                    }
+                }
+
+                void Forward_AmxUnload(AMX* amx) {
+                    for (auto it = loaded_modules_.rbegin(); it != loaded_modules_.rend(); ++it) {
+                        if (auto func = (*it)->Get_AmxUnload_Func())
+                            func(amx);
+                    }
+                }
+
+                void Forward_ProcessTick() {
+                    for (const auto& module : loaded_modules_) {
+                        if (auto func = module->Get_ProcessTick_Func())
+                            func();
+                    }
                 }
             private:
                 Module_Manager() = default;
