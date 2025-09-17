@@ -72,7 +72,7 @@
       - [Marshalling de Parâmetros de Entrada](#marshalling-de-parâmetros-de-entrada)
       - [Marshalling de Parâmetros de Saída (Referências: `int&`, `float&`, `std::string&`)](#marshalling-de-parâmetros-de-saída-referências-int-float-stdstring)
       - [O Objeto `Callback_Result`: Análise Completa](#o-objeto-callback_result-análise-completa)
-    - [3.5. `Plugin_Module`: Gerenciamento de Módulos Dinâmicos](#35-plugin_module-gerenciamento-de-módulos-dinâmicos)
+      - [**3.5. `Plugin_Module`: Gerenciamento de Módulos Dinâmicos**](#35-plugin_module-gerenciamento-de-módulos-dinâmicos)
       - [Sintaxe e Propósito](#sintaxe-e-propósito)
       - [Ciclo de Vida de um Módulo](#ciclo-de-vida-de-um-módulo)
       - [Benefícios da Modularização](#benefícios-da-modularização)
@@ -623,9 +623,9 @@ if (result) { // Verifica se a chamada foi bem-sucedida (operator bool)
 // }
 ```
 
-### 3.5. `Plugin_Module`: Gerenciamento de Módulos Dinâmicos
+#### **3.5. `Plugin_Module`: Gerenciamento de Módulos Dinâmicos**
 
-A macro `Plugin_Module` permite que seu plugin atue como um "carregador" para outros plugins, criando uma arquitetura modular e extensível.
+A macro `Plugin_Module` permite que seu plugin atue como um "carregador" para outros plugins, criando uma arquitetura modular e extensível. Um módulo carregado desta forma é tratado como um plugin de primeira classe, com seu próprio ciclo de vida de eventos gerenciado pelo plugin hospedeiro.
 
 #### Sintaxe e Propósito
 
@@ -650,18 +650,30 @@ if (!Plugin_Module("admin_system", "plugins", "Módulo de Administração ativad
 
 #### Ciclo de Vida de um Módulo
 
+Um módulo deve exportar as funções `Load`, `Unload` e `Supports`, assim como um plugin normal. O SDK gerencia o ciclo de vida do módulo da seguinte forma:
+
 - **Carregamento:** Quando `Plugin_Module` é chamado, o SDK:
-   1. Constrói o caminho completo do arquivo (ex: `plugins/custom/core_logic.dll`).
+   1. Constrói o caminho completo do arquivo (ex: `modules/custom/core_logic.dll`).
    2. Usa `Dynamic_Library` (`LoadLibrary`/`dlopen`) para carregar o binário.
-   3. Obtém os ponteiros para as funções de ciclo de vida do módulo: `Load`, `Unload` e `Supports`.
+   3. **Obtém os ponteiros para TODAS as funções de ciclo de vida do módulo:**
+      - **Obrigatórias:** `Load`, `Unload`, `Supports`. Se alguma faltar, o carregamento do módulo falha.
+      - **Opcionais:** `AmxLoad`, `AmxUnload`, `ProcessTick`.
    4. Chama a função `Load` do módulo, passando `ppData` do plugin principal.
    5. Se `Load` retornar `true`, o módulo é adicionado à lista interna de módulos carregados.
+
+- **Encaminhamento de Eventos:** O plugin hospedeiro **automaticamente encaminha** os eventos para todos os módulos carregados.
+ > [!IMPORTANT]
+ > Para que os eventos sejam encaminhados corretamente, o **plugin hospedeiro** (o que chama `Plugin_Module`) deve estar configurado para receber esses eventos.
+ > - Para que `AmxLoad` e `AmxUnload` funcionem nos módulos, o plugin hospedeiro deve definir a macro `SAMP_SDK_WANT_AMX_EVENTS`.
+ > - Para que `ProcessTick` funcione nos módulos, o plugin hospedeiro deve definir a macro `SAMP_SDK_WANT_PROCESS_TICK`.
+
 - **Descarregamento:** Durante `OnUnload` do seu plugin principal, o SDK descarrega todos os módulos que foram carregados via `Plugin_Module`. Isso é feito na **ordem inversa** ao carregamento (o último a ser carregado é o primeiro a ser descarregado), o que é crucial para gerenciar dependências e garantir a liberação correta de recursos.
 
 #### Benefícios da Modularização
 
 - **Organização do Código:** Divida grandes plugins em componentes menores e gerenciáveis, cada um em seu próprio arquivo de módulo.
 - **Reusabilidade:** Crie módulos genéricos (ex: um módulo de banco de dados, um módulo de sistema de log avançado) que podem ser usados por diferentes plugins, promovendo a reutilização de código.
+- **Componentes Independentes:** Crie módulos que são **totalmente orientados a eventos e independentes**. Um módulo pode ter suas próprias `Plugin_Native`s, interceptar `Plugin_Public`s e ter sua própria lógica `OnProcessTick`, operando como um plugin autônomo, mas carregado por um hospedeiro.
 - **Atualizações Dinâmicas:** Em cenários controlados, permite a atualização de partes do seu sistema (substituindo um `.dll` ou `.so` de módulo) sem a necessidade de recompilar e reiniciar o plugin principal ou o servidor inteiro (embora isso exija um gerenciamento de versão e compatibilidade rigorosos).
 
 ### 3.6. `Plugin_Call`: Chamando Nativas Internas do Plugin
