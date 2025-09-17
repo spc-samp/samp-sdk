@@ -72,10 +72,10 @@
       - [Marshalling dei Parametri di Input](#marshalling-dei-parametri-di-input)
       - [Marshalling dei Parametri di Output (Riferimenti: `int&`, `float&`, `std::string&`)](#marshalling-dei-parametri-di-output-riferimenti-int-float-stdstring)
       - [L'Oggetto `Callback_Result`: Analisi Completa](#loggetto-callback_result-analisi-completa)
-    - [3.5. `Plugin_Module`: Gestione di Moduli Dinamici](#35-plugin_module-gestione-di-moduli-dinamici)
+      - [**3.5. `Plugin_Module`: Gestione dei Moduli Dinamici**](#35-plugin_module-gestione-dei-moduli-dinamici)
       - [Sintassi e Scopo](#sintassi-e-scopo)
       - [Ciclo di Vita di un Modulo](#ciclo-di-vita-di-un-modulo)
-      - [Benefici della Modularizzazione](#benefici-della-modularizzazione)
+      - [Vantaggi della Modularizzazione](#vantaggi-della-modularizzazione)
     - [3.6. `Plugin_Call`: Chiamata di Native Interne del Plugin](#36-plugin_call-chiamata-di-native-interne-del-plugin)
       - [Sintassi e Vantaggi di Performance](#sintassi-e-vantaggi-di-performance)
     - [**3.7. Funzioni Utility dell'SDK**](#37-funzioni-utility-dellsdk)
@@ -623,46 +623,58 @@ if (result) { // Verifica se a chamada foi bem-sucedida (operator bool)
 // }
 ```
 
-### 3.5. `Plugin_Module`: Gestione di Moduli Dinamici
+#### **3.5. `Plugin_Module`: Gestione dei Moduli Dinamici**
 
-La macro `Plugin_Module` permette al tuo plugin di agire come un "caricatore" per altri plugin, creando un'architettura modulare ed estensibile.
+La macro `Plugin_Module` consente al tuo plugin di fungere da "caricatore" per altri plugin, creando un'architettura modulare ed estensibile. Un modulo caricato in questo modo viene trattato come un plugin di prima classe, con il proprio ciclo di vita degli eventi gestito dal plugin ospitante.
 
 #### Sintassi e Scopo
 
-- `Plugin_Module(const char* nome_del_file_base, const char* directory_del_modulo, const char* messaggio_successo_opzionale)`
-- `nome_del_file_base`: Il nome *base* del file del modulo, **senza estensione** (es: per `my_module.dll` o `my_module.so`, usa `"my_module"`). L'SDK aggiungerà automaticamente l'estensione `.dll` o `.so` appropriata.
-- `directory_del_modulo`: Il percorso della directory dove si trova il file del modulo (es: `"plugins/my_custom_modules"`). **Non includere il nome del file qui.** L'SDK concatenerà il percorso completo (`directory_del_modulo/nome_del_file_base.ext`).
-- `messaggio_successo_opzionale`: Un messaggio opzionale da loggare nella console del server se il modulo viene caricato con successo.
+- `Plugin_Module(const char* nome_do_arquivo_base, const char* diretorio_do_modulo, const char* mensagem_sucesso_opcional)`
+- `nome_do_arquivo_base`: Il nome *base* del file del modulo, **senza l'estensione** (ad esempio, per `my_module.dll` o `my_module.so`, usa `"my_module"`). L'SDK aggiungerà automaticamente l'estensione `.dll` o `.so` appropriata.
+- `diretorio_do_modulo`: Il percorso della directory in cui si trova il file del modulo (ad esempio, `"plugins/my_custom_modules"`). **Non includere il nome del file qui.** L'SDK concatenerà il percorso completo (`diretorio_do_modulo/nome_do_arquivo_base.ext`).
+- `mensagem_sucesso_opcional`: Un messaggio opzionale da registrare nella console del server se il modulo viene caricato con successo.
 
 ```cpp
-// main.cpp, dentro de OnLoad()
+// main.cpp, all'interno di OnLoad()
 
-// Carrega o módulo 'core_logic.dll' (ou 'core_logic.so')
-// que está localizado na pasta 'modules/custom/' do servidor.
-if (!Plugin_Module("core_logic", "modules/custom", "Módulo de Lógica Core carregado com sucesso!"))
-    return (Samp_SDK::Log("ERRO FATAL: Falha ao carregar o módulo 'core_logic'!"), false);
+// Carica il modulo 'core_logic.dll' (o 'core_logic.so')
+// che si trova nella cartella 'modules/custom/' del server.
+if (!Plugin_Module("core_logic", "modules/custom", "Modulo di Logica Principale caricato con successo!"))
+    return (Samp_SDK::Log("ERRORE FATALE: Impossibile caricare il modulo 'core_logic'!"), false);
 
-// Carrega o módulo 'admin_system.dll' (ou 'admin_system.so')
-// que está localizado diretamente na pasta 'plugins/' do servidor.
-if (!Plugin_Module("admin_system", "plugins", "Módulo de Administração ativado."))
-    Samp_SDK::Log("AVISO: Módulo de Administração não pôde ser carregado.");
+// Carica il modulo 'admin_system.dll' (o 'admin_system.so')
+// che si trova direttamente nella cartella 'plugins/' del server.
+if (!Plugin_Module("admin_system", "plugins", "Modulo di Amministrazione attivato."))
+    Samp_SDK::Log("AVVISO: Impossibile caricare il Modulo di Amministrazione.");
 ```
 
 #### Ciclo di Vita di un Modulo
 
-- **Caricamento:** Quando `Plugin_Module` viene chiamato, l'SDK:
-   1. Costruisce il percorso completo del file (es: `plugins/custom/core_logic.dll`).
-   2. Usa `Dynamic_Library` (`LoadLibrary`/`dlopen`) per caricare il binario.
-   3. Ottiene i puntatori alle funzioni del ciclo di vita del modulo: `Load`, `Unload` e `Supports`.
+Un modulo deve esportare le funzioni `Load`, `Unload` e `Supports`, proprio come un plugin normale. L'SDK gestisce il ciclo di vita del modulo come segue:
+
+- **Caricamento:** Quando viene chiamato `Plugin_Module`, l'SDK:
+   1. Costruisce il percorso completo del file (ad esempio, `modules/custom/core_logic.dll`).
+   2. Utilizza `Dynamic_Library` (`LoadLibrary`/`dlopen`) per caricare il binario.
+   3. **Ottiene i puntatori per TUTTE le funzioni del ciclo di vita del modulo:**
+      - **Obbligatorie:** `Load`, `Unload`, `Supports`. Se una di queste manca, il caricamento del modulo fallisce.
+      - **Facoltative:** `AmxLoad`, `AmxUnload`, `ProcessTick`.
    4. Chiama la funzione `Load` del modulo, passando `ppData` del plugin principale.
    5. Se `Load` restituisce `true`, il modulo viene aggiunto alla lista interna dei moduli caricati.
-- **Scarico:** Durante `OnUnload` del tuo plugin principale, l'SDK scarica tutti i moduli che sono stati caricati tramite `Plugin_Module`. Questo viene fatto in **ordine inverso** rispetto al caricamento (l'ultimo caricato è il primo a essere scaricato), il che è cruciale per gestire le dipendenze e garantire la corretta liberazione delle risorse.
 
-#### Benefici della Modularizzazione
+- **Inoltro degli Eventi:** Il plugin ospitante **inoltra automaticamente** gli eventi a tutti i moduli caricati.
+ > [!IMPORTANT]
+ > Affinché gli eventi vengano inoltrati correttamente, il **plugin ospitante** (quello che chiama `Plugin_Module`) deve essere configurato per ricevere questi eventi.
+ > - Affinché `AmxLoad` e `AmxUnload` funzionino nei moduli, il plugin ospitante deve definire la macro `SAMP_SDK_WANT_AMX_EVENTS`.
+ > - Affinché `ProcessTick` funzioni nei moduli, il plugin ospitante deve definire la macro `SAMP_SDK_WANT_PROCESS_TICK`.
 
-- **Organizzazione del Codice:** Dividi plugin grandi in componenti più piccoli e gestibili, ciascuno nel proprio file modulo.
-- **Riutilizzabilità:** Crea moduli generici (es: un modulo di database, un modulo di sistema di log avanzato) che possono essere utilizzati da diversi plugin, promuovendo il riutilizzo del codice.
-- **Aggiornamenti Dinamici:** In scenari controllati, consente l'aggiornamento di parti del tuo sistema (sostituendo un `.dll` o `.so` di modulo) senza la necessità di ricompilare e riavviare il plugin principale o l'intero server (anche se questo richiede una rigorosa gestione della versione e della compatibilità).
+- **Scarico:** Durante `OnUnload` del plugin principale, l'SDK scarica tutti i moduli caricati tramite `Plugin_Module`. Questo avviene in **ordine inverso** rispetto al caricamento (l'ultimo modulo caricato è il primo ad essere scaricato), il che è cruciale per gestire le dipendenze e garantire il corretto rilascio delle risorse.
+
+#### Vantaggi della Modularizzazione
+
+- **Organizzazione del Codice:** Suddividi i grandi plugin in componenti più piccoli e gestibili, ciascuno nel proprio file di modulo.
+- **Riutilizzabilità:** Crea moduli generici (ad esempio, un modulo di database, un modulo di sistema di registrazione avanzato) che possono essere utilizzati da diversi plugin, promuovendo il riutilizzo del codice.
+- **Componenti Indipendenti:** Crea moduli che sono **completamente guidati dagli eventi e indipendenti**. Un modulo può avere i propri `Plugin_Native`s, intercettare `Plugin_Public`s e avere la propria logica `OnProcessTick`, operando come un plugin autonomo, ma caricato da un ospitante.
+- **Aggiornamenti Dinamici:** In scenari controllati, consente l'aggiornamento di parti del sistema (sostituendo un file di modulo `.dll` o `.so`) senza la necessità di ricompilare e riavviare il plugin principale o l'intero server (anche se ciò richiede una gestione rigorosa delle versioni e della compatibilità).
 
 ### 3.6. `Plugin_Call`: Chiamata di Native Interne del Plugin
 

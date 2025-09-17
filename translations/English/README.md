@@ -72,7 +72,7 @@
       - [Input Parameter Marshalling](#input-parameter-marshalling)
       - [Output Parameter Marshalling (References: `int&`, `float&`, `std::string&`)](#output-parameter-marshalling-references-int-float-stdstring)
       - [The `Callback_Result` Object: Complete Analysis](#the-callback_result-object-complete-analysis)
-    - [3.5. `Plugin_Module`: Dynamic Module Management](#35-plugin_module-dynamic-module-management)
+      - [**3.5. `Plugin_Module`: Management of Dynamic Modules**](#35-plugin_module-management-of-dynamic-modules)
       - [Syntax and Purpose](#syntax-and-purpose)
       - [Module Lifecycle](#module-lifecycle)
       - [Benefits of Modularization](#benefits-of-modularization)
@@ -623,46 +623,58 @@ if (result) { // Checks if the call was successful (operator bool)
 // }
 ```
 
-### 3.5. `Plugin_Module`: Dynamic Module Management
+#### **3.5. `Plugin_Module`: Management of Dynamic Modules**
 
-The `Plugin_Module` macro allows your plugin to act as a "loader" for other plugins, creating a modular and extensible architecture.
+The `Plugin_Module` macro allows your plugin to act as a "loader" for other plugins, creating a modular and extensible architecture. A module loaded this way is treated as a first-class plugin, with its own event lifecycle managed by the host plugin.
 
 #### Syntax and Purpose
 
-- `Plugin_Module(const char* base_filename, const char* module_directory, const char* optional_success_message)`
-- `base_filename`: The *base* name of the module file, **without the extension** (e.g., for `my_module.dll` or `my_module.so`, use `"my_module"`). The SDK will automatically add the appropriate `.dll` or `.so` extension.
-- `module_directory`: The path to the directory where the module file is located (e.g., `"plugins/my_custom_modules"`). **Do not include the filename here.** The SDK will concatenate the full path (`module_directory/base_filename.ext`).
-- `optional_success_message`: An optional message to be logged to the server console if the module loads successfully.
+- `Plugin_Module(const char* nome_do_arquivo_base, const char* diretorio_do_modulo, const char* mensagem_sucesso_opcional)`
+- `nome_do_arquivo_base`: The *base* name of the module file, **without the extension** (e.g., for `my_module.dll` or `my_module.so`, use `"my_module"`). The SDK will automatically add the appropriate `.dll` or `.so` extension.
+- `diretorio_do_modulo`: The path to the directory where the module file is located (e.g., `"plugins/my_custom_modules"`). **Do not include the file name here.** The SDK will concatenate the full path (`diretorio_do_modulo/nome_do_arquivo_base.ext`).
+- `mensagem_sucesso_opcional`: An optional message to be logged in the server console if the module loads successfully.
 
 ```cpp
 // main.cpp, inside OnLoad()
 
-// Loads the module 'core_logic.dll' (or 'core_logic.so')
-// which is located in the server's 'modules/custom/' folder.
+// Loads the 'core_logic.dll' (or 'core_logic.so') module
+// located in the 'modules/custom/' folder of the server.
 if (!Plugin_Module("core_logic", "modules/custom", "Core Logic Module loaded successfully!"))
-    return (Samp_SDK::Log("FATAL ERROR: Failed to load module 'core_logic'!"), false);
+    return (Samp_SDK::Log("FATAL ERROR: Failed to load the 'core_logic' module!"), false);
 
-// Loads the module 'admin_system.dll' (or 'admin_system.so')
-// which is located directly in the server's 'plugins/' folder.
-if (!Plugin_Module("admin_system", "plugins", "Admin Module activated."))
-    Samp_SDK::Log("WARNING: Admin Module could not be loaded.");
+// Loads the 'admin_system.dll' (or 'admin_system.so') module
+// located directly in the 'plugins/' folder of the server.
+if (!Plugin_Module("admin_system", "plugins", "Administration Module activated."))
+    Samp_SDK::Log("WARNING: Administration Module could not be loaded.");
 ```
 
 #### Module Lifecycle
 
+A module must export the `Load`, `Unload`, and `Supports` functions, just like a regular plugin. The SDK manages the module's lifecycle as follows:
+
 - **Loading:** When `Plugin_Module` is called, the SDK:
-   1. Constructs the full file path (e.g., `plugins/custom/core_logic.dll`).
+   1. Constructs the full file path (e.g., `modules/custom/core_logic.dll`).
    2. Uses `Dynamic_Library` (`LoadLibrary`/`dlopen`) to load the binary.
-   3. Gets pointers to the module's lifecycle functions: `Load`, `Unload`, and `Supports`.
-   4. Calls the module's `Load` function, passing the main plugin's `ppData`.
+   3. **Obtains pointers to ALL lifecycle functions of the module:**
+      - **Required:** `Load`, `Unload`, `Supports`. If any are missing, the module loading fails.
+      - **Optional:** `AmxLoad`, `AmxUnload`, `ProcessTick`.
+   4. Calls the module's `Load` function, passing the `ppData` from the main plugin.
    5. If `Load` returns `true`, the module is added to the internal list of loaded modules.
-- **Unloading:** During `OnUnload` of your main plugin, the SDK unloads all modules that were loaded via `Plugin_Module`. This is done in **reverse order** of loading (the last one loaded is the first one unloaded), which is crucial for managing dependencies and ensuring correct resource release.
+
+- **Event Forwarding:** The host plugin **automatically forwards** events to all loaded modules.
+ > [!IMPORTANT]
+ > For events to be forwarded correctly, the **host plugin** (the one calling `Plugin_Module`) must be configured to receive these events.
+ > - For `AmxLoad` and `AmxUnload` to work in modules, the host plugin must define the `SAMP_SDK_WANT_AMX_EVENTS` macro.
+ > - For `ProcessTick` to work in modules, the host plugin must define the `SAMP_SDK_WANT_PROCESS_TICK` macro.
+
+- **Unloading:** During the `OnUnload` of the main plugin, the SDK unloads all modules loaded via `Plugin_Module`. This is done in **reverse order** of loading (the last module loaded is the first to be unloaded), which is crucial for managing dependencies and ensuring proper resource cleanup.
 
 #### Benefits of Modularization
 
-- **Code Organization:** Divide large plugins into smaller, manageable components, each in its own module file.
+- **Code Organization:** Break down large plugins into smaller, manageable components, each in its own module file.
 - **Reusability:** Create generic modules (e.g., a database module, an advanced logging system module) that can be used by different plugins, promoting code reuse.
-- **Dynamic Updates:** In controlled scenarios, allows updating parts of your system (by replacing a module `.dll` or `.so`) without needing to recompile and restart the main plugin or the entire server (although this requires rigorous version and compatibility management).
+- **Independent Components:** Create modules that are **fully event-driven and independent**. A module can have its own `Plugin_Native`s, intercept `Plugin_Public`s, and have its own `OnProcessTick` logic, operating as a standalone plugin but loaded by a host.
+- **Dynamic Updates:** In controlled scenarios, allows updating parts of your system (by replacing a `.dll` or `.so` module file) without needing to recompile and restart the main plugin or the entire server (though this requires strict version and compatibility management).
 
 ### 3.6. `Plugin_Call`: Calling Internal Plugin Natives
 

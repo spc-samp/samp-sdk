@@ -72,10 +72,10 @@
       - [Marshalling Parametrów Wejściowych](#marshalling-parametrów-wejściowych)
       - [Marshalling Parametrów Wyjściowych (Referencje: `int&`, `float&`, `std::string&`)](#marshalling-parametrów-wyjściowych-referencje-int-float-stdstring)
       - [Obiekt `Callback_Result`: Pełna Analiza](#obiekt-callback_result-pełna-analiza)
-    - [3.5. `Plugin_Module`: Zarządzanie Modułami Dynamicznymi](#35-plugin_module-zarządzanie-modułami-dynamicznymi)
+      - [**3.5. `Plugin_Module`: Zarządzanie Modułami Dynamicznymi**](#35-plugin_module-zarządzanie-modułami-dynamicznymi)
       - [Składnia i Cel](#składnia-i-cel)
       - [Cykl Życia Modułu](#cykl-życia-modułu)
-      - [Korzyści z Modularyzacji](#korzyści-z-modularyzacji)
+      - [Korzyści z Modularizacji](#korzyści-z-modularizacji)
     - [3.6. `Plugin_Call`: Wywoływanie Wewnętrznych Natywów Pluginu](#36-plugin_call-wywoływanie-wewnętrznych-natywów-pluginu)
       - [Składnia i Zalety Wydajności](#składnia-i-zalety-wydajności)
     - [**3.7. Funkcje Użytkowe SDK**](#37-funkcje-użytkowe-sdk)
@@ -623,46 +623,58 @@ if (result) { // Sprawdza, czy wywołanie powiodło się (operator bool)
 // }
 ```
 
-### 3.5. `Plugin_Module`: Zarządzanie Modułami Dynamicznymi
+#### **3.5. `Plugin_Module`: Zarządzanie Modułami Dynamicznymi**
 
-Makro `Plugin_Module` pozwala twojemu pluginowi działać jako "ładowarka" dla innych pluginów, tworząc modularną i rozszerzalną architekturę.
+Makro `Plugin_Module` pozwala Twojemu pluginowi działać jako „ładowarka” dla innych pluginów, tworząc modułową i rozszerzalną architekturę. Moduł załadowany w ten sposób jest traktowany jako plugin pierwszej klasy, z własnym cyklem życia zdarzeń zarządzanym przez plugin nadrzędny.
 
 #### Składnia i Cel
 
-- `Plugin_Module(const char* nazwa_pliku_bazowego, const char* katalog_modułu, const char* opcjonalna_wiadomość_o_sukcesie)`
-- `nazwa_pliku_bazowego`: **podstawowa nazwa** pliku modułu, **bez rozszerzenia** (np. dla `my_module.dll` lub `my_module.so`, użyj `"my_module"`). SDK automatycznie doda odpowiednie rozszerzenie `.dll` lub `.so`.
-- `katalog_modułu`: Ścieżka do katalogu, w którym znajduje się plik modułu (np. `"plugins/my_custom_modules"`). **Nie umieszczaj tutaj nazwy pliku.** SDK połączy pełną ścieżkę (`katalog_modułu/nazwa_pliku_bazowego.rozszerzenie`).
-- `opcjonalna_wiadomość_o_sukcesie`: Opcjonalna wiadomość, która zostanie zalogowana do konsoli serwera, jeśli moduł zostanie pomyślnie załadowany.
+- `Plugin_Module(const char* nome_do_arquivo_base, const char* diretorio_do_modulo, const char* mensagem_sucesso_opcional)`
+- `nome_do_arquivo_base`: *Bazowa* nazwa pliku modułu, **bez rozszerzenia** (np. dla `my_module.dll` lub `my_module.so`, użyj `"my_module"`). SDK automatycznie doda odpowiednie rozszerzenie `.dll` lub `.so`.
+- `diretorio_do_modulo`: Ścieżka do katalogu, w którym znajduje się plik modułu (np. `"plugins/my_custom_modules"`). **Nie podawaj tutaj nazwy pliku.** SDK połączy pełną ścieżkę (`diretorio_do_modulo/nome_do_arquivo_base.ext`).
+- `mensagem_sucesso_opcional`: Opcjonalna wiadomość, która zostanie zapisana w konsoli serwera, jeśli moduł zostanie pomyślnie załadowany.
 
 ```cpp
 // main.cpp, wewnątrz OnLoad()
 
 // Ładuje moduł 'core_logic.dll' (lub 'core_logic.so')
-// który znajduje się w folderze 'modules/custom/' serwera.
-if (!Plugin_Module("core_logic", "modules/custom", "Moduł logiki rdzenia załadowany pomyślnie!"))
-    return (Samp_SDK::Log("FATALNY BŁĄD: Nie udało się załadować modułu 'core_logic'!"), false);
+// znajdujący się w folderze 'modules/custom/' serwera.
+if (!Plugin_Module("core_logic", "modules/custom", "Moduł Logiki Głównej załadowany pomyślnie!"))
+    return (Samp_SDK::Log("BŁĄD KRYTYCZNY: Nie udało się załadować modułu 'core_logic'!"), false);
 
 // Ładuje moduł 'admin_system.dll' (lub 'admin_system.so')
-// który znajduje się bezpośrednio w folderze 'plugins/' serwera.
-if (!Plugin_Module("admin_system", "plugins", "Moduł administracji aktywowany."))
-    Samp_SDK::Log("OSTRZEŻENIE: Nie można załadować modułu administracji.");
+// znajdujący się bezpośrednio w folderze 'plugins/' serwera.
+if (!Plugin_Module("admin_system", "plugins", "Moduł Administracyjny aktywowany."))
+    Samp_SDK::Log("OSTRZEŻENIE: Moduł Administracyjny nie mógł zostać załadowany.");
 ```
 
 #### Cykl Życia Modułu
 
+Moduł musi eksportować funkcje `Load`, `Unload` oraz `Supports`, tak jak zwykły plugin. SDK zarządza cyklem życia modułu w następujący sposób:
+
 - **Ładowanie:** Gdy wywoływane jest `Plugin_Module`, SDK:
-   1. Tworzy pełną ścieżkę do pliku (np. `plugins/custom/core_logic.dll`).
-   2. Używa `Dynamic_Library` (`LoadLibrary`/`dlopen`) do załadowania binarki.
-   3. Pobiera wskaźniki do funkcji cyklu życia modułu: `Load`, `Unload` i `Supports`.
+   1. Tworzy pełną ścieżkę do pliku (np. `modules/custom/core_logic.dll`).
+   2. Używa `Dynamic_Library` (`LoadLibrary`/`dlopen`), aby załadować binarium.
+   3. **Pobiera wskaźniki do WSZYSTKICH funkcji cyklu życia modułu:**
+      - **Wymagane:** `Load`, `Unload`, `Supports`. Jeśli którejś brakuje, ładowanie modułu nie powiedzie się.
+      - **Opcjonalne:** `AmxLoad`, `AmxUnload`, `ProcessTick`.
    4. Wywołuje funkcję `Load` modułu, przekazując `ppData` z głównego pluginu.
-   5. Jeśli `Load` zwróci `true`, moduł jest dodawany do wewnętrznej listy załadowanych modułów.
-- **Wyładowywanie:** Podczas `OnUnload` twojego głównego pluginu, SDK wyładowuje wszystkie moduły, które zostały załadowane za pomocą `Plugin_Module`. Odbywa się to w **odwrotnej kolejności** do ładowania (ostatni załadowany jest pierwszym wyładowywanym), co jest kluczowe dla zarządzania zależnościami i zapewnienia prawidłowego zwolnienia zasobów.
+   5. Jeśli `Load` zwróci `true`, moduł zostanie dodany do wewnętrznej listy załadowanych modułów.
 
-#### Korzyści z Modularyzacji
+- **Przekazywanie Zdarzeń:** Plugin nadrzędny **automatycznie przekazuje** zdarzenia do wszystkich załadowanych modułów.
+ > [!IMPORTANT]
+ > Aby zdarzenia były poprawnie przekazywane, **plugin nadrzędny** (ten, który wywołuje `Plugin_Module`) musi być skonfigurowany do odbierania tych zdarzeń.
+ > - Aby `AmxLoad` i `AmxUnload` działały w modułach, plugin nadrzędny musi zdefiniować makro `SAMP_SDK_WANT_AMX_EVENTS`.
+ > - Aby `ProcessTick` działał w modułach, plugin nadrzędny musi zdefiniować makro `SAMP_SDK_WANT_PROCESS_TICK`.
 
-- **Organizacja Kodu:** Podziel duże pluginy na mniejsze, łatwiejsze do zarządzania komponenty, każdy we własnym pliku modułu.
-- **Ponowne Użycie:** Twórz generyczne moduły (np. moduł bazy danych, moduł zaawansowanego systemu logowania), które mogą być używane przez różne pluginy, promując ponowne użycie kodu.
-- **Dynamiczne Aktualizacje:** W kontrolowanych scenariuszach pozwala na aktualizację części systemu (poprzez zastąpienie pliku `.dll` lub `.so` modułu) bez konieczności rekompilacji i ponownego uruchamiania głównego pluginu lub całego serwera (choć wymaga to rygorystycznego zarządzania wersjami i kompatybilnością).
+- **Rozładowanie:** Podczas `OnUnload` głównego pluginu, SDK rozładowuje wszystkie moduły załadowane przez `Plugin_Module`. Odbywa się to w **odwrotnej kolejności** ładowania (ostatni załadowany moduł jest rozładowywany jako pierwszy), co jest kluczowe dla zarządzania zależnościami i zapewnienia poprawnego zwalniania zasobów.
+
+#### Korzyści z Modularizacji
+
+- **Organizacja Kodu:** Podziel duże pluginy na mniejsze, łatwe do zarządzania komponenty, każdy w osobnym pliku modułu.
+- **Ponowne Wykorzystanie:** Twórz ogólne moduły (np. moduł bazy danych, moduł zaawansowanego systemu logowania), które mogą być używane przez różne pluginy, promując ponowne wykorzystanie kodu.
+- **Niezależne Komponenty:** Twórz moduły, które są **całkowicie sterowane zdarzeniami i niezależne**. Moduł może mieć własne `Plugin_Native`s, przechwytywać `Plugin_Public`s i mieć własną logikę `OnProcessTick`, działając jak samodzielny plugin, ale ładowany przez nadrzędny.
+- **Dynamiczne Aktualizacje:** W kontrolowanych scenariuszach umożliwia aktualizację części systemu (poprzez zastąpienie pliku modułu `.dll` lub `.so`) bez konieczności ponownego kompilowania i restartowania głównego pluginu lub całego serwera (choć wymaga to ścisłego zarządzania wersjami i kompatybilnością).
 
 ### 3.6. `Plugin_Call`: Wywoływanie Wewnętrznych Natywów Pluginu
 

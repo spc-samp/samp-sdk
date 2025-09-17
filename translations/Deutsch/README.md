@@ -72,7 +72,7 @@
       - [Marshalling von Eingabeparametern](#marshalling-von-eingabeparametern)
       - [Marshalling von Ausgabeparametern (Referenzen: `int&`, `float&`, `std::string&`)](#marshalling-von-ausgabeparametern-referenzen-int-float-stdstring)
       - [Das `Callback_Result`-Objekt: Vollständige Analyse](#das-callback_result-objekt-vollständige-analyse)
-    - [3.5. `Plugin_Module`: Verwaltung dynamischer Module](#35-plugin_module-verwaltung-dynamischer-module)
+      - [**3.5. `Plugin_Module`: Verwaltung von dynamischen Modulen**](#35-plugin_module-verwaltung-von-dynamischen-modulen)
       - [Syntax und Zweck](#syntax-und-zweck)
       - [Lebenszyklus eines Moduls](#lebenszyklus-eines-moduls)
       - [Vorteile der Modularisierung](#vorteile-der-modularisierung)
@@ -623,26 +623,26 @@ if (result) { // Überprüft, ob der Aufruf erfolgreich war (Operator bool)
 // }
 ```
 
-### 3.5. `Plugin_Module`: Verwaltung dynamischer Module
+#### **3.5. `Plugin_Module`: Verwaltung von dynamischen Modulen**
 
-Das Makro `Plugin_Module` ermöglicht es Ihrem Plugin, als "Loader" für andere Plugins zu fungieren und so eine modulare und erweiterbare Architektur zu schaffen.
+Die Makro `Plugin_Module` ermöglicht es Ihrem Plugin, als „Loader“ für andere Plugins zu fungieren und eine modulare und erweiterbare Architektur zu schaffen. Ein auf diese Weise geladenes Modul wird als ein Plugin erster Klasse behandelt, mit seinem eigenen Lebenszyklus von Ereignissen, der vom Host-Plugin verwaltet wird.
 
 #### Syntax und Zweck
 
-- `Plugin_Module(const char* basis_dateiname, const char* modul_verzeichnis, const char* optionale_erfolgsmeldung)`
-- `basis_dateiname`: Der **Basisname** der Moduldatei, **ohne Erweiterung** (z.B. für `my_module.dll` oder `my_module.so`, verwenden Sie `"my_module"`). Das SDK fügt automatisch die passende `.dll`- oder `.so`-Erweiterung hinzu.
-- `modul_verzeichnis`: Der Pfad des Verzeichnisses, in dem sich die Moduldatei befindet (z.B. `"plugins/my_custom_modules"`). **Fügen Sie hier nicht den Dateinamen ein.** Das SDK erstellt den vollständigen Pfad (`modul_verzeichnis/basis_dateiname.ext`).
-- `optionale_erfolgsmeldung`: Eine optionale Nachricht, die in der Serverkonsole protokolliert wird, wenn das Modul erfolgreich geladen wurde.
+- `Plugin_Module(const char* nome_do_arquivo_base, const char* diretorio_do_modulo, const char* mensagem_sucesso_opcional)`
+- `nome_do_arquivo_base`: Der *Basisname* der Moduldatei, **ohne die Erweiterung** (z. B. für `my_module.dll` oder `my_module.so`, verwenden Sie `"my_module"`). Das SDK fügt automatisch die entsprechende Erweiterung `.dll` oder `.so` hinzu.
+- `diretorio_do_modulo`: Der Pfad des Verzeichnisses, in dem sich die Moduldatei befindet (z. B. `"plugins/my_custom_modules"`). **Geben Sie hier den Dateinamen nicht an.** Das SDK erstellt den vollständigen Pfad (`diretorio_do_modulo/nome_do_arquivo_base.ext`).
+- `mensagem_sucesso_opcional`: Eine optionale Nachricht, die in der Serverkonsole protokolliert wird, wenn das Modul erfolgreich geladen wurde.
 
 ```cpp
 // main.cpp, innerhalb von OnLoad()
 
-// Lädt das Modul 'core_logic.dll' (oder 'core_logic.so'),
+// Lädt das Modul 'core_logic.dll' (oder 'core_logic.so')
 // das sich im Ordner 'modules/custom/' des Servers befindet.
 if (!Plugin_Module("core_logic", "modules/custom", "Kernlogik-Modul erfolgreich geladen!"))
-    return (Samp_SDK::Log("FATALER FEHLER: Das Modul 'core_logic' konnte nicht geladen werden!"), false);
+    return (Samp_SDK::Log("FATALER FEHLER: Fehler beim Laden des Moduls 'core_logic'!"), false);
 
-// Lädt das Modul 'admin_system.dll' (oder 'admin_system.so'),
+// Lädt das Modul 'admin_system.dll' (oder 'admin_system.so')
 // das sich direkt im Ordner 'plugins/' des Servers befindet.
 if (!Plugin_Module("admin_system", "plugins", "Administrationsmodul aktiviert."))
     Samp_SDK::Log("WARNUNG: Administrationsmodul konnte nicht geladen werden.");
@@ -650,19 +650,31 @@ if (!Plugin_Module("admin_system", "plugins", "Administrationsmodul aktiviert.")
 
 #### Lebenszyklus eines Moduls
 
-- **Laden:** Wenn `Plugin_Module` aufgerufen wird, führt das SDK Folgendes aus:
-   1. Erstellt den vollständigen Dateipfad (z.B. `plugins/custom/core_logic.dll`).
-   2. Verwendet `Dynamic_Library` (`LoadLibrary`/`dlopen`), um die Binärdatei zu laden.
-   3. Ruft die Zeiger für die Lebenszyklusfunktionen des Moduls ab: `Load`, `Unload` und `Supports`.
-   4. Ruft die `Load`-Funktion des Moduls auf und übergibt `ppData` des Hauptplugins.
+Ein Modul muss die Funktionen `Load`, `Unload` und `Supports` exportieren, wie ein normales Plugin. Das SDK verwaltet den Lebenszyklus des Moduls wie folgt:
+
+- **Laden:** Wenn `Plugin_Module` aufgerufen wird, führt das SDK folgende Schritte aus:
+   1. Erstellt den vollständigen Dateipfad (z. B. `modules/custom/core_logic.dll`).
+   2. Verwendet `Dynamic_Library` (`LoadLibrary`/`dlopen`), um das Binärmodul zu laden.
+   3. **Ruft die Zeiger für ALLE Lebenszyklusfunktionen des Moduls ab:**
+      - **Erforderlich:** `Load`, `Unload`, `Supports`. Wenn eine davon fehlt, schlägt das Laden des Moduls fehl.
+      - **Optional:** `AmxLoad`, `AmxUnload`, `ProcessTick`.
+   4. Ruft die Funktion `Load` des Moduls auf und übergibt `ppData` des Haupt-Plugins.
    5. Wenn `Load` `true` zurückgibt, wird das Modul zur internen Liste der geladenen Module hinzugefügt.
-- **Entladen:** Während `OnUnload` Ihres Hauptplugins entlädt das SDK alle Module, die über `Plugin_Module` geladen wurden. Dies geschieht in **umgekehrter Reihenfolge** zum Laden (das zuletzt geladene wird zuerst entladen), was entscheidend ist, um Abhängigkeiten zu verwalten und die korrekte Freigabe von Ressourcen sicherzustellen.
+
+- **Weiterleitung von Ereignissen:** Das Host-Plugin **leitet automatisch** Ereignisse an alle geladenen Module weiter.
+ > [!IMPORTANT]
+ > Damit Ereignisse korrekt weitergeleitet werden, muss das **Host-Plugin** (das `Plugin_Module` aufruft) so konfiguriert sein, dass es diese Ereignisse empfängt.
+ > - Damit `AmxLoad` und `AmxUnload` in den Modulen funktionieren, muss das Host-Plugin das Makro `SAMP_SDK_WANT_AMX_EVENTS` definieren.
+ > - Damit `ProcessTick` in den Modulen funktioniert, muss das Host-Plugin das Makro `SAMP_SDK_WANT_PROCESS_TICK` definieren.
+
+- **Entladen:** Während `OnUnload` des Haupt-Plugins entlädt das SDK alle Module, die über `Plugin_Module` geladen wurden. Dies geschieht in **umgekehrter Reihenfolge** des Ladens (das zuletzt geladene Modul wird zuerst entladen), was entscheidend ist, um Abhängigkeiten zu verwalten und die ordnungsgemäße Freigabe von Ressourcen zu gewährleisten.
 
 #### Vorteile der Modularisierung
 
-- **Code-Organisation:** Teilen Sie große Plugins in kleinere, überschaubare Komponenten auf, jede in ihrer eigenen Moduldatei.
-- **Wiederverwendbarkeit:** Erstellen Sie generische Module (z. B. ein Datenbankmodul, ein erweitertes Logsystemmodul), die von verschiedenen Plugins verwendet werden können, und fördern Sie so die Code-Wiederverwendung.
-- **Dynamische Updates:** In kontrollierten Szenarien ermöglicht dies die Aktualisierung von Teilen Ihres Systems (durch Ersetzen einer `.dll` oder `.so` eines Moduls), ohne das gesamte Hauptplugin oder den gesamten Server neu kompilieren und neu starten zu müssen (obwohl dies ein strenges Versions- und Kompatibilitätsmanagement erfordert).
+- **Code-Organisation:** Teilen Sie große Plugins in kleinere, überschaubare Komponenten auf, die jeweils in einer eigenen Moduldatei enthalten sind.
+- **Wiederverwendbarkeit:** Erstellen Sie generische Module (z. B. ein Datenbankmodul, ein erweitertes Protokollierungsmodul), die von verschiedenen Plugins verwendet werden können, um die Wiederverwendung von Code zu fördern.
+- **Unabhängige Komponenten:** Erstellen Sie Module, die **vollständig ereignisgesteuert und unabhängig** sind. Ein Modul kann seine eigenen `Plugin_Native`s haben, `Plugin_Public`s abfangen und seine eigene `OnProcessTick`-Logik besitzen, wobei es wie ein eigenständiges Plugin agiert, aber von einem Host geladen wird.
+- **Dynamische Updates:** In kontrollierten Szenarien ermöglicht es die Aktualisierung von Teilen Ihres Systems (durch Ersetzen einer `.dll` oder `.so` Moduldatei), ohne das Haupt-Plugin oder den gesamten Server neu kompilieren und neu starten zu müssen (obwohl dies ein striktes Versions- und Kompatibilitätsmanagement erfordert).
 
 ### 3.6. `Plugin_Call`: Aufrufen interner Plugin-Natives
 

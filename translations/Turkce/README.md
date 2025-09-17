@@ -72,10 +72,10 @@
       - [Giriş Parametrelerinin Marshalling'i](#giriş-parametrelerinin-marshallingi)
       - [Çıkış Parametrelerinin Marshalling'i (Referanslar: `int&`, `float&`, `std::string&`)](#çıkış-parametrelerinin-marshallingi-referanslar-int-float-stdstring)
       - [`Callback_Result` Nesnesi: Tam Analiz](#callback_result-nesnesi-tam-analiz)
-    - [3.5. `Plugin_Module`: Dinamik Modül Yönetimi](#35-plugin_module-dinamik-modül-yönetimi)
-      - [Sözdizimi ve Amaç](#sözdizimi-ve-amaç)
-      - [Bir Modülün Yaşam Döngüsü](#bir-modülün-yaşam-döngüsü)
-      - [Modülerleşmenin Faydaları](#modülerleşmenin-faydaları)
+      - [**3.5. `Plugin_Module`: Dinamik Modül Yönetimi**](#35-plugin_module-dinamik-modül-yönetimi)
+      - [Söz Dizimi ve Amaç](#söz-dizimi-ve-amaç)
+      - [Modülün Yaşam Döngüsü](#modülün-yaşam-döngüsü)
+      - [Modülerleştirmenin Avantajları](#modülerleştirmenin-avantajları)
     - [3.6. `Plugin_Call`: Eklentinin Dahili Yerel Fonksiyonlarını Çağırma](#36-plugin_call-eklentinin-dahili-yerel-fonksiyonlarını-çağırma)
       - [Sözdizimi ve Performans Avantajları](#sözdizimi-ve-performans-avantajları)
     - [**3.7. SDK Yardımcı Fonksiyonları**](#37-sdk-yardımcı-fonksiyonları)
@@ -623,46 +623,58 @@ if (result) { // Çağrının başarılı olup olmadığını kontrol eder (oper
 // }
 ```
 
-### 3.5. `Plugin_Module`: Dinamik Modül Yönetimi
+#### **3.5. `Plugin_Module`: Dinamik Modül Yönetimi**
 
-`Plugin_Module` makrosu, eklentinizin diğer eklentiler için bir "yükleyici" görevi görmesine izin vererek modüler ve genişletilebilir bir mimari oluşturur.
+`Plugin_Module` makrosu, eklentinizin diğer eklentiler için bir "yükleyici" olarak çalışmasını sağlar ve modüler, genişletilebilir bir mimari oluşturur. Bu şekilde yüklenen bir modül, ana eklenti tarafından yönetilen kendi olay yaşam döngüsüne sahip birinci sınıf bir eklenti olarak kabul edilir.
 
-#### Sözdizimi ve Amaç
+#### Söz Dizimi ve Amaç
 
-- `Plugin_Module(const char* base_dosya_adı, const char* modül_dizini, const char* isteğe_bağlı_başarı_mesajı)`
-- `base_dosya_adı`: Modül dosyasının **uzantısı olmadan** *temel* adı (örn: `my_module.dll` veya `my_module.so` için `"my_module"` kullanın). SDK, uygun `.dll` veya `.so` uzantısını otomatik olarak ekleyecektir.
-- `modül_dizini`: Modül dosyasının bulunduğu dizinin yolu (örn: `"plugins/my_custom_modules"`). **Buraya dosya adını dahil etmeyin.** SDK, tam yolu birleştirecektir (`modül_dizini/base_dosya_adı.uzantı`).
-- `isteğe_bağlı_başarı_mesajı`: Modül başarıyla yüklenirse sunucu konsoluna günlük olarak yazılacak isteğe bağlı bir mesaj.
+- `Plugin_Module(const char* nome_do_arquivo_base, const char* diretorio_do_modulo, const char* mensagem_sucesso_opcional)`
+- `nome_do_arquivo_base`: Modül dosyasının temel adı, **uzantı olmadan** (örneğin, `my_module.dll` veya `my_module.so` için `"my_module"` kullanın). SDK, uygun `.dll` veya `.so` uzantısını otomatik olarak ekler.
+- `diretorio_do_modulo`: Modül dosyasının bulunduğu dizinin yolu (örneğin, `"plugins/my_custom_modules"`). **Burada dosya adını dahil etmeyin.** SDK, tam yolu birleştirir (`diretorio_do_modulo/nome_do_arquivo_base.ext`).
+- `mensagem_sucesso_opcional`: Modül başarıyla yüklendiğinde sunucu konsoluna kaydedilecek isteğe bağlı bir mesaj.
 
 ```cpp
 // main.cpp, OnLoad() içinde
 
-// 'core_logic.dll' (veya 'core_logic.so') modülünü yükler
-// sunucunun 'modules/custom/' klasöründe bulunur.
+// Sunucunun 'modules/custom/' klasöründe bulunan
+// 'core_logic.dll' (veya 'core_logic.so') modülünü yükler.
 if (!Plugin_Module("core_logic", "modules/custom", "Çekirdek Mantık Modülü başarıyla yüklendi!"))
-    return (Samp_SDK::Log("ÖLÜMCÜL HATA: 'core_logic' modülü yüklenirken başarısız oldu!"), false);
+    return (Samp_SDK::Log("KRİTİK HATA: 'core_logic' modülü yüklenemedi!"), false);
 
-// 'admin_system.dll' (veya 'admin_system.so') modülünü yükler
-// sunucunun doğrudan 'plugins/' klasöründe bulunur.
+// Sunucunun doğrudan 'plugins/' klasöründe bulunan
+// 'admin_system.dll' (veya 'admin_system.so') modülünü yükler.
 if (!Plugin_Module("admin_system", "plugins", "Yönetim Modülü etkinleştirildi."))
     Samp_SDK::Log("UYARI: Yönetim Modülü yüklenemedi.");
 ```
 
-#### Bir Modülün Yaşam Döngüsü
+#### Modülün Yaşam Döngüsü
+
+Bir modül, normal bir eklenti gibi `Load`, `Unload` ve `Supports` işlevlerini dışa aktarmalıdır. SDK, modülün yaşam döngüsünü şu şekilde yönetir:
 
 - **Yükleme:** `Plugin_Module` çağrıldığında, SDK:
-   1. Tam dosya yolunu oluşturur (örn: `plugins/custom/core_logic.dll`).
+   1. Dosyanın tam yolunu oluşturur (örneğin, `modules/custom/core_logic.dll`).
    2. İkili dosyayı yüklemek için `Dynamic_Library` (`LoadLibrary`/`dlopen`) kullanır.
-   3. Modülün yaşam döngüsü fonksiyonlarına (`Load`, `Unload` ve `Supports`) işaretçileri alır.
-   4. Ana eklentinin `ppData`'sını geçirerek modülün `Load` fonksiyonunu çağırır.
-   5. `Load` `true` döndürürse, modül dahili yüklü modüller listesine eklenir.
-- **Boşaltma:** Ana eklentinizin `OnUnload` sırasında, SDK `Plugin_Module` aracılığıyla yüklenen tüm modülleri boşaltır. Bu, yükleme sırasının **tersine** (son yüklenen ilk boşaltılır) yapılır, bu da bağımlılıkları yönetmek ve kaynakların doğru şekilde serbest bırakılmasını sağlamak için çok önemlidir.
+   3. **Modülün TÜM yaşam döngüsü işlevlerine işaretçileri alır:**
+      - **Zorunlu:** `Load`, `Unload`, `Supports`. Bunlardan biri eksikse, modül yüklemesi başarısız olur.
+      - **İsteğe bağlı:** `AmxLoad`, `AmxUnload`, `ProcessTick`.
+   4. Modülün `Load` işlevini çağırır ve ana eklentiden `ppData` parametresini geçirir.
+   5. Eğer `Load` `true` döndürürse, modül yüklü modüllerin dahili listesine eklenir.
 
-#### Modülerleşmenin Faydaları
+- **Olay Yönlendirme:** Ana eklenti, yüklü tüm modüllere olayları **otomatik olarak yönlendirir**.
+ > [!IMPORTANT]
+ > Olayların doğru bir şekilde yönlendirilmesi için, **ana eklentinin** (`Plugin_Module` çağıran) bu olayları alacak şekilde yapılandırılmış olması gerekir.
+ > - `AmxLoad` ve `AmxUnload` modüllerde çalışması için, ana eklenti `SAMP_SDK_WANT_AMX_EVENTS` makrosunu tanımlamalıdır.
+ > - `ProcessTick` modüllerde çalışması için, ana eklenti `SAMP_SDK_WANT_PROCESS_TICK` makrosunu tanımlamalıdır.
 
-- **Kod Düzenlemesi:** Büyük eklentileri kendi modül dosyalarında daha küçük, yönetilebilir bileşenlere ayırın.
-- **Yeniden Kullanılabilirlik:** Farklı eklentiler tarafından kullanılabilecek genel modüller (örn: bir veritabanı modülü, gelişmiş bir günlük sistemi modülü) oluşturarak kodun yeniden kullanımını teşvik edin.
-- **Dinamik Güncellemeler:** Kontrollü senaryolarda, sisteminizin bazı bölümlerini (bir modülün `.dll` veya `.so` dosyasını değiştirerek) ana eklentiyi veya tüm sunucuyu yeniden derlemeye ve yeniden başlatmaya gerek kalmadan güncellemeye olanak tanır (ancak bu, sıkı bir sürüm ve uyumluluk yönetimi gerektirir).
+- **Yük Kaldırma:** Ana eklentinin `OnUnload` işlemi sırasında, SDK, `Plugin_Module` aracılığıyla yüklenen tüm modülleri kaldırır. Bu, yükleme sırasının **tersine** yapılır (son yüklenen modül ilk kaldırılır), bu da bağımlılıkları yönetmek ve kaynakların doğru şekilde serbest bırakılmasını sağlamak için kritik öneme sahiptir.
+
+#### Modülerleştirmenin Avantajları
+
+- **Kod Organizasyonu:** Büyük eklentileri, her biri kendi modül dosyasında bulunan daha küçük, yönetilebilir bileşenlere ayırın.
+- **Yeniden Kullanılabilirlik:** Farklı eklentiler tarafından kullanılabilen genel modüller (örneğin, bir veritabanı modülü, gelişmiş bir günlük sistemi modülü) oluşturun, böylece kod yeniden kullanımını teşvik edin.
+- **Bağımsız Bileşenler:** **Tamamen olay odaklı ve bağımsız** modüller oluşturun. Bir modül, kendi `Plugin_Native`s, `Plugin_Public`s yakalama ve kendi `OnProcessTick` mantığına sahip olabilir, bağımsız bir eklenti gibi çalışır, ancak bir ana eklenti tarafından yüklenir.
+- **Dinamik Güncellemeler:** Kontrollü senaryolarda, sistemin bazı bölümlerini güncelleme (bir modülün `.dll` veya `.so` dosyasını değiştirerek) ana eklentiyi veya tüm sunucuyu yeniden derlemeden ve yeniden başlatmadan yapma imkanı sağlar (ancak bu, sıkı bir sürüm ve uyumluluk yönetimi gerektirir).
 
 ### 3.6. `Plugin_Call`: Eklentinin Dahili Yerel Fonksiyonlarını Çağırma
 

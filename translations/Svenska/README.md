@@ -72,9 +72,9 @@
       - [Marshaling av inparametrar](#marshaling-av-inparametrar)
       - [Marshaling av utparametrar (referenser: `int&`, `float&`, `std::string&`)](#marshaling-av-utparametrar-referenser-int-float-stdstring)
       - [Objektet `Callback_Result`: Fullständig analys](#objektet-callback_result-fullständig-analys)
-    - [3.5. `Plugin_Module`: Hantering av dynamiska moduler](#35-plugin_module-hantering-av-dynamiska-moduler)
+      - [**3.5. `Plugin_Module`: Hantering av dynamiska moduler**](#35-plugin_module-hantering-av-dynamiska-moduler)
       - [Syntax och syfte](#syntax-och-syfte)
-      - [En moduls livscykel](#en-moduls-livscykel)
+      - [Modulens livscykel](#modulens-livscykel)
       - [Fördelar med modularisering](#fördelar-med-modularisering)
     - [3.6. `Plugin_Call`: Anropa interna plugin-natives](#36-plugin_call-anropa-interna-plugin-natives)
       - [Syntax och prestandafördelar](#syntax-och-prestandafördelar)
@@ -623,46 +623,58 @@ if (result) { // Checks if the call was successful (operator bool)
 // }
 ```
 
-### 3.5. `Plugin_Module`: Hantering av dynamiska moduler
+#### **3.5. `Plugin_Module`: Hantering av dynamiska moduler**
 
-Makrot `Plugin_Module` låter ditt plugin fungera som en "laddare" för andra plugins, vilket skapar en modulär och utbyggbar arkitektur.
+Makrot `Plugin_Module` gör det möjligt för ditt plugin att fungera som en "laddare" för andra plugins, vilket skapar en modulär och utbyggbar arkitektur. En modul som laddas på detta sätt behandlas som ett förstklassigt plugin, med sin egen livscykel för händelser som hanteras av värd-pluginet.
 
 #### Syntax och syfte
 
-- `Plugin_Module(const char* base_filename, const char* module_directory, const char* optional_success_message)`
-- `base_filename`: Modulens *basnamn* på filen, **utan filändelse** (t.ex. för `my_module.dll` eller `my_module.so`, använd `"my_module"`). SDK:n lägger automatiskt till lämplig filändelse `.dll` eller `.so`.
-- `module_directory`: Sökvägen till katalogen där modulfilen finns (t.ex. `"plugins/my_custom_modules"`). **Inkludera inte filnamnet här.** SDK:n kommer att sammanfoga hela sökvägen (`module_directory/base_filename.ext`).
-- `optional_success_message`: Ett valfritt meddelande som loggas till serverkonsolen om modulen laddas framgångsrikt.
+- `Plugin_Module(const char* nome_do_arquivo_base, const char* diretorio_do_modulo, const char* mensagem_sucesso_opcional)`
+- `nome_do_arquivo_base`: Basnamnet på modulfilen, **utan tillägget** (t.ex. för `my_module.dll` eller `my_module.so`, använd `"my_module"`). SDK:n lägger automatiskt till tillägget `.dll` eller `.so` som är lämpligt.
+- `diretorio_do_modulo`: Sökvägen till katalogen där modulfilen finns (t.ex. `"plugins/my_custom_modules"`). **Inkludera inte filnamnet här.** SDK:n kommer att sammanfoga den fullständiga sökvägen (`diretorio_do_modulo/nome_do_arquivo_base.ext`).
+- `mensagem_sucesso_opcional`: Ett valfritt meddelande som loggas till serverkonsolen om modulen laddas framgångsrikt.
 
 ```cpp
-// main.cpp, inside OnLoad()
+// main.cpp, inuti OnLoad()
 
-// Loads the module 'core_logic.dll' (or 'core_logic.so')
-// which is located in the server's 'modules/custom/' folder.
-if (!Plugin_Module("core_logic", "modules/custom", "Core Logic Module loaded successfully!"))
-    return (Samp_SDK::Log("FATAL ERROR: Failed to load the 'core_logic' module!"), false);
+// Laddar modulen 'core_logic.dll' (eller 'core_logic.so')
+// som finns i mappen 'modules/custom/' på servern.
+if (!Plugin_Module("core_logic", "modules/custom", "Kärnlogikmodul laddades framgångsrikt!"))
+    return (Samp_SDK::Log("KRITISKT FEL: Misslyckades med att ladda modulen 'core_logic'!"), false);
 
-// Loads the module 'admin_system.dll' (or 'admin_system.so')
-// which is located directly in the server's 'plugins/' folder.
-if (!Plugin_Module("admin_system", "plugins", "Administration Module activated."))
-    Samp_SDK::Log("WARNING: Administration Module could not be loaded.");
+// Laddar modulen 'admin_system.dll' (eller 'admin_system.so')
+// som finns direkt i mappen 'plugins/' på servern.
+if (!Plugin_Module("admin_system", "plugins", "Administrationsmodul aktiverad."))
+    Samp_SDK::Log("VARNING: Administrationsmodulen kunde inte laddas.");
 ```
 
-#### En moduls livscykel
+#### Modulens livscykel
 
-- **Laddning:** När `Plugin_Module` anropas, gör SDK:n:
-   1. Bygger den fullständiga filsökvägen (t.ex. `plugins/custom/core_logic.dll`).
-   2. Använder `Dynamic_Library` (`LoadLibrary`/`dlopen`) för att ladda binären.
-   3. Hämtar pekarna till modulens livscykelfunktioner: `Load`, `Unload` och `Supports`.
-   4. Anropar modulens `Load`-funktion, och skickar `ppData` från huvudpluginet.
+En modul måste exportera funktionerna `Load`, `Unload` och `Supports`, precis som ett vanligt plugin. SDK:n hanterar modulens livscykel på följande sätt:
+
+- **Laddning:** När `Plugin_Module` anropas, gör SDK:n följande:
+   1. Bygger den fullständiga sökvägen till filen (t.ex. `modules/custom/core_logic.dll`).
+   2. Använder `Dynamic_Library` (`LoadLibrary`/`dlopen`) för att ladda binärfilen.
+   3. **Hämtar pekare till ALLA livscykelfunktioner för modulen:**
+      - **Obligatoriska:** `Load`, `Unload`, `Supports`. Om någon saknas misslyckas laddningen av modulen.
+      - **Valfria:** `AmxLoad`, `AmxUnload`, `ProcessTick`.
+   4. Anropar modulens `Load`-funktion och skickar med `ppData` från huvudpluginet.
    5. Om `Load` returnerar `true`, läggs modulen till i den interna listan över laddade moduler.
-- **Avlastning:** Under `OnUnload` för ditt huvudplugin, avlastar SDK:n alla moduler som laddades via `Plugin_Module`. Detta görs i **omvänd ordning** jämfört med laddningen (den sist laddade modulen är den första som avlastas), vilket är avgörande för att hantera beroenden och säkerställa korrekt frigörning av resurser.
+
+- **Vidarebefordran av händelser:** Värd-pluginet **vidarebefordrar automatiskt** händelser till alla laddade moduler.
+ > [!IMPORTANT]
+ > För att händelser ska vidarebefordras korrekt måste **värd-pluginet** (det som anropar `Plugin_Module`) vara konfigurerat för att ta emot dessa händelser.
+ > - För att `AmxLoad` och `AmxUnload` ska fungera i moduler måste värd-pluginet definiera makrot `SAMP_SDK_WANT_AMX_EVENTS`.
+ > - För att `ProcessTick` ska fungera i moduler måste värd-pluginet definiera makrot `SAMP_SDK_WANT_PROCESS_TICK`.
+
+- **Avladdning:** Under `OnUnload` för ditt huvudplugin avladdar SDK:n alla moduler som laddats via `Plugin_Module`. Detta sker i **omvänd ordning** jämfört med laddningen (den senast laddade modulen avladdas först), vilket är avgörande för att hantera beroenden och säkerställa korrekt frigöring av resurser.
 
 #### Fördelar med modularisering
 
-- **Kodorganisation:** Dela upp stora plugins i mindre, hanterbara komponenter, var och en i sin egen modulfil.
-- **Återanvändbarhet:** Skapa generiska moduler (t.ex. en databasmodul, en avancerad loggsystemmodul) som kan användas av olika plugins, vilket främjar kodåteranvändning.
-- **Dynamiska uppdateringar:** I kontrollerade scenarier möjliggör det uppdatering av delar av ditt system (genom att ersätta en modul `.dll` eller `.so`) utan att behöva kompilera om och starta om huvudpluginet eller hela servern (även om detta kräver rigorös versions- och kompatibilitetshantering).
+- **Kodorganisation:** Dela upp stora plugins i mindre, hanterbara komponenter, var och en i sin egen modulfils.
+- **Återanvändbarhet:** Skapa generiska moduler (t.ex. en databasmodul, en avancerad loggningsmodul) som kan användas av olika plugins, vilket främjar kodåteranvändning.
+- **Oberoende komponenter:** Skapa moduler som är **helt händelsestyrda och oberoende**. En modul kan ha sina egna `Plugin_Native`s, fånga upp `Plugin_Public`s och ha sin egen `OnProcessTick`-logik, och fungerar som ett självständigt plugin men laddas av en värd.
+- **Dynamiska uppdateringar:** I kontrollerade scenarier möjliggör det uppdatering av delar av systemet (genom att ersätta en `.dll` eller `.so` för en modul) utan att behöva kompilera om och starta om huvudpluginet eller hela servern (även om detta kräver strikt hantering av versioner och kompatibilitet).
 
 ### 3.6. `Plugin_Call`: Anropa interna plugin-natives
 
