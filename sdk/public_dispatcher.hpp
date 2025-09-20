@@ -1,75 +1,76 @@
-/* ============================================================================ *
- * SA-MP SDK - A Modern C++ SDK for San Andreas Multiplayer Plugin Development  *
- * ============================================================================ *
- *                                                                              *
- * Copyright (c) 2025, SPC (SA-MP Programming Community)                        *
- *                                                                              *
- * Developed by: Calasans                                                       *
- * Provided by: SA-MP Programming Community                                     *
- * License: MIT License                                                         *
- * Repository: https://github.com/spc-samp/samp-sdk                             *
- *                                                                              *
- * ============================================================================ *
- *                                                                              *
- * This SDK provides a modern, high-level C++ abstraction layer over the native *
- * SA-MP Plugin SDK. It is designed to simplify plugin development by offering  *
- * type-safe, object-oriented, and robust interfaces for interacting with the   *
- * SA-MP server and the Pawn scripting environment.                             *
- *                                                                              *
- * --- Core Architecture & Features ---                                         *
- *                                                                              *
- *  - Type-Safe C++ Interface:                                                  *
- *      > Write SA-MP natives and public callbacks as standard C++ functions.   *
- *      > Use C++ types like `int`, `float`, and `std::string` directly.        *
- *                                                                              *
- *  - Automatic Marshalling:                                                    *
- *      > The SDK automatically handles the complex conversion of data types    *
- *        (marshalling) between the C++ environment and the Pawn virtual        *
- *        machine.                                                              *
- *      > Transparently manages memory for strings and reference parameters.    *
- *                                                                              *
- *  - Powerful Hooking Engine:                                                  *
- *      > Seamlessly intercepts Pawn public callbacks using `Plugin_Public`.    *
- *      > Allows multiple plugins built with the SDK to coexist and chain       *
- *        callbacks correctly without interfering with each other.              *
- *      > Supports "Ghost Callbacks" for hooking publics not present in the     *
- *        script.                                                               *
- *                                                                              *
- *  - Simplified Pawn Interaction:                                              *
- *      > Call any Pawn native or public function from C++ with `Pawn(...)`.    *
- *      > The SDK automatically finds the target function (native or public).   *
- *      > Built-in utilities like `Pawn_Format` for easy string formatting.     *
- *                                                                              *
- *  - Dynamic Module System:                                                    *
- *      > Load and unload other plugins/modules dynamically from a host plugin  *
- *        using `Plugin_Module` and `Plugin_Unload_Module`.                     *
- *      > Enables building scalable and maintainable plugin architectures.      *
- *                                                                              *
- *  - Modern C++ Compatibility:                                                 *
- *      > Automatically detects and utilizes features from C++11 to C++20.      *
- *      > Encourages modern C++ practices for safer and more expressive code.   *
- *                                                                              *
- * ============================================================================ *
- *                                                                              *
- * Permission is hereby granted, free of charge, to any person obtaining a copy *
- * of this software and associated documentation files (the "Software"), to     *
- * deal in the Software without restriction, including without limitation the   *
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or  *
- * sell copies of the Software, and to permit persons to whom the Software is   *
- * furnished to do so, subject to the following conditions:                     *
- *                                                                              *
- * The above copyright notice and this permission notice shall be included in   *
- * all copies or substantial portions of the Software.                          *
- *                                                                              *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR   *
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     *
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE  *
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER       *
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING      *
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS *
- * IN THE SOFTWARE.                                                             *
- *                                                                              *
- * ============================================================================ */
+/* ============================================================================== *
+ * SA-MP SDK - A Modern C++ SDK for San Andreas Multiplayer Plugin Development    *
+ * ============================================================================== *
+ *                                                                                *
+ * Copyright (c) 2025, SPC (SA-MP Programming Community)                          *
+ *                                                                                *
+ * Developed by: Calasans                                                         *
+ * Provided by: SA-MP Programming Community                                       *
+ * License: MIT License                                                           *
+ * Repository: https://github.com/spc-samp/samp-sdk                               *
+ *                                                                                *
+ * ============================================================================== *
+ *                                                                                *
+ * This SDK provides a modern, high-level C++ abstraction layer over the native   *
+ * SA-MP Plugin SDK. It is designed to simplify plugin development by offering    *
+ * type-safe, object-oriented, and robust interfaces for interacting with the     *
+ * SA-MP server and the Pawn scripting environment.                               *
+ *                                                                                *
+ * --- Core Architecture & Features ---                                           *
+ *                                                                                *
+ *  - Type-Safe C++ Interface:                                                    *
+ *      > Write SA-MP natives and public callbacks as standard C++ functions.     *
+ *      > Use C++ types like `int`, `float`, and `std::string` directly.          *
+ *                                                                                *
+ *  - Automatic Marshalling:                                                      *
+ *      > The SDK automatically handles the complex conversion of data types      *
+ *        (marshalling) between the C++ environment and the Pawn virtual          *
+ *        machine.                                                                *
+ *      > Transparently manages memory for strings and reference parameters.      *
+ *                                                                                *
+ *  - Powerful Hooking Engine:                                                    *
+ *      > Seamlessly intercepts both Pawn public callbacks (with `Plugin_Public`) *
+ *        and natives (with `Plugin_Native_Hook`).                                *
+ *      > Allows multiple plugins built with the SDK to coexist and chain         *
+ *        callbacks/hooks correctly without interfering with each other.          *
+ *      > Supports "Ghost Callbacks" for hooking publics not present in the       *
+ *        script.                                                                 *
+ *                                                                                *
+ *  - Simplified Pawn Interaction:                                                *
+ *      > Call any Pawn native or public function from C++ with `Pawn(...)`.      *
+ *      > The SDK automatically finds the target function (native or public).     *
+ *      > Built-in utilities like `Pawn_Format` for easy string formatting.       *
+ *                                                                                *
+ *  - Dynamic Module System:                                                      *
+ *      > Load and unload other plugins/modules dynamically from a host plugin    *
+ *        using `Plugin_Module` and `Plugin_Unload_Module`.                       *
+ *      > Enables building scalable and maintainable plugin architectures.        *
+ *                                                                                *
+ *  - Modern C++ Compatibility:                                                   *
+ *      > Requires C++14 and automatically utilizes features up to C++20.         *
+ *      > Encourages modern C++ practices for safer and more expressive code.     *
+ *                                                                                *
+ * ============================================================================== *
+ *                                                                                *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy   *
+ * of this software and associated documentation files (the "Software"), to       *
+ * deal in the Software without restriction, including without limitation the     *
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or    *
+ * sell copies of the Software, and to permit persons to whom the Software is     *
+ * furnished to do so, subject to the following conditions:                       *
+ *                                                                                *
+ * The above copyright notice and this permission notice shall be included in     *
+ * all copies or substantial portions of the Software.                            *
+ *                                                                                *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    *
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING        *
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS   *
+ * IN THE SOFTWARE.                                                               *
+ *                                                                                *
+ * ============================================================================== */
 
 #pragma once
 
@@ -92,10 +93,13 @@ namespace Samp_SDK {
     namespace Detail {
         namespace Public_Param_Reader {
             SAMP_SDK_FORCE_INLINE bool Get_Stack_Cell(AMX* amx, int index, cell& value) {
-                unsigned char* data = (amx->data != nullptr) ? amx->data : amx->base + reinterpret_cast<AMX_HEADER*>(amx->base)->dat;
+                AMX_HEADER* hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+
+                unsigned char* data = (amx->data != nullptr) ? amx->data : amx->base + hdr->dat;
+
                 cell* addr = reinterpret_cast<cell*>(data + amx->stk + (index * sizeof(cell)));
 
-                if (reinterpret_cast<ucell>(addr) < reinterpret_cast<ucell>(amx->data) || reinterpret_cast<ucell>(addr) >= reinterpret_cast<ucell>(data + amx->stp))
+                if (SAMP_SDK_UNLIKELY(reinterpret_cast<ucell>(addr) < reinterpret_cast<ucell>(data) || reinterpret_cast<ucell>(addr) >= reinterpret_cast<ucell>(data + amx->stp)))
                     return false;
 
                 value = *addr;
@@ -106,7 +110,7 @@ namespace Samp_SDK {
             template<typename... Args>
             inline bool Get_Public_Params(AMX* amx, Args&... args);
 
-            inline void Get_Public_Params_Recursive(AMX* amx, int) {}
+            inline void Get_Public_Params_Recursive(AMX* amx, int) { (void)amx; }
 
             template<typename First, typename... Rest>
             inline void Get_Public_Params_Recursive(AMX* amx, int index, First& first, Rest&... rest) {
@@ -120,8 +124,8 @@ namespace Samp_SDK {
                         first = amx::AMX_CTOF(value);
                     else
                         first = static_cast<decay_t<First>>(value);
-#elif defined(SAMP_SDK_CXX14)
-                    Assign_Parameter_By_Type(amx, &value, -1, first);
+#elif defined(SAMP_SDK_CXX_14)
+                    Assign_Parameter_By_Type(amx, &value, first);
 #endif
                 }
 
@@ -142,7 +146,7 @@ namespace Samp_SDK {
 
         template<typename F, typename Tuple>
         decltype(auto) apply(F&& f, Tuple&& t) {
-            return apply_impl(std::forward<F>(f), std::forward<Tuple>(t), std::make_index_sequence<std::tuple_size<typename std::remove_reference<Tuple>::type>::value> {});
+            return apply_impl(std::forward<F>(f), std::forward<Tuple>(t), std::make_index_sequence<std::tuple_size<typename std::remove_reference<Tuple>::type>::value>{});
         }
 #endif
 
@@ -174,7 +178,7 @@ namespace Samp_SDK {
                         const auto& handler = *rit;
                         result = handler(amx);
 
-                        if (result == PLUGIN_PUBLIC_STOP)
+                        if (SAMP_SDK_UNLIKELY(result == PLUGIN_PUBLIC_STOP))
                             return false;
                     }
 
@@ -198,21 +202,21 @@ namespace Samp_SDK {
                     Public_Param_Reader::Get_Public_Params(amx, args...);
                 }, params_tuple);
                     
-                return std::apply(func_ptr, params_tuple);
-#elif defined(SAMP_SDK_CXX14)
+                return static_cast<cell>(std::apply(func_ptr, params_tuple));
+#elif defined(SAMP_SDK_CXX_14)
                 Samp_SDK::Detail::apply([&](auto&... args) {
                     Public_Param_Reader::Get_Public_Params(amx, args...);
                 }, params_tuple);
                     
-                return Samp_SDK::Detail::apply(func_ptr, params_tuple);
+                return static_cast<cell>(Samp_SDK::Detail::apply(func_ptr, params_tuple));
 #endif
             }
         };
         
         template<typename T_Func, T_Func func_ptr, uint32_t hash>
-        class Public_Registrar {
+        class Public_Register {
             public:
-                Public_Registrar() {
+                Public_Register() {
                     static bool registered = [&] {
                         return (Public_Dispatcher::Instance().Register(hash, &Public_Traits<T_Func, func_ptr>::Wrapper), true);
                     }();
@@ -224,4 +228,4 @@ namespace Samp_SDK {
 
 #define PLUGIN_PUBLIC_REGISTRATION(name) \
     constexpr uint32_t hash_##name = Samp_SDK::Detail::FNV1a_Hash_Const(#name); \
-    Samp_SDK::Detail::Public_Registrar<decltype(&name), &name, hash_##name> registrar_##name;
+    Samp_SDK::Detail::Public_Register<decltype(&name), &name, hash_##name> register_##name;

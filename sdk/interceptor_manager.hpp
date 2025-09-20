@@ -1,75 +1,76 @@
-/* ============================================================================ *
- * SA-MP SDK - A Modern C++ SDK for San Andreas Multiplayer Plugin Development  *
- * ============================================================================ *
- *                                                                              *
- * Copyright (c) 2025, SPC (SA-MP Programming Community)                        *
- *                                                                              *
- * Developed by: Calasans                                                       *
- * Provided by: SA-MP Programming Community                                     *
- * License: MIT License                                                         *
- * Repository: https://github.com/spc-samp/samp-sdk                             *
- *                                                                              *
- * ============================================================================ *
- *                                                                              *
- * This SDK provides a modern, high-level C++ abstraction layer over the native *
- * SA-MP Plugin SDK. It is designed to simplify plugin development by offering  *
- * type-safe, object-oriented, and robust interfaces for interacting with the   *
- * SA-MP server and the Pawn scripting environment.                             *
- *                                                                              *
- * --- Core Architecture & Features ---                                         *
- *                                                                              *
- *  - Type-Safe C++ Interface:                                                  *
- *      > Write SA-MP natives and public callbacks as standard C++ functions.   *
- *      > Use C++ types like `int`, `float`, and `std::string` directly.        *
- *                                                                              *
- *  - Automatic Marshalling:                                                    *
- *      > The SDK automatically handles the complex conversion of data types    *
- *        (marshalling) between the C++ environment and the Pawn virtual        *
- *        machine.                                                              *
- *      > Transparently manages memory for strings and reference parameters.    *
- *                                                                              *
- *  - Powerful Hooking Engine:                                                  *
- *      > Seamlessly intercepts Pawn public callbacks using `Plugin_Public`.    *
- *      > Allows multiple plugins built with the SDK to coexist and chain       *
- *        callbacks correctly without interfering with each other.              *
- *      > Supports "Ghost Callbacks" for hooking publics not present in the     *
- *        script.                                                               *
- *                                                                              *
- *  - Simplified Pawn Interaction:                                              *
- *      > Call any Pawn native or public function from C++ with `Pawn(...)`.    *
- *      > The SDK automatically finds the target function (native or public).   *
- *      > Built-in utilities like `Pawn_Format` for easy string formatting.     *
- *                                                                              *
- *  - Dynamic Module System:                                                    *
- *      > Load and unload other plugins/modules dynamically from a host plugin  *
- *        using `Plugin_Module` and `Plugin_Unload_Module`.                     *
- *      > Enables building scalable and maintainable plugin architectures.      *
- *                                                                              *
- *  - Modern C++ Compatibility:                                                 *
- *      > Automatically detects and utilizes features from C++11 to C++20.      *
- *      > Encourages modern C++ practices for safer and more expressive code.   *
- *                                                                              *
- * ============================================================================ *
- *                                                                              *
- * Permission is hereby granted, free of charge, to any person obtaining a copy *
- * of this software and associated documentation files (the "Software"), to     *
- * deal in the Software without restriction, including without limitation the   *
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or  *
- * sell copies of the Software, and to permit persons to whom the Software is   *
- * furnished to do so, subject to the following conditions:                     *
- *                                                                              *
- * The above copyright notice and this permission notice shall be included in   *
- * all copies or substantial portions of the Software.                          *
- *                                                                              *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR   *
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,     *
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE  *
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER       *
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING      *
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS *
- * IN THE SOFTWARE.                                                             *
- *                                                                              *
- * ============================================================================ */
+/* ============================================================================== *
+ * SA-MP SDK - A Modern C++ SDK for San Andreas Multiplayer Plugin Development    *
+ * ============================================================================== *
+ *                                                                                *
+ * Copyright (c) 2025, SPC (SA-MP Programming Community)                          *
+ *                                                                                *
+ * Developed by: Calasans                                                         *
+ * Provided by: SA-MP Programming Community                                       *
+ * License: MIT License                                                           *
+ * Repository: https://github.com/spc-samp/samp-sdk                               *
+ *                                                                                *
+ * ============================================================================== *
+ *                                                                                *
+ * This SDK provides a modern, high-level C++ abstraction layer over the native   *
+ * SA-MP Plugin SDK. It is designed to simplify plugin development by offering    *
+ * type-safe, object-oriented, and robust interfaces for interacting with the     *
+ * SA-MP server and the Pawn scripting environment.                               *
+ *                                                                                *
+ * --- Core Architecture & Features ---                                           *
+ *                                                                                *
+ *  - Type-Safe C++ Interface:                                                    *
+ *      > Write SA-MP natives and public callbacks as standard C++ functions.     *
+ *      > Use C++ types like `int`, `float`, and `std::string` directly.          *
+ *                                                                                *
+ *  - Automatic Marshalling:                                                      *
+ *      > The SDK automatically handles the complex conversion of data types      *
+ *        (marshalling) between the C++ environment and the Pawn virtual          *
+ *        machine.                                                                *
+ *      > Transparently manages memory for strings and reference parameters.      *
+ *                                                                                *
+ *  - Powerful Hooking Engine:                                                    *
+ *      > Seamlessly intercepts both Pawn public callbacks (with `Plugin_Public`) *
+ *        and natives (with `Plugin_Native_Hook`).                                *
+ *      > Allows multiple plugins built with the SDK to coexist and chain         *
+ *        callbacks/hooks correctly without interfering with each other.          *
+ *      > Supports "Ghost Callbacks" for hooking publics not present in the       *
+ *        script.                                                                 *
+ *                                                                                *
+ *  - Simplified Pawn Interaction:                                                *
+ *      > Call any Pawn native or public function from C++ with `Pawn(...)`.      *
+ *      > The SDK automatically finds the target function (native or public).     *
+ *      > Built-in utilities like `Pawn_Format` for easy string formatting.       *
+ *                                                                                *
+ *  - Dynamic Module System:                                                      *
+ *      > Load and unload other plugins/modules dynamically from a host plugin    *
+ *        using `Plugin_Module` and `Plugin_Unload_Module`.                       *
+ *      > Enables building scalable and maintainable plugin architectures.        *
+ *                                                                                *
+ *  - Modern C++ Compatibility:                                                   *
+ *      > Requires C++14 and automatically utilizes features up to C++20.         *
+ *      > Encourages modern C++ practices for safer and more expressive code.     *
+ *                                                                                *
+ * ============================================================================== *
+ *                                                                                *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy   *
+ * of this software and associated documentation files (the "Software"), to       *
+ * deal in the Software without restriction, including without limitation the     *
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or    *
+ * sell copies of the Software, and to permit persons to whom the Software is     *
+ * furnished to do so, subject to the following conditions:                       *
+ *                                                                                *
+ * The above copyright notice and this permission notice shall be included in     *
+ * all copies or substantial portions of the Software.                            *
+ *                                                                                *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     *
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       *
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    *
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         *
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING        *
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS   *
+ * IN THE SOFTWARE.                                                               *
+ *                                                                                *
+ * ============================================================================== */
 
 #pragma once
 
@@ -77,7 +78,9 @@
 #include <atomic>
 #include <mutex>
 #include <unordered_map>
+#include <unordered_set>
 #include <memory>
+#include <vector>
 //
 #include "amx_api.hpp"
 #include "amx_defs.h"
@@ -85,6 +88,7 @@
 #include "core.hpp"
 #include "function_hook.hpp"
 #include "hash.hpp"
+#include "native_hook_manager.hpp"
 #include "public_dispatcher.hpp"
 #include "version.hpp"
 //
@@ -102,15 +106,15 @@ namespace Samp_SDK {
         int SAMP_SDK_AMX_API Amx_Cleanup_Detour(AMX *amx);
         int SAMP_SDK_AMX_API Amx_Find_Public_Detour(AMX* amx, const char* name, int* index);
         
-#if defined(_M_IX86) || defined(__i386__)
         inline Function_Hook<amx::Register_t>& Get_Amx_Register_Hook() {
             static Function_Hook<amx::Register_t> hook;
 
             return hook;
         }
+
         inline Function_Hook<amx::Exec_t>& Get_Amx_Exec_Hook() {
             static Function_Hook<amx::Exec_t> hook;
-            
+
             return hook;
         }
         inline Function_Hook<amx::Init_t>& Get_Amx_Init_Hook() {
@@ -118,38 +122,20 @@ namespace Samp_SDK {
 
             return hook;
         }
+
         inline Function_Hook<amx::Cleanup_t>& Get_Amx_Cleanup_Hook() {
             static Function_Hook<amx::Cleanup_t> hook;
 
             return hook;
         }
+
         inline Function_Hook<amx::Find_Public_t>& Get_Amx_Find_Public_Hook() {
             static Function_Hook<amx::Find_Public_t> hook;
-            
+
             return hook;
         }
-#endif
 
         static thread_local std::unique_ptr<std::string> tl_public_name;
-
-        SAMP_SDK_FORCE_INLINE const char* Get_Public_Name_By_Index(AMX* amx, int index) {
-            if (!amx || !amx->base || index < 0)
-                return nullptr;
-
-            AMX_HEADER* hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
-
-            if (hdr->magic != AMX_MAGIC)
-                return nullptr;
-
-            int num_publics = (hdr->natives - hdr->publics) / sizeof(AMX_FUNCSTUBNT);
-
-            if (index >= num_publics)
-                return nullptr;
-
-            AMX_FUNCSTUBNT* public_tbl = reinterpret_cast<AMX_FUNCSTUBNT*>(amx->base + hdr->publics);
-
-            return reinterpret_cast<const char*>(amx->base + public_tbl[index].nameofs);
-        }
 
         class Interceptor_Manager {
             public:
@@ -160,14 +146,13 @@ namespace Samp_SDK {
                 }
 
                 void Activate() {
-#if defined(_M_IX86) || defined(__i386__)
                     void* register_func = Core::Instance().Get_AMX_Export(PLUGIN_AMX_EXPORT_Register);
                     void* exec_func = Core::Instance().Get_AMX_Export(PLUGIN_AMX_EXPORT_Exec);
                     void* init_func = Core::Instance().Get_AMX_Export(PLUGIN_AMX_EXPORT_Init);
                     void* cleanup_func = Core::Instance().Get_AMX_Export(PLUGIN_AMX_EXPORT_Cleanup);
                     void* find_public_func = Core::Instance().Get_AMX_Export(PLUGIN_AMX_EXPORT_FindPublic);
-                    
-                    if (register_func && exec_func && init_func && cleanup_func && find_public_func) {
+
+                    if (SAMP_SDK_LIKELY(register_func && exec_func && init_func && cleanup_func && find_public_func)) {
                         Get_Amx_Init_Hook().Install(init_func, reinterpret_cast<void*>(Amx_Init_Detour));
                         Get_Amx_Cleanup_Hook().Install(cleanup_func, reinterpret_cast<void*>(Amx_Cleanup_Detour));
                         Get_Amx_Register_Hook().Install(register_func, reinterpret_cast<void*>(Amx_Register_Detour));
@@ -175,36 +160,58 @@ namespace Samp_SDK {
                         Get_Amx_Exec_Hook().Install(exec_func, reinterpret_cast<void*>(Amx_Exec_Detour));
                     }
                     else
-                        Core::Instance().Log("[SAMP SDK] Fatal: Failed to activate core interceptors, pAMXFunctions not available.");
-#else
-                    Core::Instance().Log("[SAMP SDK] Warning: Core AMX interception is not supported on this architecture.");
-#endif
+                        Log("[SA-MP SDK] Fatal: Failed to activate core interceptors.");
                 }
 
                 void Deactivate() {
-#if defined(_M_IX86) || defined(__i386__)
                     Get_Amx_Register_Hook().Uninstall();
                     Get_Amx_Exec_Hook().Uninstall();
                     Get_Amx_Init_Hook().Uninstall();
                     Get_Amx_Cleanup_Hook().Uninstall();
                     Get_Amx_Find_Public_Hook().Uninstall();
-#endif
                 }
                 
-                void Cache_Natives(const AMX_NATIVE_INFO* nativelist, int number) {
+                void Update_Native_Cache(const AMX_NATIVE_INFO* nativelist, int number) {
                     auto& cache_data = Get_Cache_Data();
-                    std::lock_guard<std::mutex> lock(cache_data.mtx);
+                    std::lock_guard<Cache_Data::Mutex_Type> lock(cache_data.mtx);
 
-                    for (int i = 0; (number == -1 || i < number) && nativelist[i].name != nullptr; ++i)
-                        cache_data.native_cache[FNV1a_Hash(nativelist[i].name)] = nativelist[i].func;
+                    for (int i = 0; (number == -1 || i < number) && nativelist[i].name != nullptr; ++i) {
+                        uint32_t hash = FNV1a_Hash(nativelist[i].name);
+                        cache_data.native_cache[hash] = nativelist[i].func;
+                    }
                 }
 
                 AMX_NATIVE Find_Cached_Native(uint32_t hash) {
                     auto& cache_data = Get_Cache_Data();
-                    std::lock_guard<std::mutex> lock(cache_data.mtx);
+#if defined(SAMP_SDK_CXX_MODERN)
+                    std::shared_lock<Cache_Data::Mutex_Type> lock(cache_data.mtx);
+#elif defined(SAMP_SDK_CXX_14)
+                    std::lock_guard<Cache_Data::Mutex_Type> lock(cache_data.mtx);
+#endif
+
                     auto it = cache_data.native_cache.find(hash);
 
                     return (it != cache_data.native_cache.end()) ? it->second : nullptr;
+                }
+
+                void On_Amx_Patched(AMX* amx) {
+                    std::lock_guard<Patched_Amx_Mutex_Type> lock(patched_amx_mutex_);
+                    patched_amx_set_.insert(amx);
+                }
+
+                bool Is_Amx_Patched(AMX* amx) {
+#if defined(SAMP_SDK_CXX_MODERN)
+                    std::shared_lock<Patched_Amx_Mutex_Type> lock(patched_amx_mutex_);
+#elif defined(SAMP_SDK_CXX_14)
+                    std::lock_guard<Patched_Amx_Mutex_Type> lock(patched_amx_mutex_);
+#endif
+
+                    return patched_amx_set_.count(amx) > 0;
+                }
+
+                void On_Amx_Cleanup(AMX* amx) {
+                    std::lock_guard<Patched_Amx_Mutex_Type> lock(patched_amx_mutex_);
+                    patched_amx_set_.erase(amx);
                 }
 
                 void Set_Gamemode_Amx(AMX* amx) {
@@ -219,8 +226,14 @@ namespace Samp_SDK {
                 ~Interceptor_Manager() = default;
 
                 struct Cache_Data {
+#if defined(SAMP_SDK_CXX_MODERN)
+                    using Mutex_Type = std::shared_mutex;
+#elif defined(SAMP_SDK_CXX_14)
+                    using Mutex_Type = std::mutex;
+#endif
+
                     std::unordered_map<uint32_t, AMX_NATIVE> native_cache;
-                    std::mutex mtx;
+                    Mutex_Type mtx;
                 };
 
                 static Cache_Data& Get_Cache_Data() {
@@ -229,24 +242,53 @@ namespace Samp_SDK {
                     return data;
                 }
 
+#if defined(SAMP_SDK_CXX_MODERN)
+                using Patched_Amx_Mutex_Type = std::shared_mutex;
+#elif defined(SAMP_SDK_CXX_14)
+                using Patched_Amx_Mutex_Type = std::mutex;
+#endif
+
                 AMX* gamemode_amx_;
+                std::unordered_set<AMX*> patched_amx_set_;
+                Patched_Amx_Mutex_Type patched_amx_mutex_;
         };
 
         inline int SAMP_SDK_AMX_API Amx_Init_Detour(AMX *amx, void *program) {
             int result = Get_Amx_Init_Hook().Call_Original(amx, program);
-            
-            if (result == static_cast<int>(AmxError::None))
-                Amx_Manager::Instance().Add_Amx(amx);
 
+            if (SAMP_SDK_LIKELY(result == static_cast<int>(Amx_Error::None)))
+                Amx_Manager::Instance().Add_Amx(amx);
+            
             return result;
         }
 
         inline int SAMP_SDK_AMX_API Amx_Cleanup_Detour(AMX *amx) {
-            return (Amx_Manager::Instance().Remove_Amx(amx), Get_Amx_Cleanup_Hook().Call_Original(amx));
+            Amx_Manager::Instance().Remove_Amx(amx);
+            Interceptor_Manager::Instance().On_Amx_Cleanup(amx);
+
+            return Get_Amx_Cleanup_Hook().Call_Original(amx);
         }
 
         inline int SAMP_SDK_AMX_API Amx_Register_Detour(AMX* amx, const AMX_NATIVE_INFO* nativelist, int number) {
-            return (Interceptor_Manager::Instance().Cache_Natives(nativelist, number), Get_Amx_Register_Hook().Call_Original(amx, nativelist, number));
+            auto& hook_manager = Native_Hook_Manager::Instance();
+            std::vector<AMX_NATIVE_INFO> modified_list;
+            int count = 0;
+
+            for (const AMX_NATIVE_INFO* p = nativelist; (number == -1 || count < number) && p->name != nullptr; ++p, ++count)
+                modified_list.push_back(*p);
+
+            for (int i = 0; i < count; ++i) {
+                uint32_t hash = FNV1a_Hash(modified_list[i].name);
+
+                if (hook_manager.Find_Hook(hash)) {
+                    if (auto trampoline = hook_manager.Get_Trampoline(hash))
+                        modified_list[i].func = trampoline;
+                }
+            }
+
+            Interceptor_Manager::Instance().Update_Native_Cache(modified_list.data(), count);
+
+            return Get_Amx_Register_Hook().Call_Original(amx, nativelist, number);
         }
 
         inline int SAMP_SDK_AMX_API Amx_Find_Public_Detour(AMX* amx, const char* name, int* index) {
@@ -255,9 +297,9 @@ namespace Samp_SDK {
             if (Interceptor_Manager::Instance().Is_Gamemode_Amx(amx)) {
                 tl_public_name = std::make_unique<std::string>(name);
 
-                if (error != static_cast<int>(AmxError::None)) {
+                if (error != static_cast<int>(Amx_Error::None)) {
                     if (Public_Dispatcher::Instance().Has_Handler(FNV1a_Hash(name)))
-                        return (*index = PLUGIN_EXEC_GHOST_PUBLIC, static_cast<int>(AmxError::None));
+                        return (*index = PLUGIN_EXEC_GHOST_PUBLIC, static_cast<int>(Amx_Error::None));
                 }
             }
 
@@ -266,6 +308,7 @@ namespace Samp_SDK {
         
         inline int SAMP_SDK_AMX_API Amx_Exec_Detour(AMX* amx, cell* retval, int index) {
             auto& manager = Interceptor_Manager::Instance();
+            
             std::unique_ptr<std::string> public_name_ptr;
 
             if (index == AMX_EXEC_MAIN) {
@@ -280,8 +323,8 @@ namespace Samp_SDK {
             if (public_name_ptr) {
                 cell result = 1;
                 bool should_continue = Public_Dispatcher::Instance().Dispatch(FNV1a_Hash(public_name_ptr->c_str()), amx, result);
-                
-                if (!should_continue) {
+
+                if (SAMP_SDK_UNLIKELY(!should_continue)) {
                     if (retval)
                         *retval = result;
 
@@ -292,12 +335,51 @@ namespace Samp_SDK {
 
                     amx->stk += amx->paramcount * sizeof(cell);
                     amx->paramcount = 0;
-                    
-                    return static_cast<int>(AmxError::None);
+
+                    return static_cast<int>(Amx_Error::None);
                 }
             }
             
-            return Get_Amx_Exec_Hook().Call_Original(amx, retval, index);
+            int exec_result = Get_Amx_Exec_Hook().Call_Original(amx, retval, index);
+
+            if (SAMP_SDK_UNLIKELY(!manager.Is_Amx_Patched(amx))) {
+                auto& hook_manager = Native_Hook_Manager::Instance();
+                auto& hooks_to_apply = hook_manager.Get_All_Hooks();
+
+                if (!hooks_to_apply.empty()) {
+                    AMX_HEADER* hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+                    AMX_FUNCSTUBNT* natives = reinterpret_cast<AMX_FUNCSTUBNT*>(reinterpret_cast<unsigned char*>(hdr) + hdr->natives);
+
+                    int num_natives;
+
+                    amx::Num_Natives(amx, &num_natives);
+
+                    for (auto& hook_to_apply : hooks_to_apply) {
+                        uint32_t hook_hash = hook_to_apply.Get_Hash();
+
+                        for (int i = 0; i < num_natives; ++i) {
+                            const char* native_name = reinterpret_cast<const char*>(reinterpret_cast<unsigned char*>(hdr) + natives[i].nameofs);
+
+                            if (FNV1a_Hash(native_name) == hook_hash) {
+                                AMX_NATIVE current_func = reinterpret_cast<AMX_NATIVE>(natives[i].address);
+
+                                hook_to_apply.Set_Next_In_Chain(current_func);
+
+                                AMX_NATIVE trampoline = hook_manager.Get_Trampoline(hook_hash);
+
+                                if (trampoline)
+                                    natives[i].address = reinterpret_cast<ucell>(trampoline);
+                                
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                manager.On_Amx_Patched(amx);
+            }
+            
+            return exec_result;
         }
     }
 }
