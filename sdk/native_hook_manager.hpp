@@ -101,6 +101,10 @@
     #include <shared_mutex>
 #endif
 
+extern "C" {
+    cell SAMP_SDK_CDECL Dispatch_Hook(int hook_id, AMX* amx, cell* params);
+}
+
 namespace Samp_SDK {
     namespace Detail {
         class Native_Hook {
@@ -138,8 +142,6 @@ namespace Samp_SDK {
                 Handler_Func user_handler_;
                 std::atomic<AMX_NATIVE> next_in_chain_;
         };
-
-        cell SAMP_SDK_CDECL Dispatch_Hook(int hook_id, AMX* amx, cell* params);
 
 #if defined(SAMP_SDK_COMPILER_MSVC)
         __declspec(naked) inline void Dispatch_Wrapper_Asm() {
@@ -349,22 +351,25 @@ namespace Samp_SDK {
                 std::vector<uint32_t> hook_id_to_hash_;
         };
         
-        inline cell SAMP_SDK_CDECL Dispatch_Hook(int hook_id, AMX* amx, cell* params) {
-            auto& instance = Native_Hook_Manager::Instance();
-            uint32_t hash = instance.Get_Hash_From_Id(hook_id);
-            
-            if (SAMP_SDK_UNLIKELY(hash == 0))
-                return (Log("[SA-MP SDK] Fatal: Trampoline called with invalid hook_id %d.", hook_id), 0);
+    }
+}
 
-            Native_Hook* hook = instance.Find_Hook(hash);
+extern "C" {
+    inline cell SAMP_SDK_CDECL SAMP_SDK_USED_BY_ASM Dispatch_Hook(int hook_id, AMX* amx, cell* params) {
+        auto& instance = Samp_SDK::Detail::Native_Hook_Manager::Instance();
+        uint32_t hash = instance.Get_Hash_From_Id(hook_id);
+        
+        if (SAMP_SDK_UNLIKELY(hash == 0))
+            return (Samp_SDK::Log("[SA-MP SDK] Fatal: Trampoline called with invalid hook_id %d.", hook_id), 0);
 
-            if (SAMP_SDK_LIKELY(hook))
-                return hook->Dispatch(amx, params);
+        Samp_SDK::Detail::Native_Hook* hook = instance.Find_Hook(hash);
 
-            Log("[SA-MP SDK] Fatal: Trampoline for hash %u (id %d) called but no hook found.", hash, hook_id);
+        if (SAMP_SDK_LIKELY(hook))
+            return hook->Dispatch(amx, params);
 
-            return 0;
-        }
+        Samp_SDK::Log("[SA-MP SDK] Fatal: Trampoline for hash %u (id %d) called but no hook found.", hash, hook_id);
+
+        return 0;
     }
 }
 

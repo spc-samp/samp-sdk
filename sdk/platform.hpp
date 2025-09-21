@@ -125,6 +125,12 @@
     #define SAMP_SDK_CDECL __attribute__((cdecl))
 #endif
 
+#if defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
+    #define SAMP_SDK_USED_BY_ASM __attribute__((used))
+#else
+    #define SAMP_SDK_USED_BY_ASM
+#endif
+
 #if defined(SAMP_SDK_COMPILER_MSVC)
     #define SAMP_SDK_FORCE_INLINE __forceinline
 #elif defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
