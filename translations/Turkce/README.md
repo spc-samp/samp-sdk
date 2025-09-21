@@ -97,7 +97,7 @@
     - [4.5. `amx_manager.hpp`: `AMX*` Örneklerini Yönetme](#45-amx_managerhpp-amx-örneklerini-yönetme)
     - [4.6. `public_dispatcher.hpp`: `Plugin_Public` Callbacks Yönlendiricisi](#46-public_dispatcherhpp-plugin_public-callbacks-yönlendiricisi)
     - [4.7. `native.hpp`: Eklenti Nativelerini Yönetme ve Çağırma](#47-nativehpp-eklenti-nativelerini-yönetme-ve-çağırma)
-    - [4.8. `native_hook_manager.hpp`: Nativelerin Hook Motoru](#48-native_hook_managerhpp-nativelerin-hook-motoru)
+    - [4.8. `native_hook_manager.hpp`: Yerel Hook'ların Motoru](#48-native_hook_managerhpp-yerel-hookların-motoru)
     - [4.9. `callbacks.hpp` \& `amx_memory.hpp`: C++ -\> Pawn Çağrıları ve RAII](#49-callbackshpp--amx_memoryhpp-c---pawn-çağrıları-ve-raii)
     - [4.10. `amx_api.hpp` \& `amx_helpers.hpp` \& `amx_defs.h`: AMX'e Soyutlanmış Erişim](#410-amx_apihpp--amx_helpershpp--amx_defsh-amxe-soyutlanmış-erişim)
   - [5. Derleme ve Dağıtım](#5-derleme-ve-dağıtım)
@@ -1004,13 +1004,13 @@ Bu başlıklar, SDK'nın taşınabilirliği ve optimizasyonu için temel oluştu
       #endif
       ```
 
-- **Optimizasyon ve Dallar Tahmini Makroları:**
+- **Optimizasyon ve Branch Tahmini Makroları:**
    - `SAMP_SDK_FORCE_INLINE`:
-      - **Mekanizma:** `__forceinline` (MSVC) veya `__attribute__((always_inline)) inline` (GCC/Clang). Derleyiciye fonksiyon gövdesini doğrudan çağrı yerine eklemesini şiddetle önerir, gerçek bir fonksiyon çağrısının ek yükünü ortadan kaldırır.
-      - **Kullanım:** SDK içinde küçük ve performans açısından kritik fonksiyonlara uygulanır.
+      - **Mekanizma:** `__forceinline` (MSVC) veya `__attribute__((always_inline)) inline` (GCC/Clang). Derleyiciye, fonksiyon gövdesini doğrudan çağrı yerine eklemesini güçlü bir şekilde önererek, gerçek bir fonksiyon çağrısının ek yükünü ortadan kaldırır.
+      - **Kullanım:** SDK içindeki küçük, performans açısından kritik fonksiyonlara uygulanır.
    - `SAMP_SDK_LIKELY(x)` / `SAMP_SDK_UNLIKELY(x)`:
-      - **Mekanizma:** `[[likely]]` / `[[unlikely]]` (C++20) veya `__builtin_expect` (GCC/Clang). Bir `if/else` yolunun hangisinin daha olası olduğunu derleyiciye ipuçları.
-      - **Etki:** Derleyicinin dallanma tahmini için daha verimli kod üretmesine yardımcı olur, CPU gecikmesini azaltır.
+      - **Mekanizma:** `[[likely]]` / `[[unlikely]]` (C++20) veya `__builtin_expect` (GCC/Clang). Derleyiciye bir `if/else` koşulunun hangi yolunun daha olası olduğu hakkında ipuçları verir.
+      - **Etki:** Derleyicinin branch prediction için daha verimli kod üretmesine yardımcı olarak CPU gecikmesini azaltır.
       - **Örnek (`platform.hpp`):**
          ```cpp
          #if (defined(SAMP_SDK_COMPILER_MSVC) && _MSVC_LANG >= 202002L) || (defined(__cplusplus) && __cplusplus >= 202002L)
@@ -1022,6 +1022,17 @@ Bu başlıklar, SDK'nın taşınabilirliği ve optimizasyonu için temel oluştu
          #else
              #define SAMP_SDK_LIKELY(x) (x)
              #define SAMP_SDK_UNLIKELY(x) (x)
+         #endif
+         ```
+   - **`SAMP_SDK_USED_BY_ASM`**:
+      - **Mekanizma:** `__attribute__((used))` (GCC/Clang). Derleyiciye, bir sembolün (bu durumda, bir fonksiyonun) kullanıldığını bildirir, C++ kodunda ona hiçbir referans olmasa bile.
+      - **Etki:** Gömülü assembly bloklarından (`asm volatile`) çağrılan C++ fonksiyonları için çok önemlidir. Bu özellik olmadan, derleyicinin optimize edicisi fonksiyonu yanlışlıkla kaldırabilir ve bu da linkerda "tanımsız sembol" hatasına yol açabilir.
+      - **Örnek (`platform.hpp`):**
+         ```cpp
+         #if defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
+             #define SAMP_SDK_USED_BY_ASM __attribute__((used))
+         #else
+             #define SAMP_SDK_USED_BY_ASM
          #endif
          ```
 
@@ -1277,37 +1288,41 @@ Bu başlık, eklentinizin Pawn'a açtığı C++ native'lerinin oluşturulmasına
    - **Mekanizma:** Doğrudan C++ fonksiyon işaretçisini almak için `Native_List_Holder::Instance().Find_Plugin_Native(native_hash)` kullanır.
    - **Ortam:** Native'i, `Pawn_Native`'in nasıl çalıştığına benzer şekilde, geçici yığını ve yığını yönetmek için bir `Amx_Sandbox` (yalıtılmış) ortamında yürütür.
 
-### 4.8. `native_hook_manager.hpp`: Nativelerin Hook Motoru
+### 4.8. `native_hook_manager.hpp`: Yerel Hook'ların Motoru
 
-Bu, aynı native için birden çok eklentinin hook zincirini yönetmek üzere tasarlanmış sağlam bir native hook sistemi.
+Bu, aynı yerel için birden çok eklenti hook'unun zincirlenmesini yönetmek üzere tasarlanmış sağlam bir yerel hook sistemidir.
 
 - **`Native_Hook`**:
-   - **Açıklama:** Tek bir native hook'unu temsil eden bir sınıf. Native adının hash'ini, kullanıcı tarafından sağlanan C++ işleyici fonksiyonunu (`user_handler_`) ve bir `std::atomic<AMX_NATIVE> next_in_chain_`'i depolar.
-   - **`user_handler_`**: Sizin C++ `Plugin_Native_Hook` fonksiyonunuz.
-   - **`next_in_chain_`**: Orijinal native'e veya daha düşük önceliğe sahip bir eklentinin hook'una işaretçi. Okuma/yazmada iş parçacığı güvenliğini sağlamak için bir `std::atomic`'tir.
-   - **`Dispatch(AMX* amx, cell* params)`**: Kullanıcı işleyicinizi (`user_handler_`) yürütmek için trampoline tarafından çağrılır.
-   - **`Call_Original(AMX* amx, cell* params)`**: Hook'unuzun orijinal işlevselliği veya zincirdeki bir sonraki hook'u çağırmasına izin veren kritik yöntem, `next_in_chain_`'i çağırır.
+   - **Açıklama:** Tek bir yerel hook'u temsil eden bir sınıftır. Yerel adının hash'ini, kullanıcı tarafından sağlanan C++ handler fonksiyonunu (`user_handler_`) ve bir `std::atomic<AMX_NATIVE> next_in_chain_` saklar.
+   - **`user_handler_`**: Sizin `Plugin_Native_Hook` C++ fonksiyonunuz.
+   - **`next_in_chain_`**: Orijinal yerel'e veya daha düşük öncelikli bir eklenti hook'una işaret eden gösterici. Okuma/yazma işlemlerinde thread-safety sağlamak için `std::atomic` tipindedir.
+   - **`Dispatch(AMX* amx, cell* params)`**: `user_handler_`'ınızı yürütmek için trampoline tarafından çağrılır.
+   - **`Call_Original(AMX* amx, cell* params)`**: Hook'unuzun orijinal işlevselliği veya zincirdeki bir sonraki hook'u çağırmasına izin veren önemli bir yöntemdir. `next_in_chain_`'i çağırır.
 - **`Trampoline_Allocator`**:
-   - **Açıklama:** Yürütülebilir bellek bloklarını tahsis etmekten ve bu bloklarda "trampoline" assembly kodunu oluşturmaktan sorumlu bir sınıf.
-   - **`Generate_Trampoline_Code(unsigned char* memory, int hook_id)`**: 10 bayt assembly kodu yazar:
-      1. `B8 XX XX XX XX`: `MOV EAX, hook_id` (benzersiz hook ID'sini EAX kaydedicisine yerleştirir).
-      2. `E9 XX XX XX XX`: `JMP relative_address_to_Dispatch_Wrapper_Asm` (SDK'nın genel gönderme fonksiyonuna göreli adrese atlar).
-   - **`Allocation_Size = 4096`**: Verimlilik ve önbellek hizalaması için sayfa boyutunda bellek tahsis eder.
-   - **Bellek İzinleri:** Oluşturulan kodun yürütülebilir olmasını sağlamak için `EXECUTE_READWRITE` izinleriyle `VirtualAlloc` (Windows) veya `mmap` (Linux) kullanır.
+   - **Açıklama:** Yürütülebilir bellek blokları tahsis etmekten ve bu bloklarda "trampoline" assembly kodunu oluşturmaktan sorumlu bir sınıftır.
+   - **`Generate_Trampoline_Code(unsigned char* memory, int hook_id)`**: 10 baytlık assembly kodu yazar:
+      1. `B8 XX XX XX XX`: `MOV EAX, hook_id` (hook'un benzersiz ID'sini EAX kaydına yerleştirir).
+      2. `E9 XX XX XX XX`: `JMP relative_address_to_Dispatch_Wrapper_Asm` (SDK'nın genel dağıtım fonksiyonuna göreli adrese atlar).
+   - **`Allocation_Size = 4096`**: Belleği verimlilik ve cache hizalaması için sayfalarda tahsis eder.
+   - **Bellek İzinleri:** Oluşturulan kodun yürütülebilmesini sağlamak için `EXECUTE_READWRITE` izinleriyle `VirtualAlloc` (Windows) veya `mmap` (Linux) kullanır.
 - **`Dispatch_Wrapper_Asm()`**:
-   - **Açıklama:** Tüm trampolinlerin hedefi olarak hizmet veren küçük bir assembly fonksiyonu (`__declspec(naked)` veya `asm volatile` ile tanımlanır).
-   - **Eylem:** Kaydedicileri kaydeder, `EAX`'ı (`hook_id`'yi içeren) yığına taşır ve C++'daki `Dispatch_Hook` fonksiyonunu çağırır. `Dispatch_Hook`'tan döndükten sonra kaydedicileri geri yükler ve döner.
+   - **Açıklama:** Tüm tramplenlerin hedefi olarak hizmet veren küçük bir assembly fonksiyonu (`__declspec(naked)` veya `asm volatile` ile tanımlanır).
+   - **Eylem:** Kaydedicileri kaydeder, `EAX`'ı (`hook_id`'yi içerir) yığına taşır ve C++'taki `Dispatch_Hook` fonksiyonunu çağırır. `Dispatch_Hook`'tan döndükten sonra kaydedicileri geri yükler ve geri döner.
 - **`cell SAMP_SDK_CDECL Dispatch_Hook(int hook_id, AMX* amx, cell* params)`**:
-   - **Açıklama:** `Dispatch_Wrapper_Asm` tarafından çağrılan genel C++ fonksiyonu.
-   - **Eylem:** `hook_id`'yi kullanarak `Native_Hook_Manager`'daki ilgili `Native_Hook`'u bulur ve `Dispatch()` yöntemini çağırır, bu da sırasıyla kullanıcının `Plugin_Native_Hook` işleyicisini çağırır.
+   - **Açıklama:** `Dispatch_Wrapper_Asm` tarafından çağrılan genel C++ fonksiyonudur.
+   - **Eylem:** `hook_id`'yi kullanarak `Native_Hook_Manager`'da karşılık gelen `Native_Hook`'u bulur ve `Dispatch()` yöntemini çağırır, bu da sırayla kullanıcının `Plugin_Native_Hook` handler'ını çağırır.
+   - **Linkleme Hususları:** Bu fonksiyon, C++ ve assembly arasındaki kritik bir birlikte çalışabilirlik noktasıdır. Linux'ta (GCC/Clang) linker tarafından doğru bir şekilde dışa aktarıldığından ve bulunduğundan emin olmak için üç önemli özellikle tanımlanmıştır:
+      1. **`extern "C"`**: C++ Name Mangling'i engeller, sembolün assembly kodunun aradığı saf C adı `Dispatch_Hook` olmasını sağlar.
+      2. **`inline`**: Fonksiyon tanımının "çoklu tanım" hatalarına (ODR - One Definition Rule) neden olmadan başlık dosyasında (header-only bir kütüphane için gereklidir) bulunmasına izin verir.
+      3. **`SAMP_SDK_USED_BY_ASM` (`__attribute__((used))` GCC/Clang'de)**: Derleyiciyi, başka C++ kodundan ona herhangi bir çağrı bulamasa bile fonksiyon için kod yayınlamaya zorlar. Bu, optimize edicinin onu yanlışlıkla kaldırmasını önler.
 - **`Native_Hook_Manager`**:
-   - **Açıklama:** Tüm kayıtlı `Native_Hook`'ları ve trampolinlerini yöneten merkezi `singleton`.
-   - **`std::list<Native_Hook> hooks_`**: Hook listesini sırayla depolar.
-   - **`std::unordered_map<uint32_t, Trampoline_Func> hash_to_trampoline_`**: Native adının hash'ini oluşturulan trampoline'in işaretçisiyle eşleştirir.
-   - **`std::vector<uint32_t> hook_id_to_hash_`**: Hook'un tam sayı ID'sini (trampoline'de kullanılır) native adının hash'ine geri eşleştirir.
-   - **`Get_Trampoline(uint32_t hash)`**: Belirli bir native hash'i için bir trampoline işaretçisi döndürür (veya oluşturur ve tahsis eder).
+   - **Açıklama:** Kayıtlı tüm `Native_Hook`'ları ve bunların trampolinlerini yöneten merkezi `singleton`.
+   - **`std::list<Native_Hook> hooks_`**: Hook'ların listesini sırayla saklar.
+   - **`std::unordered_map<uint32_t, Trampoline_Func> hash_to_trampoline_`**: Yerel adının hash'ini oluşturulan trampoline'nin göstericisine eşler.
+   - **`std::vector<uint32_t> hook_id_to_hash_`**: Hook'un tam sayı ID'sini (trampoline'de kullanılır) yerel adının hash'ine geri eşler.
+   - **`Get_Trampoline(uint32_t hash)`**: Belirli bir yerel hash için bir trampoline göstericisi döndürür (veya oluşturur ve tahsis eder).
 - **`PLUGIN_NATIVE_HOOK_REGISTRATION`**:
-   - **Mekanizma:** Her `Plugin_Native_Hook` için statik global bir sınıf (`Native_Hook_Register_##name`) oluşturan bir makro. Bu sınıfın statik yapılandırıcısında, kullanıcı işleyicisini `Native_Hook_Manager`'a kaydeder.
+   - **Mekanizma:** Her `Plugin_Native_Hook` için statik bir global sınıf (`Native_Hook_Register_##name`) oluşturan bir makrodur. Bu sınıfın statik yapıcısında, kullanıcının `handler`'ını `Native_Hook_Manager`'a kaydeder.
 
 ### 4.9. `callbacks.hpp` & `amx_memory.hpp`: C++ -> Pawn Çağrıları ve RAII
 

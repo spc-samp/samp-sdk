@@ -97,7 +97,7 @@
     - [4.5. `amx_manager.hpp`: Administrando Instancias `AMX*`](#45-amx_managerhpp-administrando-instancias-amx)
     - [4.6. `public_dispatcher.hpp`: El Enrutador de Callbacks `Plugin_Public`](#46-public_dispatcherhpp-el-enrutador-de-callbacks-plugin_public)
     - [4.7. `native.hpp`: Administrando y Llamando Nativas del Plugin](#47-nativehpp-administrando-y-llamando-nativas-del-plugin)
-    - [4.8. `native_hook_manager.hpp`: El Motor de Hooks de Nativas](#48-native_hook_managerhpp-el-motor-de-hooks-de-nativas)
+    - [4.8. `native_hook_manager.hpp`: El Motor de Hooks de Natives](#48-native_hook_managerhpp-el-motor-de-hooks-de-natives)
     - [4.9. `callbacks.hpp` \& `amx_memory.hpp`: Llamadas C++ -\> Pawn y RAII](#49-callbackshpp--amx_memoryhpp-llamadas-c---pawn-y-raii)
     - [4.10. `amx_api.hpp` \& `amx_helpers.hpp` \& `amx_defs.h`: Acceso Abstraído a la AMX](#410-amx_apihpp--amx_helpershpp--amx_defsh-acceso-abstraído-a-la-amx)
   - [5. Compilación y Despliegue](#5-compilación-y-despliegue)
@@ -1004,13 +1004,13 @@ Estos headers son la base para la portabilidad y optimización del SDK, adaptán
       #endif
       ```
 
-- **Macros de Optimización y Predicción de Salto (Branch Prediction):**
+- **Macros de Optimización y Predicción de Branch:**
    - `SAMP_SDK_FORCE_INLINE`:
-      - **Mecanismo:** `__forceinline` (MSVC) o `__attribute__((always_inline)) inline` (GCC/Clang). Sugiere fuertemente al compilador que inserte el cuerpo de la función directamente en el lugar de la llamada, eliminando la sobrecarga de una llamada de función real.
+      - **Mecanismo:** `__forceinline` (MSVC) o `__attribute__((always_inline)) inline` (GCC/Clang). Sugiere fuertemente al compilador que inserte el cuerpo de la función directamente en el lugar de la llamada, eliminando el overhead de una llamada a función real.
       - **Uso:** Aplicado a funciones pequeñas y críticas para el rendimiento dentro del SDK.
    - `SAMP_SDK_LIKELY(x)` / `SAMP_SDK_UNLIKELY(x)`:
       - **Mecanismo:** `[[likely]]` / `[[unlikely]]` (C++20) o `__builtin_expect` (GCC/Clang). Pistas para el compilador sobre qué camino de un `if/else` es más probable que se tome.
-      - **Impacto:** Ayuda al compilador a generar código más eficiente para la predicción de saltos, reduciendo la latencia de la CPU.
+      - **Impacto:** Ayuda al compilador a generar código más eficiente para la predicción de desvíos (branch prediction), reduciendo la latencia de la CPU.
       - **Ejemplo (`platform.hpp`):**
          ```cpp
          #if (defined(SAMP_SDK_COMPILER_MSVC) && _MSVC_LANG >= 202002L) || (defined(__cplusplus) && __cplusplus >= 202002L)
@@ -1022,6 +1022,17 @@ Estos headers son la base para la portabilidad y optimización del SDK, adaptán
          #else
              #define SAMP_SDK_LIKELY(x) (x)
              #define SAMP_SDK_UNLIKELY(x) (x)
+         #endif
+         ```
+   - **`SAMP_SDK_USED_BY_ASM`**:
+      - **Mecanismo:** `__attribute__((used))` (GCC/Clang). Informa al compilador que un símbolo (en este caso, una función) es utilizado, incluso si no hay referencias a él en el código C++.
+      - **Impacto:** Crucial para funciones C++ que son llamadas a partir de bloques de assembly incrustado (`asm volatile`). Sin este atributo, el optimizador del compilador puede remover la función por error, resultando en un error de "símbolo indefinido" en el linker.
+      - **Ejemplo (`platform.hpp`):**
+         ```cpp
+         #if defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
+             #define SAMP_SDK_USED_BY_ASM __attribute__((used))
+         #else
+             #define SAMP_SDK_USED_BY_ASM
          #endif
          ```
 
@@ -1277,35 +1288,39 @@ Este encabezado está dedicado a la creación y gestión de nativas C++ que su p
    - **Mecanismo:** Utiliza `Native_List_Holder::Instance().Find_Plugin_Native(native_hash)` para obtener directamente el puntero de la función C++.
    - **Entorno:** Ejecuta la nativa en un entorno `Amx_Sandbox` (aislado) para gestionar la pila y el heap temporales, de forma similar a cómo funciona `Pawn_Native`.
 
-### 4.8. `native_hook_manager.hpp`: El Motor de Hooks de Nativas
+### 4.8. `native_hook_manager.hpp`: El Motor de Hooks de Natives
 
-Este es el robusto sistema de hooking de nativas, diseñado para administrar el encadenamiento de hooks de múltiples plugins para la misma nativa.
+Este es el robusto sistema de hooking de nativas, diseñado para gestionar el encadenamiento de hooks de múltiples plugins para la misma native.
 
 - **`Native_Hook`**:
    - **Descripción:** Una clase que representa un único hook de native. Almacena el hash del nombre de la native, la función handler C++ proporcionada por el usuario (`user_handler_`) y un `std::atomic<AMX_NATIVE> next_in_chain_`.
-   - **`user_handler_`**: Su función `Plugin_Native_Hook` de C++.
-   - **`next_in_chain_`**: El puntero a la nativa original o al hook de un plugin con prioridad más baja. Es un `std::atomic` para garantizar la seguridad de hilos en lectura/escritura.
-   - **`Dispatch(AMX* amx, cell* params)`**: Llamado por el trampoline para ejecutar su `user_handler_`.
-   - **`Call_Original(AMX* amx, cell* params)`**: Método crucial que llama a `next_in_chain_`, permitiendo que su hook invoque la funcionalidad original o el siguiente hook en la cadena.
+   - **`user_handler_`**: Su función `Plugin_Native_Hook` C++.
+   - **`next_in_chain_`**: El puntero a la native original o al hook de un plugin con prioridad más baja. Es un `std::atomic` para garantizar thread-safety en lectura/escritura.
+   - **`Dispatch(AMX* amx, cell* params)`**: Llamada por el trampoline para ejecutar su `user_handler_`.
+   - **`Call_Original(AMX* amx, cell* params)`**: Método crucial que llama `next_in_chain_`, permitiendo que su hook invoque la funcionalidad original o el siguiente hook en la cadena.
 - **`Trampoline_Allocator`**:
-   - **Descripción:** Una clase responsable de asignar bloques de memoria ejecutable y generar el código ensamblador "trampoline" en esos bloques.
-   - **`Generate_Trampoline_Code(unsigned char* memory, int hook_id)`**: Escribe 10 bytes de ensamblador:
+   - **Descripción:** Una clase responsable de asignar bloques de memoria ejecutable y generar el código assembly "trampoline" en esos bloques.
+   - **`Generate_Trampoline_Code(unsigned char* memory, int hook_id)`**: Escribe 10 bytes de assembly:
       1. `B8 XX XX XX XX`: `MOV EAX, hook_id` (coloca el ID único del hook en el registro EAX).
       2. `E9 XX XX XX XX`: `JMP relative_address_to_Dispatch_Wrapper_Asm` (salta a la función de despacho genérica del SDK).
-   - **`Allocation_Size = 4096`**: Asigna memoria en páginas para eficiencia y alineación de caché.
-   - **Permisos de Memoria:** Usa `VirtualAlloc` (Windows) o `mmap` (Linux) con permisos `EXECUTE_READWRITE` para garantizar que el código generado pueda ejecutarse.
+   - **`Allocation_Size = 4096`**: Asigna memoria en páginas para eficiencia y alineación de cache.
+   - **Permisos de Memoria:** Usa `VirtualAlloc` (Windows) o `mmap` (Linux) con permisos `EXECUTE_READWRITE` para garantizar que el código generado pueda ser ejecutado.
 - **`Dispatch_Wrapper_Asm()`**:
-   - **Descripción:** Una pequeña función en ensamblador (definida con `__declspec(naked)` o `asm volatile`) que sirve como destino de todos los trampolines.
-   - **Acción:** Guarda los registros, mueve `EAX` (que contiene el `hook_id`) a la pila y llama a la función `Dispatch_Hook` en C++. Después de que `Dispatch_Hook` regresa, restaura los registros y retorna.
+   - **Descripción:** Una pequeña función en assembly (definida con `__declspec(naked)` o `asm volatile`) que sirve como el destino de todos los trampolines.
+   - **Acción:** Salva los registros, mueve `EAX` (que contiene el `hook_id`) a la stack, y llama la función `Dispatch_Hook` en C++. Después del retorno de `Dispatch_Hook`, restaura los registros y retorna.
 - **`cell SAMP_SDK_CDECL Dispatch_Hook(int hook_id, AMX* amx, cell* params)`**:
    - **Descripción:** La función C++ genérica llamada por `Dispatch_Wrapper_Asm`.
-   - **Acción:** Usa `hook_id` para encontrar el `Native_Hook` correspondiente en `Native_Hook_Manager` y llama a su método `Dispatch()`, que a su vez invoca el handler `Plugin_Native_Hook` del usuario.
+   - **Acción:** Usa `hook_id` para encontrar el `Native_Hook` correspondiente en el `Native_Hook_Manager` y llama su método `Dispatch()`, que a su vez invoca el handler `Plugin_Native_Hook` del usuario.
+   - **Consideraciones de Linkagem:** Esta función es un punto crítico de interoperabilidad entre C++ y assembly. Para garantizar que sea correctamente exportada y encontrada por el linker en Linux (GCC/Clang), es definida con tres características importantes:
+      1. **`extern "C"`**: Impide el C++ Name Mangling, garantizando que el símbolo tenga el nombre C puro `Dispatch_Hook`, que es lo que busca el código assembly.
+      2. **`inline`**: Permite que la definición de la función resida en el archivo de encabezado (necesario para una biblioteca header-only) sin causar errores de "definición múltiple" (ODR - One Definition Rule).
+      3. **`SAMP_SDK_USED_BY_ASM` (`__attribute__((used))` en GCC/Clang)**: Fuerza al compilador a emitir el código para la función, incluso si no encuentra ninguna llamada a ella a partir de otro código C++. Esto evita que el optimizador la elimine por error.
 - **`Native_Hook_Manager`**:
-   - **Descripción:** El `singleton` central que administra todos los `Native_Hook`s registrados y sus trampolines.
+   - **Descripción:** El `singleton` central que gestiona todos los `Native_Hook`s registrados y sus trampolines.
    - **`std::list<Native_Hook> hooks_`**: Almacena la lista de hooks en orden.
    - **`std::unordered_map<uint32_t, Trampoline_Func> hash_to_trampoline_`**: Mapea el hash del nombre de la native al puntero del trampoline generado.
    - **`std::vector<uint32_t> hook_id_to_hash_`**: Mapea el ID entero del hook (usado en el trampoline) de vuelta al hash del nombre de la native.
-   - **`Get_Trampoline(uint32_t hash)`**: Retorna (o crea y asigna) un puntero de trampoline para un hash de native dado.
+   - **`Get_Trampoline(uint32_t hash)`**: Retorna (o crea y asigna) un puntero de trampoline para un determinado hash de native.
 - **`PLUGIN_NATIVE_HOOK_REGISTRATION`**:
    - **Mecanismo:** Una macro que crea una clase estática global (`Native_Hook_Register_##name`) para cada `Plugin_Native_Hook`. En el constructor estático de esa clase, registra el `handler` del usuario en el `Native_Hook_Manager`.
 

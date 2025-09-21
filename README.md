@@ -1024,6 +1024,17 @@ Estes headers são a base para a portabilidade e otimização do SDK, adaptando-
              #define SAMP_SDK_UNLIKELY(x) (x)
          #endif
          ```
+   - **`SAMP_SDK_USED_BY_ASM`**:
+      - **Mecanismo:** `__attribute__((used))` (GCC/Clang). Informa ao compilador que um símbolo (neste caso, uma função) é utilizado, mesmo que não haja referências a ele no código C++.
+      - **Impacto:** Crucial para funções C++ que são chamadas a partir de blocos de assembly embutido (`asm volatile`). Sem este atributo, o otimizador do compilador pode remover a função por engano, resultando em um erro de "símbolo indefinido" no linker.
+      - **Exemplo (`platform.hpp`):**
+         ```cpp
+         #if defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
+             #define SAMP_SDK_USED_BY_ASM __attribute__((used))
+         #else
+             #define SAMP_SDK_USED_BY_ASM
+         #endif
+         ```
 
 - **Definições C++ Padrão (`SAMP_SDK_CXX14`, `SAMP_SDK_CXX_MODERN`):**
    - **Mecanismo:** Macros definidas com base no valor de `__cplusplus` e `_MSVC_LANG`.
@@ -1300,6 +1311,10 @@ Este é o robusto sistema de hooking de nativas, projetado para gerenciar o enca
 - **`cell SAMP_SDK_CDECL Dispatch_Hook(int hook_id, AMX* amx, cell* params)`**:
    - **Descrição:** A função C++ genérica chamada por `Dispatch_Wrapper_Asm`.
    - **Ação:** Usa `hook_id` para encontrar o `Native_Hook` correspondente no `Native_Hook_Manager` e chama seu método `Dispatch()`, que por sua vez invoca o handler `Plugin_Native_Hook` do usuário.
+   - **Considerações de Linkagem:** Esta função é um ponto crítico de interoperabilidade entre C++ e assembly. Para garantir que ela seja corretamente exportada e encontrada pelo linker no Linux (GCC/Clang), ela é definida com três características importantes:
+      1. **`extern "C"`**: Impede o C++ Name Mangling, garantindo que o símbolo tenha o nome C puro `Dispatch_Hook`, que é o que o código assembly procura.
+      2. **`inline`**: Permite que a definição da função resida no arquivo de cabeçalho (necessário para uma biblioteca header-only) sem causar erros de "definição múltipla" (ODR - One Definition Rule).
+      3. **`SAMP_SDK_USED_BY_ASM` (`__attribute__((used))` no GCC/Clang)**: Força o compilador a emitir o código para a função, mesmo que ele não encontre nenhuma chamada para ela a partir de outro código C++. Isso evita que o otimizador a remova por engano.
 - **`Native_Hook_Manager`**:
    - **Descrição:** O `singleton` central que gerencia todos os `Native_Hook`s registrados e seus trampolines.
    - **`std::list<Native_Hook> hooks_`**: Armazena a lista de hooks em ordem.

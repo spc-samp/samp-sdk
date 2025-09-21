@@ -97,7 +97,7 @@
     - [4.5. `amx_manager.hpp`: Hantera `AMX*` Instanser](#45-amx_managerhpp-hantera-amx-instanser)
     - [4.6. `public_dispatcher.hpp`: `Plugin_Public` Callback-routern](#46-public_dispatcherhpp-plugin_public-callback-routern)
     - [4.7. `native.hpp`: Hantera och Anropa Plugin Natives](#47-nativehpp-hantera-och-anropa-plugin-natives)
-    - [4.8. `native_hook_manager.hpp`: Natives Hook-motorn](#48-native_hook_managerhpp-natives-hook-motorn)
+    - [4.8. `native_hook_manager.hpp`: Motorn för native Hooks](#48-native_hook_managerhpp-motorn-för-native-hooks)
     - [4.9. `callbacks.hpp` \& `amx_memory.hpp`: C++ -\> Pawn Anrop och RAII](#49-callbackshpp--amx_memoryhpp-c---pawn-anrop-och-raii)
     - [4.10. `amx_api.hpp` \& `amx_helpers.hpp` \& `amx_defs.h`: Abstraherad AMX-åtkomst](#410-amx_apihpp--amx_helpershpp--amx_defsh-abstraherad-amx-åtkomst)
   - [5. Kompilering och Deploy](#5-kompilering-och-deploy)
@@ -1006,11 +1006,11 @@ Dessa headrar är grunden för SDK:ns portabilitet och optimering, anpassar den 
 
 - **Makron för optimering och Branch Prediction:**
    - `SAMP_SDK_FORCE_INLINE`:
-      - **Mekanism:** `__forceinline` (MSVC) eller `__attribute__((always_inline)) inline` (GCC/Clang). Föreslår starkt för kompilatorn att infoga funktionens kropp direkt vid anropet, vilket eliminerar överhänget av ett faktiskt funktionsanrop.
-      - **Användning:** Används för små och prestandakritiska funktioner inom SDK:n.
+      - **Mekanism:** `__forceinline` (MSVC) eller `__attribute__((always_inline)) inline` (GCC/Clang). Föreslår starkt för kompilatorn att infoga funktionens kropp direkt på anropsplatsen, vilket eliminerar overheaden för ett faktiskt funktionsanrop.
+      - **Användning:** Appliceras på små, prestandakritiska funktioner inom SDK:t.
    - `SAMP_SDK_LIKELY(x)` / `SAMP_SDK_UNLIKELY(x)`:
-      - **Mekanism:** `[[likely]]` / `[[unlikely]]` (C++20) eller `__builtin_expect` (GCC/Clang). Tips till kompilatorn om vilken väg i en `if/else`-sats som är mest sannolik att tas.
-      - **Påverkan:** Hjälper kompilatorn att generera effektivare kod för grenprognoser (branch prediction), vilket minskar CPU-latensen.
+      - **Mekanism:** `[[likely]]` / `[[unlikely]]` (C++20) eller `__builtin_expect` (GCC/Clang). Tips till kompilatorn om vilken väg i en `if/else` som är mest sannolik att tas.
+      - **Påverkan:** Hjälper kompilatorn att generera mer effektiv kod för branch prediction, vilket minskar CPU-latensen.
       - **Exempel (`platform.hpp`):**
          ```cpp
          #if (defined(SAMP_SDK_COMPILER_MSVC) && _MSVC_LANG >= 202002L) || (defined(__cplusplus) && __cplusplus >= 202002L)
@@ -1022,6 +1022,17 @@ Dessa headrar är grunden för SDK:ns portabilitet och optimering, anpassar den 
          #else
              #define SAMP_SDK_LIKELY(x) (x)
              #define SAMP_SDK_UNLIKELY(x) (x)
+         #endif
+         ```
+   - **`SAMP_SDK_USED_BY_ASM`**:
+      - **Mekanism:** `__attribute__((used))` (GCC/Clang). Informerar kompilatorn om att en symbol (i detta fall en funktion) används, även om det inte finns några referenser till den i C++-koden.
+      - **Påverkan:** Avgörande för C++-funktioner som anropas från inbäddade assembly-block (`asm volatile`). Utan detta attribut kan kompilatorns optimerare ta bort funktionen av misstag, vilket resulterar i ett "undefined symbol"-fel i linker.
+      - **Exempel (`platform.hpp`):**
+         ```cpp
+         #if defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
+             #define SAMP_SDK_USED_BY_ASM __attribute__((used))
+         #else
+             #define SAMP_SDK_USED_BY_ASM
          #endif
          ```
 
@@ -1277,37 +1288,41 @@ Denna header är dedikerad till att skapa och hantera C++ natives som ditt plugi
    - **Mekanism:** Använder `Native_List_Holder::Instance().Find_Plugin_Native(native_hash)` för att direkt hämta C++-funktionens pekare.
    - **Miljö:** Exekverar nativen i en `Amx_Sandbox`-miljö (isolerad) för att hantera temporär stack och heap, på ett liknande sätt som `Pawn_Native` fungerar.
 
-### 4.8. `native_hook_manager.hpp`: Natives Hook-motorn
+### 4.8. `native_hook_manager.hpp`: Motorn för native Hooks
 
-Detta är det robusta native hooking-systemet, designat för att hantera kedjning av hooks från flera plugins för samma native.
+Detta är det robusta systemet för att hooka natives, utformat för att hantera kedjning av hooks från flera plugins till samma native.
 
 - **`Native_Hook`**:
-   - **Beskrivning:** En klass som representerar en enskild native hook. Lagrar hashen av native-namnet, den användarlevererade C++-handlerfunktionen (`user_handler_`) och en `std::atomic<AMX_NATIVE> next_in_chain_`.
-   - **`user_handler_`**: Din C++ `Plugin_Native_Hook`-funktion.
-   - **`next_in_chain_`**: Pekaren till den ursprungliga nativen eller till en hook från ett plugin med lägre prioritet. Det är en `std::atomic` för att säkerställa trådsäkerhet vid läsning/skrivning.
-   - **`Dispatch(AMX* amx, cell* params)`**: Anropas av trampolinen för att exekvera din `user_handler_`.
-   - **`Call_Original(AMX* amx, cell* params)`**: Viktig metod som anropar `next_in_chain_`, vilket tillåter din hook att anropa den ursprungliga funktionaliteten eller nästa hook i kedjan.
+   - **Beskrivning:** En klass som representerar en enskild native hook. Lagrar hashen av native-namnet, den C++ handler-funktion som tillhandahålls av användaren (`user_handler_`) och en `std::atomic<AMX_NATIVE> next_in_chain_`.
+   - **`user_handler_`**: Din C++-funktion `Plugin_Native_Hook`.
+   - **`next_in_chain_`**: Pekaren till den ursprungliga native-funktionen eller till en plugin-hook med lägre prioritet. Det är en `std::atomic` för att säkerställa trådsäkerhet vid läsning/skrivning.
+   - **`Dispatch(AMX* amx, cell* params)`**: Anropas av trampoline för att exekvera din `user_handler_`.
+   - **`Call_Original(AMX* amx, cell* params)`**: Avgörande metod som anropar `next_in_chain_`, vilket gör att din hook kan anropa den ursprungliga funktionaliteten eller nästa hook i kedjan.
 - **`Trampoline_Allocator`**:
-   - **Beskrivning:** En klass som ansvarar för att allokera exekverbara minnesblock och generera assembler-koden "trampoline" i dessa block.
-   - **`Generate_Trampoline_Code(unsigned char* memory, int hook_id)`**: Skriver 10 byte assembler:
-      1. `B8 XX XX XX XX`: `MOV EAX, hook_id` (placerar den unika hook-ID:t i EAX-registret).
-      2. `E9 XX XX XX XX`: `JMP relative_address_to_Dispatch_Wrapper_Asm` (hoppar till SDK:ns generiska Dispatch_Wrapper_Asm-funktion).
-   - **`Allocation_Size = 4096`**: Allokerar minne i sidor för effektivitet och cache-justering.
-   - **Minnesbehörigheter:** Använder `VirtualAlloc` (Windows) eller `mmap` (Linux) med behörigheter `EXECUTE_READWRITE` för att säkerställa att den genererade koden kan exekveras.
+   - **Beskrivning:** En klass som ansvarar för att allokera exekverbara minnesblock och generera "trampoline" assembly-kod i dessa block.
+   - **`Generate_Trampoline_Code(unsigned char* memory, int hook_id)`**: Skriver 10 bytes av assembly:
+      1. `B8 XX XX XX XX`: `MOV EAX, hook_id` (placerar hookens unika ID i registret EAX).
+      2. `E9 XX XX XX XX`: `JMP relative_address_to_Dispatch_Wrapper_Asm` (hoppar till SDK:s generiska dispatch-funktion).
+   - **`Allocation_Size = 4096`**: Allokerar minne i sidor för effektivitet och cache-alignment.
+   - **Minnesbehörigheter:** Använder `VirtualAlloc` (Windows) eller `mmap` (Linux) med `EXECUTE_READWRITE`-behörigheter för att säkerställa att den genererade koden kan exekveras.
 - **`Dispatch_Wrapper_Asm()`**:
-   - **Beskrivning:** En liten assembler-funktion (definierad med `__declspec(naked)` eller `asm volatile`) som fungerar som målet för alla trampoliner.
-   - **Åtgärd:** Sparar register, flyttar `EAX` (som innehåller `hook_id`) till stacken och anropar `Dispatch_Hook`-funktionen i C++. Efter återkomst från `Dispatch_Hook` återställs register och återvänder.
+   - **Beskrivning:** En liten assembly-funktion (definierad med `__declspec(naked)` eller `asm volatile`) som fungerar som destination för alla trampolines.
+   - **Åtgärd:** Sparar register, flyttar `EAX` (som innehåller `hook_id`) till stacken och anropar C++-funktionen `Dispatch_Hook`. Efter att `Dispatch_Hook` returnerar, återställs registren och funktionen returnerar.
 - **`cell SAMP_SDK_CDECL Dispatch_Hook(int hook_id, AMX* amx, cell* params)`**:
    - **Beskrivning:** Den generiska C++-funktionen som anropas av `Dispatch_Wrapper_Asm`.
-   - **Åtgärd:** Använder `hook_id` för att hitta motsvarande `Native_Hook` i `Native_Hook_Manager` och anropar dess `Dispatch()`-metod, som i sin tur anropar användarens `Plugin_Native_Hook`-handler.
+   - **Åtgärd:** Använder `hook_id` för att hitta motsvarande `Native_Hook` i `Native_Hook_Manager` och anropar dess `Dispatch()`-metod, som i sin tur anropar användarens `Plugin_Native_Hook` handler.
+   - **Linkningsöverväganden:** Denna funktion är en kritisk punkt för samverkan mellan C++ och assembly. För att säkerställa att den exporteras korrekt och hittas av linker i Linux (GCC/Clang) definieras den med tre viktiga egenskaper:
+      1. **`extern "C"`**: Förhindrar C++ Name Mangling, vilket säkerställer att symbolen har det rena C-namnet `Dispatch_Hook`, vilket är vad assembly-koden söker.
+      2. **`inline`**: Gör att funktionens definition kan ligga i header-filen (nödvändigt för ett header-only-bibliotek) utan att orsaka "multiple definition"-fel (ODR - One Definition Rule).
+      3. **`SAMP_SDK_USED_BY_ASM` (`__attribute__((used))` i GCC/Clang)**: Tvingar kompilatorn att generera kod för funktionen, även om den inte hittar några anrop till den från annan C++-kod. Detta förhindrar att optimeraren tar bort den av misstag.
 - **`Native_Hook_Manager`**:
-   - **Beskrivning:** Den centrala `singleton` som hanterar alla registrerade `Native_Hook`s och deras trampoliner.
+   - **Beskrivning:** Den centrala `singleton` som hanterar alla registrerade `Native_Hook`s och deras trampolines.
    - **`std::list<Native_Hook> hooks_`**: Lagrar listan över hooks i ordning.
-   - **`std::unordered_map<uint32_t, Trampoline_Func> hash_to_trampoline_`**: Mappar hashen av native-namnet till pekaren för den genererade trampolinen.
-   - **`std::vector<uint32_t> hook_id_to_hash_`**: Mappar det heltaliga ID:t för hooken (används i trampolinen) tillbaka till hashen av native-namnet.
-   - **`Get_Trampoline(uint32_t hash)`**: Returnerar (eller skapar och allokerar) en trampolinepekare för en given native-hash.
+   - **`std::unordered_map<uint32_t, Trampoline_Func> hash_to_trampoline_`**: Mappar hashen av native-namnet till den genererade trampoline-pekaren.
+   - **`std::vector<uint32_t> hook_id_to_hash_`**: Mappar hookens heltal-ID (används i trampoline) tillbaka till hashen av native-namnet.
+   - **`Get_Trampoline(uint32_t hash)`**: Returnerar (eller skapar och allokerar) en trampoline-pekare för en given native-hash.
 - **`PLUGIN_NATIVE_HOOK_REGISTRATION`**:
-   - **Mekanism:** Ett makro som skapar en statisk global klass (`Native_Hook_Register_##name`) för varje `Plugin_Native_Hook`. I den statiska konstruktorn för denna klass registrerar den användarens `handler` i `Native_Hook_Manager`.
+   - **Mekanism:** Ett makro som skapar en global statisk klass (`Native_Hook_Register_##name`) för varje `Plugin_Native_Hook`. I den statiska konstruktorn för denna klass, registrerar den användarens `handler` i `Native_Hook_Manager`.
 
 ### 4.9. `callbacks.hpp` & `amx_memory.hpp`: C++ -> Pawn Anrop och RAII
 
