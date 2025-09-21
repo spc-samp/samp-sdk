@@ -1,4 +1,4 @@
-# SAMP SDK
+# SA-MP SDK
 
 <div align="center">
 
@@ -25,17 +25,17 @@
 
 ## Table of Contents
 
-- [SAMP SDK](#samp-sdk)
+- [SA-MP SDK](#sa-mp-sdk)
   - [Languages](#languages)
   - [Table of Contents](#table-of-contents)
   - [1. Introduction and Design Philosophy](#1-introduction-and-design-philosophy)
-    - [The Problem with the Standard SA-MP C API](#the-problem-with-the-standard-sa-mp-c-api)
-    - [The SAMP SDK Solution: Abstraction with Safety and Performance](#the-samp-sdk-solution-abstraction-with-safety-and-performance)
+    - [The Problem with SA-MP's Standard C API](#the-problem-with-sa-mps-standard-c-api)
+    - [The SA-MP SDK Solution: Abstraction with Safety and Performance](#the-sa-mp-sdk-solution-abstraction-with-safety-and-performance)
     - [Header-Only Model: Advantages and Implications](#header-only-model-advantages-and-implications)
   - [2. Setup and Environment](#2-setup-and-environment)
     - [Compilation Requirements](#compilation-requirements)
     - [Recommended File Structure](#recommended-file-structure)
-    - [Essential Configuration Macros\*\*](#essential-configuration-macros)
+    - [Essential Configuration Macros](#essential-configuration-macros)
       - [`SAMP_SDK_IMPLEMENTATION`](#samp_sdk_implementation)
       - [`SAMP_SDK_WANT_AMX_EVENTS`](#samp_sdk_want_amx_events)
       - [`SAMP_SDK_WANT_PROCESS_TICK`](#samp_sdk_want_process_tick)
@@ -52,54 +52,61 @@
       - [Syntax and Declaration](#syntax-and-declaration)
       - [Automatic Parameter Marshalling](#automatic-parameter-marshalling)
       - [Flow Control: `PLUGIN_PUBLIC_CONTINUE` vs `PLUGIN_PUBLIC_STOP`](#flow-control-plugin_public_continue-vs-plugin_public_stop)
+      - [Ghost Callbacks](#ghost-callbacks)
     - [3.3. `Plugin_Native`: Creating Native Functions in C++](#33-plugin_native-creating-native-functions-in-c)
       - [Syntax and Fixed Signature](#syntax-and-fixed-signature)
       - [Automatic Native Registration](#automatic-native-registration)
       - [Parameter Extraction: `Register_Parameters` vs. `Native_Params`](#parameter-extraction-register_parameters-vs-native_params)
         - [`Register_Parameters(...)`](#register_parameters)
-        - [`Native_Params` (Full API: `Get`, `Get_REF`, `Set_REF`)](#native_params-full-api-get-get_ref-set_ref)
+        - [`Native_Params` (Complete API: `Get`, `Get_REF`, `Set_REF`)](#native_params-complete-api-get-get_ref-set_ref)
           - [`p.Count()`](#pcount)
           - [`p.Get<T>(size_t index)`](#pgettsize_t-index)
           - [`p.Get_REF<T>(size_t index, T& out_value)`](#pget_reftsize_t-index-t-out_value)
           - [`p.Get_REF<T>(size_t index)` (C++17+)](#pget_reftsize_t-index-c17)
           - [`p.Set_REF<T>(size_t index, T value)`](#pset_reftsize_t-index-t-value)
       - [Return Values](#return-values)
-    - [3.4. `Pawn_*` Macros: Calling Pawn Functions from C++](#34-pawn_-macros-calling-pawn-functions-from-c)
+    - [3.4. `Plugin_Native_Hook`: Intercepting Existing SA-MP Natives](#34-plugin_native_hook-intercepting-existing-sa-mp-natives)
+      - [Syntax and Fixed Signature](#syntax-and-fixed-signature-1)
+      - [Hook Registration and Activation](#hook-registration-and-activation)
+      - [Calling the Original Native (Hook Chain): `Call_Original_Native`](#calling-the-original-native-hook-chain-call_original_native)
+      - [Complete `Plugin_Native_Hook` Example](#complete-plugin_native_hook-example)
+    - [3.5. `Pawn_*` Macros: Calling Pawn Functions from C++](#35-pawn_-macros-calling-pawn-functions-from-c)
       - [`Pawn_Native(NativeName, ...)`](#pawn_nativenativename-)
       - [`Pawn_Public(PublicName, ...)`](#pawn_publicpublicname-)
       - [`Pawn(FunctionName, ...)`](#pawnfunctionname-)
       - [Syntax and Conventions](#syntax-and-conventions)
       - [Input Parameter Marshalling](#input-parameter-marshalling)
       - [Output Parameter Marshalling (References: `int&`, `float&`, `std::string&`)](#output-parameter-marshalling-references-int-float-stdstring)
-      - [The `Callback_Result` Object: Complete Analysis](#the-callback_result-object-complete-analysis)
-      - [**3.5. `Plugin_Module`: Management of Dynamic Modules**](#35-plugin_module-management-of-dynamic-modules)
+      - [The `Callback_Result` Object: Full Analysis](#the-callback_result-object-full-analysis)
+    - [3.6. `Plugin_Module`: Dynamic Module Management](#36-plugin_module-dynamic-module-management)
       - [Syntax and Purpose](#syntax-and-purpose)
       - [Module Lifecycle](#module-lifecycle)
       - [Benefits of Modularization](#benefits-of-modularization)
-    - [3.6. `Plugin_Call`: Calling Internal Plugin Natives](#36-plugin_call-calling-internal-plugin-natives)
+    - [3.7. `Plugin_Call`: Calling Internal Plugin Natives](#37-plugin_call-calling-internal-plugin-natives)
       - [Syntax and Performance Advantages](#syntax-and-performance-advantages)
-    - [**3.7. SDK Utility Functions**](#37-sdk-utility-functions)
+    - [3.8. SDK Utility Functions](#38-sdk-utility-functions)
       - [`Samp_SDK::Log(const char* format, ...)`](#samp_sdklogconst-char-format-)
       - [`std::string Plugin_Format(const char* format, ...)` (Recommended)](#stdstring-plugin_formatconst-char-format--recommended)
       - [`std::string Samp_SDK::Format(const char* format, ...)` (Implementation Detail)](#stdstring-samp_sdkformatconst-char-format--implementation-detail)
       - [`std::string Samp_SDK::Get_String(AMX* amx, cell amx_addr)`](#stdstring-samp_sdkget_stringamx-amx-cell-amx_addr)
-  - [4. **Internal Anatomy and SDK Architecture**](#4-internal-anatomy-and-sdk-architecture)
+  - [4. Internal Anatomy and SDK Architecture](#4-internal-anatomy-and-sdk-architecture)
     - [4.1. `core.hpp`: The Minimalist Foundation](#41-corehpp-the-minimalist-foundation)
-    - [**4.2. `platform.hpp` and `version.hpp`: Compatibility and Metadata**](#42-platformhpp-and-versionhpp-compatibility-and-metadata)
+    - [4.2. `platform.hpp` and `version.hpp`: Compatibility and Metadata](#42-platformhpp-and-versionhpp-compatibility-and-metadata)
     - [4.3. `function_hook.hpp`: The x86 Interception Engine](#43-function_hookhpp-the-x86-interception-engine)
-    - [4.4. `interceptor_manager.hpp`: The AMX Hook Controller](#44-interceptor_managerhpp-the-amx-hook-controller)
+    - [4.4. `interceptor_manager.hpp`: The AMX Hooks Controller](#44-interceptor_managerhpp-the-amx-hooks-controller)
     - [4.5. `amx_manager.hpp`: Managing `AMX*` Instances](#45-amx_managerhpp-managing-amx-instances)
-    - [4.6. `public_dispatcher.hpp`: The `Plugin_Public` Callback Router](#46-public_dispatcherhpp-the-plugin_public-callback-router)
+    - [4.6. `public_dispatcher.hpp`: The `Plugin_Public` Callbacks Router](#46-public_dispatcherhpp-the-plugin_public-callbacks-router)
     - [4.7. `native.hpp`: Managing and Calling Plugin Natives](#47-nativehpp-managing-and-calling-plugin-natives)
-    - [4.8. `callbacks.hpp` \& `amx_memory.hpp`: C++ -\> Pawn Calls and RAII](#48-callbackshpp--amx_memoryhpp-c---pawn-calls-and-raii)
-    - [4.9. `amx_api.hpp` \& `amx_helpers.hpp` \& `amx_defs.h`: Abstracted AMX Access](#49-amx_apihpp--amx_helpershpp--amx_defsh-abstracted-amx-access)
+    - [4.8. `native_hook_manager.hpp`: The Native Hooks Engine](#48-native_hook_managerhpp-the-native-hooks-engine)
+    - [4.9. `callbacks.hpp` \& `amx_memory.hpp`: C++ -\> Pawn Calls and RAII](#49-callbackshpp--amx_memoryhpp-c---pawn-calls-and-raii)
+    - [4.10. `amx_api.hpp` \& `amx_helpers.hpp` \& `amx_defs.h`: Abstracted AMX Access](#410-amx_apihpp--amx_helpershpp--amx_defsh-abstracted-amx-access)
   - [5. Compilation and Deployment](#5-compilation-and-deployment)
     - [Architecture and Platform Requirements](#architecture-and-platform-requirements)
-    - [Examples of Compilation Commands](#examples-of-compilation-commands)
+    - [Compilation Command Examples](#compilation-command-examples)
       - [**MSVC (Visual Studio)**](#msvc-visual-studio)
       - [**GCC / Clang (Linux)**](#gcc--clang-linux)
       - [**GCC / Clang (MinGW on Windows)**](#gcc--clang-mingw-on-windows)
-    - [Considerations for Distribution](#considerations-for-distribution)
+    - [Distribution Considerations](#distribution-considerations)
   - [License](#license)
     - [Terms and Conditions of Use](#terms-and-conditions-of-use)
       - [1. Granted Permissions](#1-granted-permissions)
@@ -109,31 +116,31 @@
 
 ## 1. Introduction and Design Philosophy
 
-### The Problem with the Standard SA-MP C API
+### The Problem with SA-MP's Standard C API
 
-The SA-MP plugin API is a C programming interface. While functional and fundamental, it presents the inherent challenges of low-level programming:
+The SA-MP plugin API is a C programming interface. While functional and fundamental, it presents the challenges inherent in low-level programming:
 - **Manual Memory Management:** Functions like `amx_Allot` and `amx_Release` require the developer to explicitly allocate and deallocate memory on the AMX heap. This is a common source of memory leaks and runtime failures.
 - **Weak Typing and Manual Conversions:** Parameters are passed as an array of `cell`s, forcing explicit (and often unsafe) conversions between `cell`, `int`, `float`, and `char*`.
-- **Verbosity and Boilerplate:** Extracting multiple parameters from a `cell* params` array, handling string lengths, and managing the AMX stack for C++ to Pawn callbacks requires repetitive code.
-- **Fragile Interface:** The lack of compile-time verification (type safety) means that errors in parameter passing or types can go unnoticed until execution, causing crashes or undefined behavior.
+- **Verbosity and Boilerplate:** Extracting multiple parameters from a `cell* params` array, dealing with string sizes, and managing the AMX stack for C++ to Pawn callbacks requires repetitive code.
+- **Fragility of the Interface:** The lack of compile-time type safety means that errors in parameter passing or types can go unnoticed until execution, causing crashes or undefined behavior.
 
-### The SAMP SDK Solution: Abstraction with Safety and Performance
+### The SA-MP SDK Solution: Abstraction with Safety and Performance
 
-The SAMP SDK addresses these issues by providing a powerful C++ abstraction layer:
-- **RAII (Resource Acquisition Is Initialization):** Automatic memory management on the AMX. `Amx_Scoped_Memory` ensures that allocated memory is freed.
+The SA-MP SDK addresses these problems by providing a powerful C++ abstraction layer:
+- **RAII (Resource Acquisition Is Initialization):** Automatic memory management on the AMX. `Amx_Scoped_Memory` ensures allocated memory is freed.
 - **Type Safety:** Automatic and safe parameter conversion between C++ and Pawn. You deal with `int`, `float`, `std::string` directly.
 - **Concise and Idiomatic Syntax:** Macros and templates provide a clean API that more closely resembles modern C++ than the traditional C API.
-- **Robust Interception:** An advanced hooking engine allows transparent interception of Pawn callbacks (`Plugin_Public`) and dynamic registration of natives.
+- **Robust Interception:** An advanced hooking engine allows transparent interception of Pawn callbacks (`Plugin_Public`), the creation of new natives (`Plugin_Native`), and **the hooking and chaining of existing SA-MP native functions (`Plugin_Native_Hook`)**.
 - **High Performance:** Extensive use of compile-time hashing (FNV1a), function caching, and `thread_local` optimizations to minimize the overhead of abstractions.
 
 ### Header-Only Model: Advantages and Implications
 
-The SDK is composed exclusively of header files (`.hpp`, `.h`).
+The SDK consists exclusively of header files (`.hpp`, `.h`).
 - **Advantages:**
    - **Simplified Integration:** No libraries to build, link, or distribute. Just include the headers.
-   - **Compiler Optimizations:** The compiler has full visibility of the SDK and your plugin code, allowing aggressive inlining and link-time optimizations, which can result in faster binaries.
+   - **Compiler Optimizations:** The compiler has full visibility of the SDK code and your plugin, allowing aggressive inlining and link-time optimizations, which can result in faster binaries.
 - **Implications:**
-   - **Compilation Time:** For very large projects, compilation may take longer due to repeated inclusion of SDK code. This is mitigated by include guards and the "include only what's necessary" nature of C++.
+   - **Compilation Time:** For very large projects, compilation may take longer due to repeated inclusion of SDK code. This is mitigated by include guards and the "include only what's needed" nature of C++.
    - **Implementation Macros:** The need for the `SAMP_SDK_IMPLEMENTATION` macro is a consequence of the header-only model to avoid symbol redefinitions.
 
 ## 2. Setup and Environment
@@ -155,22 +162,22 @@ For clarity and organization, it is common to organize the SDK in a `samp-sdk` s
 my_plugin/
 ├── samp-sdk/
 │   ├── // Other SDK files
-│   └── samp_sdk.hpp             // The main header to be included
+│   └── samp_sdk.hpp             // The main header to include
 │
 ├── src/
 │   ├── main.cpp                  // Where SAMP_SDK_IMPLEMENTATION is defined
-│   └── my_custom_logic.cpp       // Optional, to organize code
+│   └── my_custom_logic.cpp       // Optional, for organizing code
 │
 └── CMakeLists.txt (or .vcxproj, Makefile)
 ```
 
-### Essential Configuration Macros**
+### Essential Configuration Macros
 
 Always define these macros *before* including `samp_sdk.hpp`.
 
 #### `SAMP_SDK_IMPLEMENTATION`
 
-- **Purpose:** Signals to the compiler that this `.cpp` file should generate the implementations of the plugin's export functions (`Supports`, `Load`, `Unload`, `AmxLoad`, `AmxUnload`, `ProcessTick`). **The SDK handles the export of these functions automatically, eliminating the need for `.def` files (on Windows) or `__attribute__((visibility("default")))` declarations (on Linux) for these functions.**
+- **Purpose:** Signals to the compiler that this `.cpp` file should generate the implementations of the plugin export functions (`Supports`, `Load`, `Unload`, `AmxLoad`, `AmxUnload`, `ProcessTick`). **The SDK automatically handles the export of these functions, eliminating the need for `.def` files (on Windows) or `__attribute__((visibility("default")))` declarations (on Linux) for these functions.**
 - **Technical Impact:** Without this macro, the linker will not find the necessary exports, and the SA-MP server will not be able to load your plugin.
 - **Fundamental Rule:** **Define this macro in ONLY ONE `.cpp` file in your entire project.** Defining it in more than one file will cause a "duplicate symbol" linkage error.
 
@@ -184,17 +191,17 @@ Always define these macros *before* including `samp_sdk.hpp`.
 
 #### `SAMP_SDK_WANT_AMX_EVENTS`
 
-- **Purpose:** Enables SDK functionalities related to interaction with the AMX (Pawn virtual machine) environment.
-- **Enabled Functionalities:**
-   - Declaration and registration of C++ natives using `Plugin_Native`.
-   - Callbacks `OnAmxLoad(AMX* amx)` and `OnAmxUnload(AMX* amx)`.
-   - The `Plugin_Call` macro to invoke the plugin's own natives.
-- **Technical Impact:** When this macro is defined, the SDK automatically collects all your `Plugin_Native`s. In the `Supports()` function, the `SUPPORTS_AMX_NATIVES` flag is automatically added.
-- **Flexibility:** **You can define this macro in multiple `.cpp` files.** The SDK's static registration system (`Native_Registrar`) will consolidate all natives from different compilation units into a single global list.
+- **Purpose:** Enables the Pawn script lifecycle callbacks (`OnAmxLoad`, `OnAmxUnload`) and the functionality to create new natives in C++ (`Plugin_Native`).
+- **Enabled Features:**
+   - `OnAmxLoad(AMX* amx)` and `OnAmxUnload(AMX* amx)` callbacks.
+   - Declaration and registration of new C++ natives using `Plugin_Native`.
+   - The `Plugin_Call` macro to invoke natives created with `Plugin_Native` within your own plugin.
+- **Technical Impact:** When this macro is defined, the SDK automatically collects all your `Plugin_Native`s. In the `Supports()` function, the `SUPPORTS_AMX_NATIVES` flag is automatically added if there are any `Plugin_Native`s in your project.
+- **Flexibility:** **You can define this macro in multiple `.cpp` files.** The SDK's static registration system will consolidate all natives from different compilation units into a single global list.
 
 ```cpp
 // my_natives.cpp (can be a separate file from main.cpp)
-#define SAMP_SDK_WANT_AMX_EVENTS // Only to enable Plugin_Native
+#define SAMP_SDK_WANT_AMX_EVENTS // Only to enable Plugin_Native and OnAmxLoad/OnAmxUnload callbacks
 #include "samp-sdk/samp_sdk.hpp"
 
 Plugin_Native(MyCustomNative, AMX* amx, cell* params) {
@@ -206,7 +213,7 @@ Plugin_Native(MyCustomNative, AMX* amx, cell* params) {
 #### `SAMP_SDK_WANT_PROCESS_TICK`
 
 - **Purpose:** Enables the `OnProcessTick()` callback, which is regularly invoked by the server.
-- **Technical Impact:** Automatically adds the `SUPPORTS_PROCESS_TICK` flag to the `Supports()` function.
+- **Technical Impact:** Automatically adds the `SUPPORTS_PROCESS_TICK` flag in the `Supports()` function.
 
 ```cpp
 // main.cpp
@@ -233,7 +240,7 @@ The following functions are the entry and exit points of your plugin, automatica
 #### `bool OnLoad()`
 
 - **Description:** First function called by the SA-MP server after your plugin is successfully loaded into memory.
-- **Usage:** Ideal for initializing any systems, loading configurations, opening database connections, or loading modules (`Plugin_Module`).
+- **Usage:** Ideal for initializing any system, loading configurations, opening database connections, or loading modules (`Plugin_Module`).
 - **Return:**
    - `true`: The plugin initialized successfully and loading continues.
    - `false`: The plugin failed to initialize. Loading will be aborted and the plugin will be unloaded.
@@ -243,8 +250,8 @@ The following functions are the entry and exit points of your plugin, automatica
 bool OnLoad() {
     Samp_SDK::Log("Initializing MyPlugin v1.0...");
 
-    // Example: Load a module (more details in section 3.5)
-    if (!Plugin_Module("my_database_module", "plugins/db_connector", "Database module loaded.")) {
+    // Example: Load a module (more details in section 3.6)
+    if (!Plugin_Module("my_database_module", "plugins/db_connector", "Database Module loaded.")) {
         Samp_SDK::Log("ERROR: Failed to load database module!");
 
         return false; // Aborts main plugin loading
@@ -264,14 +271,14 @@ bool OnLoad() {
 void OnUnload() {
     Samp_SDK::Log("MyPlugin unloaded. Releasing resources...");
     // No manual action is needed for modules loaded via Plugin_Module;
-    // the SDK handles it.
+    // the SDK handles this.
 }
 ```
 
 #### `unsigned int GetSupportFlags()`
 
 - **Description:** Informs the SA-MP server which features your plugin supports and wants to use.
-- **Usage:** **Always return `SUPPORTS_VERSION` (or `SAMP_PLUGIN_VERSION`).** The other flags (`SUPPORTS_AMX_NATIVES`, `SUPPORTS_PROCESS_TICK`) are automatically added by the SDK if the `SAMP_SDK_WANT_AMX_EVENTS` and `SAMP_SDK_WANT_PROCESS_TICK` macros are defined. This simplifies maintenance and prevents errors.
+- **Usage:** **Always return `SUPPORTS_VERSION` (or `SAMP_PLUGIN_VERSION`).** The `SUPPORTS_AMX_NATIVES` and `SUPPORTS_PROCESS_TICK` flags are automatically added by the SDK if there are `Plugin_Native`s, and/or if the `SAMP_SDK_WANT_PROCESS_TICK` macro is defined, respectively. This simplifies maintenance and prevents errors.
 
 ```cpp
 // main.cpp
@@ -284,14 +291,12 @@ unsigned int GetSupportFlags() {
 
 - **Requires:** `SAMP_SDK_WANT_AMX_EVENTS`
 - **Description:** Called whenever a new Pawn script (a Gamemode or Filterscript) is loaded and initialized on the server.
-- **Usage:** If you need specific logic for each AMX script, such as registering custom natives (although `Plugin_Native` does this automatically), or initializing script-specific data.
+- **Usage:** If you need specific logic for each AMX script, or to initialize script-specific data.
 
 ```cpp
 // main.cpp (with SAMP_SDK_WANT_AMX_EVENTS defined)
 void OnAmxLoad(AMX* amx) {
-    // amx represents the new instance of the loaded script.
-    // You can, for example, call a specific public in this script:
-    // Pawn_Public_OnAmx("OnMyPluginLoaded", amx); // Hypothetical example of a more advanced API.
+    // amx represents the new loaded script instance.
     Samp_SDK::Log("AMX script loaded: %p", (void*)amx);
 }
 ```
@@ -341,22 +346,24 @@ The `Plugin_Public` macro is the primary bridge for receiving Pawn callbacks in 
 ```cpp
 // Intercepts OnPlayerText(playerid, text[])
 Plugin_Public(OnPlayerText, int playerid, std::string text) {
-    // ...
+    Samp_SDK::Log("Player %d said: %s", playerid, text.c_str());
+
+    return PLUGIN_PUBLIC_CONTINUE;
 }
 ```
 
 #### Automatic Parameter Marshalling
 
-The SDK automatically handles reading the AMX `cell stack` and converting to the specified C++ types:
+The SDK automatically handles reading from the AMX `cell stack` and converting to the specified C++ types:
 - `int`: Converted directly from `cell`.
 - `float`: Converted from `cell` using `amx::AMX_CTOF`.
-- `std::string`: The SDK reads the string address in the AMX, allocates a C++ `std::string`, and copies the content.
+- `std::string`: The SDK reads the string address in the AMX, allocates a `std::string` in C++, and copies the content.
 
 #### Flow Control: `PLUGIN_PUBLIC_CONTINUE` vs `PLUGIN_PUBLIC_STOP`
 
 The return value of your `Plugin_Public` function is crucial and determines the callback's execution flow:
-- `return PLUGIN_PUBLIC_CONTINUE;` (value `1`): Indicates that the callback execution should **continue**. If there are other plugins that also intercept this callback, they will be called. Then, the original `public` in the Pawn script will be invoked.
-- `return PLUGIN_PUBLIC_STOP;` (value `0`): Indicates that the callback execution should be **stopped**. No other plugin or the original `public` in the Pawn script will be invoked for this event. This is ideal for implementing a system that "overrides" or "blocks" a default SA-MP behavior.
+- `return PLUGIN_PUBLIC_CONTINUE;` (value `1`): Indicates that callback execution should **continue**. If there are other plugins that also intercept this callback, they will be called (in reverse loading order). Then, the original `public` in the Pawn script will be invoked.
+- `return PLUGIN_PUBLIC_STOP;` (value `0`): Indicates that callback execution should be **interrupted**. No other plugins (with lower priority) or the original `public` in the Pawn script will be invoked for this event. This is ideal for implementing a system that "overrides" or "blocks" a default SA-MP behavior.
 
 ```cpp
 // main.cpp
@@ -370,6 +377,23 @@ Plugin_Public(OnPlayerCommandText, int playerid, std::string cmdtext) {
 
     return PLUGIN_PUBLIC_CONTINUE; // Allows other commands to be processed.
 }
+```
+
+#### Ghost Callbacks
+
+An advanced feature of `Plugin_Public` is support for "Ghost Callbacks". This means you can intercept a Pawn callback even if it **is not present** in the gamemode's or filterscript's `.amx` script. The SDK "tricks" the server into calling your C++ hook anyway. This is useful for internal callbacks or for creating new functionalities without relying on the presence of a `public` in the Pawn script.
+
+```cpp
+// You can define a callback that the Pawn script does not have, but your plugin will hear it.
+Plugin_Public(OnMyCustomInternalEvent, int data1, float data2) {
+    Samp_SDK::Log("Custom internal event received: %d, %.2f", data1, data2);
+
+    return PLUGIN_PUBLIC_CONTINUE;
+}
+
+// To "trigger" this event from another point in your C++ code:
+// Pawn_Public(OnMyCustomInternalEvent, 123, 45.67f);
+// The call will go to your Plugin_Public above, even if there is no OnMyCustomInternalEvent in Pawn.
 ```
 
 ### 3.3. `Plugin_Native`: Creating Native Functions in C++
@@ -393,7 +417,7 @@ Plugin_Native(GetPlayerPingAverage, AMX* amx, cell* params) {
 #### Automatic Native Registration
 
 > [!NOTE]
-> You **do not need** to call `amx_Register` manually. The SDK detects all your `Plugin_Native`s (in any `.cpp` file with `SAMP_SDK_WANT_AMX_EVENTS`) and automatically registers them with each loaded AMX script (`OnAmxLoad`).
+> You **do not need** to manually call `amx_Register`. The SDK detects all your `Plugin_Native`s (in any `.cpp` file that has included `samp_sdk.hpp` and defined `SAMP_SDK_WANT_AMX_EVENTS`) and automatically registers them in each loaded AMX script (`OnAmxLoad`).
 
 #### Parameter Extraction: `Register_Parameters` vs. `Native_Params`
 
@@ -417,9 +441,9 @@ Plugin_Native(SetPlayerSkinAndMoney, AMX* amx, cell* params) {
 }
 ```
 
-##### `Native_Params` (Full API: `Get`, `Get_REF`, `Set_REF`)
+##### `Native_Params` (Complete API: `Get`, `Get_REF`, `Set_REF`)
 
-- **Description:** A wrapper class that provides an object-oriented interface to access a native's parameters. More powerful for complex scenarios.
+- **Description:** A wrapper class that provides an object-oriented interface to access native parameters. More powerful for complex scenarios.
 - **Construction:** `Native_Params p(amx, params);`
 
 ###### `p.Count()`
@@ -459,7 +483,7 @@ Plugin_Native(CheckPlayerStats, AMX* amx, cell* params) {
     float health = 0.0f;
     int money = 0;
 
-    // Gets the values of the references (Pawn passed addresses)
+    // Get the values from references (Pawn passed addresses)
     p.Get_REF(1, health); // Reads the value of Float:health
     p.Get_REF(2, money);   // Reads the value of money
     
@@ -469,7 +493,7 @@ Plugin_Native(CheckPlayerStats, AMX* amx, cell* params) {
     health = 50.0f;
     money += 100;
     
-    // And writes them back to Pawn memory
+    // And write them back to Pawn memory
     p.Set_REF(1, health);
     p.Set_REF(2, money);
     
@@ -479,11 +503,11 @@ Plugin_Native(CheckPlayerStats, AMX* amx, cell* params) {
 
 ###### `p.Get_REF<T>(size_t index)` (C++17+)
 
-- **Description:** Returns an `std::optional<T>` to read a reference parameter. Safer for C++17 and above.
+- **Description:** Returns an `std::optional<T>` to read a reference parameter. Safer for C++17 and higher.
 
 ###### `p.Set_REF<T>(size_t index, T value)`
 
-- **Description:** Writes a `T` value to a Pawn **reference** parameter (the address Pawn passed).
+- **Description:** Writes a value `T` to a Pawn **reference** parameter (the address Pawn passed).
 - **Usage:** To modify values that were passed by reference, making Pawn see the change.
 - **Return:** `true` if the write was successful, `false` otherwise.
 
@@ -496,8 +520,8 @@ Plugin_Native(CheckPlayerStats, AMX* amx, cell* params) {
 ```cpp
 // Returns a bool
 Plugin_Native(IsPlayerSpawned, AMX* amx, cell* params) {
-    Native_Params p(amx, params);
-    int playerid = p.Get<int>(0);
+    int playerid;
+    Register_Parameters(playerid);
 
     return (Pawn_Native(GetPlayerState, playerid) == PLAYER_STATE_SPAWNED) ? 1 : 0;
 }
@@ -508,15 +532,144 @@ Plugin_Native(GetPlayerMaxHealth, AMX* amx, cell* params) {
 }
 ```
 
-### 3.4. `Pawn_*` Macros: Calling Pawn Functions from C++
+### 3.4. `Plugin_Native_Hook`: Intercepting Existing SA-MP Natives
+
+The `Plugin_Native_Hook` macro allows you to intercept and modify the behavior of any existing SA-MP native function or natives from other plugins. This is a powerful mechanism for extending or altering the server's default logic.
+
+#### Syntax and Fixed Signature
+
+- `Plugin_Native_Hook(NativeName, AMX* amx, cell* params)`
+- The C++ function must have exactly this signature: `cell NativeName(AMX* amx, cell* params)`.
+- `NativeName` must be the exact name of the native you want to hook (e.g., `SendClientMessage`, `SetPlayerPos`).
+
+```cpp
+// Intercepts the SendClientMessage native
+Plugin_Native_Hook(SendClientMessage, AMX* amx, cell* params) {
+    // ...
+    return Call_Original_Native(SendClientMessage); // Important to call the original
+}
+```
+
+#### Hook Registration and Activation
+
+> [!NOTE]
+> You **do not need** to manually call `amx_Register` or define `SAMP_SDK_WANT_AMX_EVENTS` specifically for `Plugin_Native_Hook`. The SDK automatically detects and registers your hooks. On the first execution of an AMX script, the SDK replaces the native's pointer in the table with a "trampoline" that redirects to your `Plugin_Native_Hook` function. This process ensures safe chaining of hooks from multiple plugins.
+
+#### Calling the Original Native (Hook Chain): `Call_Original_Native`
+
+Inside your `Plugin_Native_Hook` function, you **MUST** use the `Call_Original_Native(NativeName)` macro to invoke the original function (or the next hook in the chain). This is vital to:
+- **Preserve Functionality:** If you don't call the original, the hooked native will simply stop working for other plugins or for the server.
+- **Hook Chaining:** Allows multiple plugins to hook the same native and for all hooks to be executed in sequence.
+- **Return Value Manipulation:** You can inspect and even modify the return value of `Call_Original_Native` before returning it from your hook function.
+
+```cpp
+// Example: Blocking SendClientMessage if it contains a specific word
+Plugin_Native_Hook(SendClientMessage, AMX* amx, cell* params) {
+    Native_Params p(amx, params);
+    
+    // Extract parameters for analysis
+    int playerid = p.Get<int>(0);
+    // int color = p.Get<int>(1); // We don't need the color for this logic
+    std::string message = p.Get_String(2); // Get the message string
+
+    if (message.find("BADWORD") != std::string::npos) {
+        Samp_SDK::Log("MESSAGE BLOCKED for playerid %d: %s", playerid, message.c_str());
+
+        return 0; // Returns 0 (false) to Pawn, indicating the message was not sent.
+                  // And more importantly, we DO NOT call Call_Original_Native, blocking the message.
+    }
+
+    // If the message does not contain the forbidden word, we call the original native
+    // and return its value, ensuring the message is sent normally
+    // and that other hooks (if they exist) are executed.
+    return Call_Original_Native(SendClientMessage);
+}
+```
+
+#### Complete `Plugin_Native_Hook` Example
+
+```cpp
+#define SAMP_SDK_IMPLEMENTATION
+// SAMP_SDK_WANT_AMX_EVENTS is not strictly necessary for hooks, but common for OnAmxLoad/Unload
+// #define SAMP_SDK_WANT_AMX_EVENTS 
+#include "samp-sdk/samp_sdk.hpp"
+
+// Hook for the CreateVehicle native
+Plugin_Native_Hook(CreateVehicle, AMX* amx, cell* params) {
+    Native_Params p(amx, params);
+
+    // Extract CreateVehicle native parameters for inspection
+    int modelid = p.Get<int>(0);
+    float x = p.Get<float>(1);
+    float y = p.Get<float>(2);
+    float z = p.Get<float>(3);
+    float angle = p.Get<float>(4);
+    int color1 = p.Get<int>(5);
+    int color2 = p.Get<int>(6);
+    int respawn_delay = p.Get<int>(7);
+    bool addsiren = p.Get<bool>(8);
+
+    Samp_SDK::Log("HOOK: CreateVehicle called! Model: %d, Pos: (%.2f, %.2f, %.2f)", modelid, x, y, z);
+
+    // Example of how to *modify* an input parameter
+    // If the model is 400 (Landstalker), we change it to 401 (Bravura)
+    if (modelid == 400) {
+        // We directly modify the 'params' array for the original call
+        params[1] = static_cast<cell>(401); // The model is at position 0 of the parameters array (params[1])
+        Samp_SDK::Log("  -> Model 400 changed to 401 before creation.");
+    }
+    
+    // Call the original native (or the next hook in the chain) with possibly modified parameters
+    cell original_retval = Call_Original_Native(CreateVehicle);
+
+    Samp_SDK::Log("HOOK: CreateVehicle returned: %d (Vehicle ID)", (int)original_retval);
+
+    // You can modify the return value here before returning it to Pawn.
+    // Example: if vehicle creation failed, return a custom invalid ID.
+    if ((int)original_retval == INVALID_VEHICLE_ID) {
+        Samp_SDK::Log("  -> Vehicle creation failed in original native.");
+
+        return -1; // Returns a different value to Pawn.
+    }
+
+    return original_retval; // Returns the value the original native returned (or the modified one above).
+}
+
+unsigned int GetSupportFlags() {
+    return SUPPORTS_VERSION; 
+}
+
+// Minimal implementations for the lifecycle
+bool OnLoad() {
+    Samp_SDK::Log("Native Hook Example Plugin loaded!");
+    return true;
+}
+
+void OnUnload() {
+    Samp_SDK::Log("Native Hook Example Plugin unloaded!");
+}
+
+// These callbacks will only be present if SAMP_SDK_WANT_AMX_EVENTS is defined
+/*void OnAmxLoad(AMX* amx) {
+    Samp_SDK::Log("AMX Load detected: %p", (void*)amx);
+}
+
+void OnAmxUnload(AMX* amx) {
+    Samp_SDK::Log("AMX Unload detected: %p", (void*)amx);
+}*/
+```
+> [!WARNING]
+> Directly manipulating the `cell* params` array to change input parameters requires caution. Make sure you understand the order and type of parameters. For most use cases, `p.Get(...)` to inspect and `Call_Original_Native(...)` to continue the chain is sufficient. Direct modification of `params` should only be done if you know the parameter is a value and needs to be modified for the original call. For strings and arrays, modification is more complex and usually involves `amx::Set_String` to write to the existing address or reallocate, which might be easier to manage by calling the native via `Pawn_Native` with the new values and returning `0` from your hook to cancel the original call.
+
+### 3.5. `Pawn_*` Macros: Calling Pawn Functions from C++
 
 These macros are the inverse of `Plugin_Public` and `Plugin_Native`: they allow your C++ code to invoke Pawn functions.
 
 #### `Pawn_Native(NativeName, ...)`
 
 - **Purpose:** The recommended way to call SA-MP native functions (or from other plugins) from C++.
-- **Mechanism:** Searches for the native's pointer in the SDK's internal cache (populated by `Amx_Register_Detour`). If found, executes the native in an `Amx_Sandbox` environment (a fake, isolated AMX instance).
-- **Performance:** The most efficient, as it avoids expensive `public` lookups and interacts directly with the native's pointer.
+- **Mechanism:** Searches for the native's pointer in the SDK's internal cache (populated by `Amx_Register_Detour`). If found, executes the native in an `Amx_Sandbox` environment (a fake and isolated AMX instance).
+- **Performance:** The most efficient, as it avoids expensive `publics` lookup and interacts directly with the native's pointer.
 
 #### `Pawn_Public(PublicName, ...)`
 
@@ -528,7 +681,7 @@ These macros are the inverse of `Plugin_Public` and `Plugin_Native`: they allow 
 #### `Pawn(FunctionName, ...)`
 
 - **Purpose:** A convenience macro that tries to guess if the function is a native or a public.
-- **Mechanism:** First, tries to call as `Pawn_Native`. If it fails (the native is not found), it tries to call as `Pawn_Public`.
+- **Mechanism:** First, tries to call as `Pawn_Native`. If it fails (native not found), it tries to call as `Pawn_Public`.
 - **Performance:** Can be slightly slower than `Pawn_Native` if the function is native, due to the double lookup attempt. For `publics`, the performance is the same as `Pawn_Public`.
 - **Usage:** For functions where you are unsure if they are native or public, or to avoid the boilerplate of trying one and then the other.
 
@@ -548,9 +701,9 @@ Pawn_Native("SetPlayerPos", playerid, 100.0f, 200.0f, 300.0f);
 #### Input Parameter Marshalling
 
 The SDK converts your C++ types to the AMX `cell` format, managing memory as needed:
--   `int`, `bool`, `long`, `enum` -> `cell`
--   `float`, `double` -> `cell` (using `amx::AMX_FTOC`)
--   `const char*`, `std::string`, `std::string_view` (C++17+) -> `cell` (allocates memory on the AMX, copies the string, and passes the `amx_addr` address)
+- `int`, `bool`, `long`, `enum` -> `cell`
+- `float`, `double` -> `cell` (using `amx::AMX_FTOC`)
+- `const char*`, `std::string`, `std::string_view` (C++17+) -> `cell` (allocates memory on the AMX, copies the string, and passes the `amx_addr` address)
 
 ```cpp
 void Send_Formatted_Message(int playerid, const std::string& msg) {
@@ -581,9 +734,9 @@ void Get_Player_Location(int playerid) {
 }
 ```
 
-#### The `Callback_Result` Object: Complete Analysis
+#### The `Callback_Result` Object: Full Analysis
 
-All `Pawn_*` calls return a `Callback_Result` object. This object is a safe wrapper for the Pawn call result.
+All `Pawn_*` calls return a `Callback_Result` object. This object is a safe wrapper for the Pawn call's result.
 
 - `Callback_Result() noexcept`: Default constructor, indicates failure (`success_ = false`).
 - `Callback_Result(bool success, cell value) noexcept`: Constructor for success or failure with value.
@@ -606,15 +759,16 @@ Callback_Result result = Pawn_Native(GetPlayerHealth, playerid, player_health);
 
 if (result) { // Checks if the call was successful (operator bool)
     // The value returned by result.As_Float() or result (operator cell)
-    // would be the native's *return value*, not the output parameter.
+    // would be the *native's* return value, not the output parameter.
     // The health value has already been updated in 'player_health' due to output parameter marshalling.
     Samp_SDK::Log("Player %d has %.1f health.", playerid, player_health);
-} else {
-    // The call failed, perhaps the player doesn't exist or the native was not found.
-    Samp_SDK::Log("Error getting player %d's health. AMX Code: %d", playerid, result.Get_Amx_Error());
+}
+else {
+    // The call failed, perhaps the player doesn't exist or the native wasn't found.
+    Samp_SDK::Log("Error getting player %d health. AMX code: %d", playerid, result.Get_Amx_Error());
 }
 
-// For natives that return a value and use output parameters (less common, but possible),
+// For natives that return a value AND use output parameters (less common, but possible),
 // you would use both:
 // Callback_Result other_result = Pawn_Native(SomeNative, param1, output_param, param2);
 // if (other_result) {
@@ -623,42 +777,42 @@ if (result) { // Checks if the call was successful (operator bool)
 // }
 ```
 
-#### **3.5. `Plugin_Module`: Management of Dynamic Modules**
+### 3.6. `Plugin_Module`: Dynamic Module Management
 
-The `Plugin_Module` macro allows your plugin to act as a "loader" for other plugins, creating a modular and extensible architecture. A module loaded this way is treated as a first-class plugin, with its own event lifecycle managed by the host plugin.
+The `Plugin_Module` macro allows your plugin to act as a "loader" for other plugins, creating a modular and extensible architecture. A module loaded in this way is treated as a first-class plugin, with its own event lifecycle managed by the host plugin.
 
 #### Syntax and Purpose
 
-- `Plugin_Module(const char* nome_do_arquivo_base, const char* diretorio_do_modulo, const char* mensagem_sucesso_opcional)`
-- `nome_do_arquivo_base`: The *base* name of the module file, **without the extension** (e.g., for `my_module.dll` or `my_module.so`, use `"my_module"`). The SDK will automatically add the appropriate `.dll` or `.so` extension.
-- `diretorio_do_modulo`: The path to the directory where the module file is located (e.g., `"plugins/my_custom_modules"`). **Do not include the file name here.** The SDK will concatenate the full path (`diretorio_do_modulo/nome_do_arquivo_base.ext`).
-- `mensagem_sucesso_opcional`: An optional message to be logged in the server console if the module loads successfully.
+- `Plugin_Module(const char* base_filename, const char* module_directory, const char* optional_success_message)`
+- `base_filename`: The *base* name of the module file, **without the extension** (e.g., for `my_module.dll` or `my_module.so`, use `"my_module"`). The SDK will automatically add the appropriate `.dll` or `.so` extension.
+- `module_directory`: The path to the directory where the module file is located (e.g., `"plugins/my_custom_modules"`). **Do not include the filename here.** The SDK will concatenate the full path (`module_directory/base_filename.ext`).
+- `optional_success_message`: An optional message to be logged to the server console if the module loads successfully.
 
 ```cpp
 // main.cpp, inside OnLoad()
 
 // Loads the 'core_logic.dll' (or 'core_logic.so') module
-// located in the 'modules/custom/' folder of the server.
+// which is located in the server's 'modules/custom/' folder.
 if (!Plugin_Module("core_logic", "modules/custom", "Core Logic Module loaded successfully!"))
-    return (Samp_SDK::Log("FATAL ERROR: Failed to load the 'core_logic' module!"), false);
+    return (Samp_SDK::Log("FATAL ERROR: Failed to load 'core_logic' module!"), false);
 
 // Loads the 'admin_system.dll' (or 'admin_system.so') module
-// located directly in the 'plugins/' folder of the server.
+// which is located directly in the server's 'plugins/' folder.
 if (!Plugin_Module("admin_system", "plugins", "Administration Module activated."))
     Samp_SDK::Log("WARNING: Administration Module could not be loaded.");
 ```
 
 #### Module Lifecycle
 
-A module must export the `Load`, `Unload`, and `Supports` functions, just like a regular plugin. The SDK manages the module's lifecycle as follows:
+A module must export the `Load`, `Unload`, and `Supports` functions, just like a regular plugin. The SDK manages the module lifecycle as follows:
 
 - **Loading:** When `Plugin_Module` is called, the SDK:
    1. Constructs the full file path (e.g., `modules/custom/core_logic.dll`).
    2. Uses `Dynamic_Library` (`LoadLibrary`/`dlopen`) to load the binary.
-   3. **Obtains pointers to ALL lifecycle functions of the module:**
-      - **Required:** `Load`, `Unload`, `Supports`. If any are missing, the module loading fails.
+   3. **Gets the pointers to ALL module lifecycle functions:**
+      - **Required:** `Load`, `Unload`, `Supports`. If any are missing, module loading fails.
       - **Optional:** `AmxLoad`, `AmxUnload`, `ProcessTick`.
-   4. Calls the module's `Load` function, passing the `ppData` from the main plugin.
+   4. Calls the module's `Load` function, passing the main plugin's `ppData`.
    5. If `Load` returns `true`, the module is added to the internal list of loaded modules.
 
 - **Event Forwarding:** The host plugin **automatically forwards** events to all loaded modules.
@@ -667,23 +821,23 @@ A module must export the `Load`, `Unload`, and `Supports` functions, just like a
  > - For `AmxLoad` and `AmxUnload` to work in modules, the host plugin must define the `SAMP_SDK_WANT_AMX_EVENTS` macro.
  > - For `ProcessTick` to work in modules, the host plugin must define the `SAMP_SDK_WANT_PROCESS_TICK` macro.
 
-- **Unloading:** During the `OnUnload` of the main plugin, the SDK unloads all modules loaded via `Plugin_Module`. This is done in **reverse order** of loading (the last module loaded is the first to be unloaded), which is crucial for managing dependencies and ensuring proper resource cleanup.
+- **Unloading:** During your main plugin's `OnUnload`, the SDK unloads all modules that were loaded via `Plugin_Module`. This is done in **reverse order** of loading (the last one loaded is the first to be unloaded), which is crucial for managing dependencies and ensuring correct resource release.
 
 #### Benefits of Modularization
 
-- **Code Organization:** Break down large plugins into smaller, manageable components, each in its own module file.
+- **Code Organization:** Divide large plugins into smaller, manageable components, each in its own module file.
 - **Reusability:** Create generic modules (e.g., a database module, an advanced logging system module) that can be used by different plugins, promoting code reuse.
 - **Independent Components:** Create modules that are **fully event-driven and independent**. A module can have its own `Plugin_Native`s, intercept `Plugin_Public`s, and have its own `OnProcessTick` logic, operating as a standalone plugin but loaded by a host.
-- **Dynamic Updates:** In controlled scenarios, allows updating parts of your system (by replacing a `.dll` or `.so` module file) without needing to recompile and restart the main plugin or the entire server (though this requires strict version and compatibility management).
+- **Dynamic Updates:** In controlled scenarios, allows updating parts of your system (by replacing a module's `.dll` or `.so`) without needing to recompile and restart the main plugin or the entire server (though this requires strict version and compatibility management).
 
-### 3.6. `Plugin_Call`: Calling Internal Plugin Natives
+### 3.7. `Plugin_Call`: Calling Internal Plugin Natives
 
 Use `Plugin_Call` to invoke a `Plugin_Native` defined **within your own plugin**.
 
 #### Syntax and Performance Advantages
 
 - `Plugin_Call(NativeName, Param1, Param2, ...)`
-- **Advantage:** Avoids the overhead of looking up the native in the AMX native array. The SDK maintains a direct map of name hashes to function pointers for its own natives, making this the fastest way to call them internally.
+- **Advantage:** Avoids the overhead of looking up the native in the AMX natives array. The SDK maintains a direct map of name hashes to function pointers for your own natives, making this the fastest way to call them internally.
 - **Requires:** `SAMP_SDK_WANT_AMX_EVENTS`.
 
 ```cpp
@@ -692,27 +846,27 @@ Plugin_Native(InternalCheckPlayerLevel, AMX* amx, cell* params) {
     int playerid;
     Register_Parameters(playerid);
 
-    // Logic to check level
+    // Logic to check the level
     return (playerid % 2 == 0) ? 1 : 0; // Example: even level for even IDs
 }
 
-void CheckAllPlayersLevel() {
+void Check_All_Players_Level() {
     for (int i = 0; i < MAX_PLAYERS; ++i) {
         if (Pawn_Native(IsPlayerConnected, i)) {
-            if (Plugin_Call(InternalCheckPlayerLevel, i)) // Calls its own native
-                Samp_SDK::Log("Player %d is high level!", i);
+            if (Plugin_Call(InternalCheckPlayerLevel, i)) // Calls your own native
+                Samp_SDK::Log("Player %d is at a high level!", i);
         }
     }
 }
 ```
 
-### **3.7. SDK Utility Functions**
+### 3.8. SDK Utility Functions
 
 #### `Samp_SDK::Log(const char* format, ...)`
 
 - **Description:** Prints messages to the server console and the `server_log.txt` file. A safe wrapper for `logprintf`.
 - **Usage:** For debugging, status messages, and errors.
-- **Mechanism:** Internally, the SDK obtains the `logprintf` pointer through `ppData[PLUGIN_DATA_LOGPRINTF]`. The function handles string formatting safely.
+- **Mechanism:** Internally, the SDK gets the pointer to `logprintf` via `ppData[PLUGIN_DATA_LOGPRINTF]`. The function handles string formatting safely.
 
 ```cpp
 // Anywhere in your plugin
@@ -721,18 +875,17 @@ Samp_SDK::Log("The plugin was initialized with a value %d and a string '%s'.", 1
 
 #### `std::string Plugin_Format(const char* format, ...)` (Recommended)
 
-- **Description:** Safely formats a string (similar to `sprintf`) and returns an `std::string`. This is the **recommended and most idiomatic** way to format strings for use within your plugin.
-- **Usage:** Ideal for building formatted messages before passing them to `Samp_SDK::Log`, `Pawn_Native(SendClientMessage, ...)`, or any other string need within your C++ code.
+- **Description:** Formats a string safely (similar to `sprintf`) and returns an `std::string`. This is the **recommended and most idiomatic** way to format strings for use within your plugin.
+- **Usage:** Ideal for building formatted messages before passing them to `Samp_SDK::Log`, `Pawn_Native(SendClientMessage, ...)`, or for any other string needs within your C++ code.
 - **Mechanism:** Internally, `Plugin_Format` is a macro that calls `Samp_SDK::Format`. It uses `vsnprintf` to determine the exact size of the formatted string and allocates an `std::string` with sufficient capacity, preventing buffer overflows.
 
 ```cpp
 int playerid = 0; // Example ID
 int health = 50;
-std::string status_message = Plugin_Format("Player %d, your current health is %d.", playerid, health); // Using the Plugin_Format macro
-Pawn_Native(SendClientMessage, playerid, 0xFFFFFFFF, status_message);
+Pawn_Native(SendClientMessage, playerid, 0xFFFFFFFF, Plugin_Format("Player %d, your current health is %d.", playerid, health));
 
 // Can also be used for internal logs
-Samp_SDK::Log(Plugin_Format("DEBUG: Processing status for ID %d", playerid).c_str());
+Samp_SDK::Log(Plugin_Format("DEBUG: Processing status for ID %d", playerid));
 ```
 
 #### `std::string Samp_SDK::Format(const char* format, ...)` (Implementation Detail)
@@ -748,7 +901,7 @@ std::string raw_status = Samp_SDK::Format("For internal use only: %d.", 42);
 #### `std::string Samp_SDK::Get_String(AMX* amx, cell amx_addr)`
 
 - **Description:** Converts an AMX string address (`cell amx_addr`) into a C++ `std::string`.
-- **Usage:** Primarily within `Plugin_Native` when you need to access strings that are not automatically converted by `Register_Parameters` or `Native_Params` (e.g., if the Pawn parameter is a `const` `string` and was not declared as `std::string` in your `Plugin_Native` or `Plugin_Public` for automatic Marshalling).
+- **Usage:** Primarily within `Plugin_Native` and `Plugin_Native_Hook` when you need to access strings that are not automatically converted by `Register_Parameters` or `Native_Params` (e.g., if the Pawn parameter is a `const` `string` and was not declared as `std::string` in your `Plugin_Native` or `Plugin_Public` for automatic Marshalling).
 
 ```cpp
 Plugin_Native(PrintRawAmxString, AMX* amx, cell* params) {
@@ -762,13 +915,13 @@ Plugin_Native(PrintRawAmxString, AMX* amx, cell* params) {
 }
 ```
 
-## 4. **Internal Anatomy and SDK Architecture**
+## 4. Internal Anatomy and SDK Architecture
 
-This section reveals the underlying mechanisms of the SAMP SDK, exploring its architecture, key components, and how they interact to provide high-level abstraction. A deep understanding of these internals empowers the developer to optimize SDK usage, debug complex problems, and even extend its functionalities.
+This section unveils the underlying mechanisms of the SA-MP SDK, exploring its architecture, key components, and how they interact to provide high-level abstraction. A deep understanding of these internals empowers the developer to optimize SDK usage, debug complex problems, and even extend its functionalities.
 
 ### 4.1. `core.hpp`: The Minimalist Foundation
 
-`Samp_SDK::Core` is a `singleton` that serves as the initial and centralized access point to low-level data provided by the SA-MP plugin environment. Its main responsibility is to encapsulate and expose essential functionalities.
+The `Samp_SDK::Core` is a `singleton` that serves as the initial and centralized access point to the low-level data provided by the SA-MP plugin environment. Its primary responsibility is to encapsulate and expose essential functionalities.
 
 - **`Samp_SDK::Core::Instance()`**:
    - **Description:** Returns the single global instance of the `Core` class. This is a `singleton` design pattern to ensure consistent and centralized access to plugin data (`ppData`).
@@ -786,9 +939,15 @@ This section reveals the underlying mechanisms of the SAMP SDK, exploring its ar
               using Return_Type = decltype(std::declval<Func>()(args...));
               auto func_ptr = reinterpret_cast<Func>(Core::Instance().Get_AMX_Export(Index));
 
-              if (SAMP_SDK_UNLIKELY(!func_ptr))
-                  return (Samp_SDK::Log("[SAMP SDK] Fatal: Attempted to call AMX export at index %d, but pAMXFunctions was not loaded!", Index),
-                  Samp_SDK::amx::Detail::Amx_Call_Error_Handler<Return_Type>(typename std::is_pointer<Return_Type>::type{}));
+              if (SAMP_SDK_UNLIKELY(!func_ptr)) {
+                  Log("[SA-MP SDK] Fatal: Attempted to call AMX export at index %d, but pAMXFunctions was not loaded!", Index);
+                
+      #if defined(SAMP_SDK_CXX_MODERN)
+                  return Samp_SDK::amx::Detail::Amx_Call_Error_Handler<Return_Type>();
+      #elif defined(SAMP_SDK_CXX14)
+                  return Samp_SDK::amx::Detail::Amx_Call_Error_Handler<Return_Type>(typename std::is_pointer<Return_Type>::type{});
+      #endif
+              }
 
               return func_ptr(args...);
           }
@@ -800,19 +959,19 @@ This section reveals the underlying mechanisms of the SAMP SDK, exploring its ar
       ```
 
 - **`logprintf_ptr`**:
-   - **Description:** A pointer to the SA-MP `logprintf` function, which is the standard interface for printing messages to the server console and `server_log.txt`.
-   - **Mechanism:** `Samp_SDK::Log` is a safe wrapper that uses this pointer, ensuring your messages are correctly displayed in the SA-MP environment.
+   - **Description:** A pointer to SA-MP's `logprintf` function, which is the standard interface for printing messages to the server console and `server_log.txt`.
+   - **Mechanism:** `Samp_SDK::Log` is a safe wrapper that uses this pointer, ensuring your messages are displayed correctly in the SA-MP environment.
 
-### **4.2. `platform.hpp` and `version.hpp`: Compatibility and Metadata**
+### 4.2. `platform.hpp` and `version.hpp`: Compatibility and Metadata
 
-These headers are the foundation for SDK portability and optimization, adapting it to different compilation environments and leveraging modern C++ features.
+These headers are the basis for SDK portability and optimization, adapting it to different compilation environments and taking advantage of specific features of modern C++.
 
 - **Platform and Architecture Detection:**
    - **Mechanism:** Uses preprocessor macros (`#if defined(WIN32)`, `#if defined(__linux__)`, etc.) to identify the operating system.
-   - **Architecture Check:** Contains `static_assert` or `#error` to ensure the plugin is being compiled for x86 (32-bit), a critical requirement for SA-MP compatibility and the hooking mechanism.
+   - **Architecture Verification:** Contains `static_assert` or `#error` to ensure the plugin is being compiled for x86 (32-bit), a critical requirement for compatibility with SA-MP and the hooking mechanism.
    - **Symbol Export Management:**
       - `SAMP_SDK_EXPORT`: A macro defined in `platform.hpp` that expands to `extern "C"` and, on Linux, adds `__attribute__((visibility("default")))`. On Windows, it just ensures `extern "C"` because the SDK uses `pragma comment(linker, "/EXPORT:...")` (for MSVC) or the MinGW standard to export the main functions.
-      - This ensures that the plugin lifecycle functions (`Supports`, `Load`, `Unload`, etc.) are correctly exported from your DLL/SO, regardless of the compilation environment, **without the need for `.def` files or manually adding `__attribute__((visibility("default")))`** in your implementation.
+      - This ensures that the plugin lifecycle functions (`Supports`, `Load`, `Unload`, etc.) are correctly exported from your DLL/SO, regardless of the compilation environment, **without the need for `.def` files or to manually add `__attribute__((visibility("default")))`** in your implementation.
    - **Example (`platform.hpp` - relevant fragment):**
       ```cpp
       #if defined(SAMP_SDK_WINDOWS)
@@ -824,7 +983,7 @@ These headers are the foundation for SDK portability and optimization, adapting 
       #endif
       // ... other definitions ...
       ```
-   - **Example (`samp_sdk.hpp` - relevant fragment of the implementation):**
+   - **Example (`samp_sdk.hpp` - relevant implementation fragment):**
       ```cpp
       #if defined(SAMP_SDK_IMPLEMENTATION)
 
@@ -854,10 +1013,10 @@ These headers are the foundation for SDK portability and optimization, adapting 
       - **Impact:** Helps the compiler generate more efficient code for branch prediction, reducing CPU latency.
       - **Example (`platform.hpp`):**
          ```cpp
-         #if defined(__cplusplus) && __cplusplus >= 202002L
+         #if (defined(SAMP_SDK_COMPILER_MSVC) && _MSVC_LANG >= 202002L) || (defined(__cplusplus) && __cplusplus >= 202002L)
              #define SAMP_SDK_LIKELY(x) (x) [[likely]]
              #define SAMP_SDK_UNLIKELY(x) (x) [[unlikely]]
-         #elif defined(__GNUC__) || defined(__clang__)
+         #elif defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
              #define SAMP_SDK_LIKELY(x) __builtin_expect(!!(x), 1)
              #define SAMP_SDK_UNLIKELY(x) __builtin_expect(!!(x), 0)
          #else
@@ -868,7 +1027,7 @@ These headers are the foundation for SDK portability and optimization, adapting 
 
 - **Standard C++ Definitions (`SAMP_SDK_CXX14`, `SAMP_SDK_CXX_MODERN`):**
    - **Mechanism:** Macros defined based on the value of `__cplusplus` and `_MSVC_LANG`.
-   - **Usage:** Allow the SDK to utilize newer C++ features (like `std::apply` and `if constexpr` from C++17, or `std::is_same_v` from C++17) when available, while maintaining compatibility with older standards.
+   - **Usage:** Allow the SDK to use newer C++ features (like `std::apply` and `if constexpr` from C++17, or `std::is_same_v` from C++17) when available, while maintaining compatibility with older standards.
    - **Example (`version.hpp` - `if constexpr` usage):**
       ```cpp
       // Simplified snippet from public_dispatcher.hpp
@@ -885,7 +1044,8 @@ These headers are the foundation for SDK portability and optimization, adapting 
                   else
                       first = static_cast<decay_t<First>>(value);
       #elif defined(SAMP_SDK_CXX14)
-                  Assign_Parameter_By_Type(amx, &value, -1, first);
+                  // C++14 compatibility: use the helper function Assign_Parameter_By_Type
+                  Assign_Parameter_By_Type(amx, &value, first); 
       #endif
           }
 
@@ -912,7 +1072,7 @@ This header defines the low-level mechanism for performing function hooks (inter
    - **`Revert()`**:
       - **Action:** Uninstalls the hook, restoring the `original_bytes_` to the `target` function.
    - **`Unprotect_Memory(void* address, size_t size)`**:
-      - **Mechanism:** On Windows, it uses `VirtualProtect`; on Linux, `mprotect`. These system calls change the permissions of the memory page where the function resides to `EXECUTE_READWRITE` (Windows) or `PROT_WRITE | PROT_EXEC` (Linux), allowing the code to be modified at runtime.
+      - **Mechanism:** On Windows, uses `VirtualProtect`; on Linux, `mprotect`. These system calls change the permissions of the memory page where the function resides to `EXECUTE_READWRITE` (Windows) or `PROT_WRITE | PROT_EXEC` (Linux), allowing the code to be modified at runtime.
       - **Example (`Unprotect_Memory`):**
          ```cpp
          // Simplified snippet from function_hook.hpp
@@ -927,12 +1087,12 @@ This header defines the low-level mechanism for performing function hooks (inter
          ```
 
 - **`Function_Hook<FuncPtr>`**:
-   - **Description:** A type-safe C++ wrapper for `X86_Detour`, ensuring correct function pointer types.
+   - **Description:** A C++ `type-safe` wrapper for `X86_Detour`, ensuring correct function pointer types.
    - `Install(void* target, void* detour)`: Encapsulates the `X86_Detour::Apply` call.
    - `Uninstall()`: Encapsulates the `X86_Detour::Revert` call.
    - **`Call_Original(Args... args)`**:
       - **Safety Mechanism (Recursion Guard):** This function is critical to prevent infinite loops when the detour needs to call the original function. It **temporarily uninstalls the hook (`detour_.Revert()`)**, calls the original function (`Get_Original()(args...)`), and then **reinstalls the hook (`detour_.Reapply()`)**.
-      - **`static thread_local int recursion_guard`**: A counter that ensures the hook is only reinstalled when the highest-level original call is complete, allowing safe recursive calls to the original function (if the original function is recursive, for example). `thread_local` ensures that `recursion_guard` is isolated for each thread, important in multi-threaded environments.
+      - **`static thread_local int recursion_guard`**: A counter that ensures the hook is only reinstalled when the highest-level original call is completed, allowing safe recursive calls of the original function (if the original function is recursive, for example). `thread_local` ensures that `recursion_guard` is isolated for each thread, important in multi-threaded environments.
       - **Example (`Call_Original` with Scope_Guard):**
          ```cpp
          // Simplified snippet from function_hook.hpp
@@ -963,71 +1123,91 @@ This header defines the low-level mechanism for performing function hooks (inter
          }
          ```
 
-### 4.4. `interceptor_manager.hpp`: The AMX Hook Controller
+### 4.4. `interceptor_manager.hpp`: The AMX Hooks Controller
 
 This `singleton` is the nerve center of the SDK's interaction with the SA-MP AMX virtual machine. It coordinates the installation of hooks provided by `function_hook.hpp` into the AMX API functions exposed by the server, redirecting the execution flow to the SDK's logic.
 
 - **`Activate()` / `Deactivate()`**:
    - **Description:** Public methods to install and uninstall all necessary hooks. Called in your plugin's `OnLoad()` and `OnUnload()` functions, respectively.
-   - **Mechanism:** Obtains the AMX function pointers (like `amx_Register`, `amx_Exec`, etc.) using `Core::Instance().Get_AMX_Export(...)` and installs the detours.
+   - **Mechanism:** Gets the AMX function pointers (like `amx_Register`, `amx_Exec`, etc.) using `Core::Instance().Get_AMX_Export(...)` and installs the detours.
 - **`int SAMP_SDK_AMX_API Amx_Register_Detour(...)`**:
    - **Hooked Function:** `amx_Register`
    - **Purpose:** Intercepts the registration of *all* natives (by SA-MP, other plugins, or gamemode).
-   - **Action:** Calls `Interceptor_Manager::Instance().Cache_Natives()` to store the native pointers and names in an internal cache.
-   - **Impact:** This cache is fundamental for `Pawn_Native`'s performance, allowing extremely fast native pointer lookup instead of an expensive AMX lookup.
+   - **Action:** For each registered native, the `Interceptor_Manager` adds it to an internal cache (`Cache_Data::native_cache`).
+   - **Impact:** This cache is fundamental for `Pawn_Native`'s performance, allowing extremely fast lookup of the native's pointer instead of an expensive AMX lookup.
+   - **Additional Function for `Plugin_Native_Hook`:** This detour *also* is responsible for modifying the list of natives before they are registered. If a native has an associated `Plugin_Native_Hook`, the function pointer in the registration list is replaced by the trampoline generated by the `Native_Hook_Manager`. This allows your hook to be called first.
 - **`int SAMP_SDK_AMX_API Amx_Exec_Detour(...)`**:
    - **Hooked Function:** `amx_Exec`
    - **Purpose:** **This is the most critical hook.** It intercepts *any* code execution in the AMX, including calling Pawn `publics`.
    - **`Plugin_Public` Interception Mechanism:**
       1. When `amx_Exec` is called for a `public` (or `AMX_EXEC_MAIN`), `Amx_Exec_Detour` is executed.
-      2. It gets the `public`'s name (using `Get_Public_Name_By_Index` or `tl_public_name`).
+      2. It gets the `public`'s name (using `tl_public_name` which was populated by `Amx_Find_Public_Detour`).
       3. Queries `Public_Dispatcher::Instance().Dispatch()` to check if there are C++ handlers registered for this name.
-      4. If there are handlers, it executes them. The `Public_Dispatcher` handles marshalling AMX parameters to the correct C++ types.
-      5. Based on the return value from `Public_Dispatcher` (`PLUGIN_PUBLIC_STOP`/`PLUGIN_PUBLIC_CONTINUE`), it decides whether to call the original `amx_Exec` (`Get_Amx_Exec_Hook().Call_Original(...)`) or terminate the Pawn `public`'s execution.
-      6. **Stack Manipulation:** If the Pawn `public`'s execution is stopped (`PLUGIN_PUBLIC_STOP`), `Amx_Exec_Detour` fixes the AMX stack (`amx->stk += amx->paramcount * sizeof(cell); amx->paramcount = 0;`) to avoid inconsistencies.
-   - **Example (`Amx_Exec_Detour`):**
+      4. If there are handlers, it executes them. The `Public_Dispatcher` handles marshalling parameters from AMX to the correct C++ types.
+      5. Based on the return value of the `Public_Dispatcher` (`PLUGIN_PUBLIC_STOP`/`PLUGIN_PUBLIC_CONTINUE`), it decides whether to call the original `amx_Exec` (`Get_Amx_Exec_Hook().Call_Original(...)`) or terminate the Pawn `public`'s execution.
+      6. **Stack Manipulation:** If Pawn `public` execution is interrupted (`PLUGIN_PUBLIC_STOP`), `Amx_Exec_Detour` fixes the AMX stack (`amx->stk += amx->paramcount * sizeof(cell); amx->paramcount = 0;`) to avoid inconsistencies.
+   - **`Plugin_Native_Hook` Activation (AMX Patching):**
+      - The first time an `AMX*` is executed, this detour checks if the AMX has already been "patched" (`!manager.Is_Amx_Patched(amx)`).
+      - If not, it iterates through the natives table **of that specific AMX instance in memory**.
+      - For each native that has a `Plugin_Native_Hook` registered in the `Native_Hook_Manager`, it replaces the native's address in the table with a trampoline generated by the `Native_Hook_Manager`. The original address (or the previous hook's) is saved in the `Native_Hook` object.
+      - The AMX is then marked as "patched" to avoid unnecessary reprocessing.
+   - **Example (`Amx_Exec_Detour` - with `Plugin_Native_Hook` details):**
       ```cpp
       // Simplified snippet from interceptor_manager.hpp
       inline int SAMP_SDK_AMX_API Amx_Exec_Detour(AMX* amx, cell* retval, int index) {
-          // ... logic to determine public name ...
+          auto& manager = Interceptor_Manager::Instance();
+
           std::unique_ptr<std::string> public_name_ptr;
 
-          if (index == AMX_EXEC_MAIN) {
-              Interceptor_Manager::Instance().Set_Gamemode_Amx(amx);
-              public_name_ptr = std::make_unique<std::string>("OnGameModeInit");
-          }
-          else if (Interceptor_Manager::Instance().Is_Gamemode_Amx(amx) && index != AMX_EXEC_CONT) {
-              if (tl_public_name)
-                  public_name_ptr = std::move(tl_public_name);
-          }
+          // Plugin_Public interception logic (as described above)
+          // ...
 
-          if (public_name_ptr) {
-              cell result = 1;
-              bool should_continue = Public_Dispatcher::Instance().Dispatch(FNV1a_Hash(public_name_ptr->c_str()), amx, result);
-              
-              if (!should_continue) {
-                  if (retval)
-                      *retval = result;
+          int exec_result = Get_Amx_Exec_Hook().Call_Original(amx, retval, index);
 
-                  if (*public_name_ptr == "OnPlayerCommandText") {
-                      if (retval)
-                          *retval = 1;
+          // Patching Logic for Plugin_Native_Hook
+          if (SAMP_SDK_UNLIKELY(!manager.Is_Amx_Patched(amx))) {
+              auto& hook_manager = Native_Hook_Manager::Instance();
+              auto& hooks_to_apply = hook_manager.Get_All_Hooks();
+
+              if (!hooks_to_apply.empty()) {
+                  AMX_HEADER* hdr = reinterpret_cast<AMX_HEADER*>(amx->base);
+                  AMX_FUNCSTUBNT* natives = reinterpret_cast<AMX_FUNCSTUBNT*>(reinterpret_cast<unsigned char*>(hdr) + hdr->natives);
+
+                  int num_natives;
+
+                  amx::Num_Natives(amx, &num_natives);
+
+                  for (auto& hook_to_apply : hooks_to_apply) { // Iterates through all registered Plugin_Native_Hook
+                      uint32_t hook_hash = hook_to_apply.Get_Hash();
+
+                      for (int i = 0; i < num_natives; ++i) { // Iterates through AMX natives
+                          const char* native_name = reinterpret_cast<const char*>(reinterpret_cast<unsigned char*>(hdr) + natives[i].nameofs);
+
+                          if (FNV1a_Hash(native_name) == hook_hash) { // If AMX native name matches a hook
+                              AMX_NATIVE current_func = reinterpret_cast<AMX_NATIVE>(natives[i].address);
+
+                              hook_to_apply.Set_Next_In_Chain(current_func); // Saves original/previous function pointer
+
+                              AMX_NATIVE trampoline = hook_manager.Get_Trampoline(hook_hash); // Gets trampoline for this hook
+
+                              if (trampoline)
+                                  natives[i].address = reinterpret_cast<ucell>(trampoline); // Replaces in AMX table
+                              
+                              break;
+                          }
+                      }
                   }
-
-                  amx->stk += amx->paramcount * sizeof(cell);
-                  amx->paramcount = 0;
-                  
-                  return static_cast<int>(AmxError::None);
               }
+              
+              manager.On_Amx_Patched(amx); // Marks AMX as patched
           }
           
-          return Get_Amx_Exec_Hook().Call_Original(amx, retval, index);
+          return exec_result;
       }
       ```
-
 - **`int SAMP_SDK_AMX_API Amx_Find_Public_Detour(...)`**:
    - **Hooked Function:** `amx_FindPublic`
-   - **Purpose:** Intercepts the lookup for `publics` by name.
+   - **Purpose:** Intercepts the search for `publics` by name.
    - **"Ghost Publics" Mechanism:** If the original `amx_FindPublic` does not find a `public` in Pawn, but the `Public_Dispatcher` has a C++ handler registered for that name, this hook returns `AMX_ERR_NONE` and a special `index` (`PLUGIN_EXEC_GHOST_PUBLIC`). This makes the SA-MP API "think" the `public` exists, allowing the subsequent `amx_Exec` call (for this special index) to be intercepted by `Amx_Exec_Detour`, which then redirects to the C++ handler.
    - **`static thread_local std::unique_ptr<std::string> tl_public_name`**: Used to pass the `public`'s name to `Amx_Exec_Detour` when a "ghost public" is detected, as `amx_Exec` only receives the index, not the name.
 - **`int SAMP_SDK_AMX_API Amx_Init_Detour(...)` / `Amx_Cleanup_Detour(...)`**:
@@ -1037,36 +1217,36 @@ This `singleton` is the nerve center of the SDK's interaction with the SA-MP AMX
 
 ### 4.5. `amx_manager.hpp`: Managing `AMX*` Instances
 
-This `singleton` maintains a dynamic record of all AMX virtual machines currently loaded on the server. It is essential for functions that need to interact with "all scripts" or find a specific script.
+This `singleton` maintains a dynamic record of all currently loaded AMX virtual machines on the server. It is essential for functions that need to interact with "all scripts" or find a specific script.
 
 - **`std::vector<AMX*> loaded_amx_`**:
    - **Description:** A list of pointers to all `AMX*` instances that have been initialized (gamemode and filterscripts).
    - **Management:** Populated by `Amx_Init_Detour` hooks and emptied by `Amx_Cleanup_Detour` hooks.
 - **`std::shared_mutex mtx_` (C++17+) / `std::mutex mtx_` (C++14)**:
-   - **Purpose:** Protects `loaded_amx_` against concurrent access in multi-threaded environments (although SA-MP is mostly single-threaded, this is good safety practice). `std::shared_mutex` allows multiple readers simultaneously, but only one writer.
+   - **Purpose:** Protects `loaded_amx_` from concurrent access in multi-threaded environments (although SA-MP is mostly single-threaded, this is good safety practice). `std::shared_mutex` allows multiple readers simultaneously, but only one writer.
 - **`std::atomic<uint32_t> generation_`**:
    - **Purpose:** A counter that increments each time an AMX is added or removed.
-   - **Usage:** Used by `Caller_Cache` in `callbacks.hpp` to detect when the list of AMXs has changed, invalidating `public` lookup caches and ensuring that `Pawn_Public` calls always operate with updated information. This optimizes performance by avoiding repetitive lookups in an unchanged state.
+   - **Usage:** Used by `Caller_Cache` in `callbacks.hpp` to detect when the list of AMXs has changed, invalidating `publics` lookup caches and ensuring that `Pawn_Public` calls always operate with up-to-date information. This optimizes performance by avoiding repetitive lookups in an unchanged state.
 - **`AMX* Find_Public(const char* name, int& index)`**:
-   - **Description:** Iterates through `loaded_amx_` (from newest to oldest, which usually puts the gamemode or most relevant filterscript first) to find the `public` with the specified name.
+   - **Description:** Iterates through `loaded_amx_` (from newest to oldest, which usually places the most relevant gamemode or filterscript first) to find the `public` with the specified name.
    - **Mechanism:** Uses `amx::Find_Public` for each `AMX*` instance.
    - **Impact:** It is the basis for `Pawn_Public`.
 
-### 4.6. `public_dispatcher.hpp`: The `Plugin_Public` Callback Router
+### 4.6. `public_dispatcher.hpp`: The `Plugin_Public` Callbacks Router
 
-This `singleton` is the component that maps Pawn `public` names to your C++ `Plugin_Public` functions.
+This `singleton` is the component that maps Pawn `publics` names to their C++ `Plugin_Public` functions.
 
 - **`std::unordered_map<uint32_t, std::vector<Amx_Handler_Func>> handlers_`**:
    - **Key:** The FNV1a hash of the `public`'s name (e.g., `FNV1a_Hash_Const("OnPlayerConnect")`).
-   - **Value:** An `std::vector` of `std::function<cell(AMX*)>`, where each `std::function` is a C++ handler registered for that `public`.
-   - **Mechanism:** The `std::vector` allows multiple `Plugin_Public`s to be registered for the same callback (e.g., several plugins wanting to intercept `OnPlayerCommandText`). Handlers are executed in reverse order of registration.
-- **`Public_Registrar`**:
-   - **Mechanism:** This is a template class whose `PLUGIN_PUBLIC_REGISTRATION` macro creates a global static instance. In the static constructor (`static bool registered = [...]`), it registers its `Plugin_Public` handler with the `Public_Dispatcher`. This is a "static compile-time/initialization registration" pattern.
+   - **Value:** A `std::vector` of `std::function<cell(AMX*)>`, where each `std::function` is a C++ handler registered for that `public`.
+   - **Mechanism:** The `std::vector` allows multiple `Plugin_Public`s to be registered for the same callback (e.g., several plugins wanting to intercept `OnPlayerCommandText`). Handlers are executed in reverse registration order.
+- **`Public_Register`**:
+   - **Mechanism:** This is a template class whose `PLUGIN_PUBLIC_REGISTRATION` macro creates a global static instance. In the static constructor (`static bool registered = [...]`), it registers its `Plugin_Public` handler with the `Public_Dispatcher`. This is a "static compile-time/initialization-time registration" pattern.
    - **Example (`public_dispatcher.hpp`):**
       ```cpp
       #define PLUGIN_PUBLIC_REGISTRATION(name) \
           constexpr uint32_t hash_##name = Samp_SDK::Detail::FNV1a_Hash_Const(#name); \
-          Samp_SDK::Detail::Public_Registrar<decltype(&name), &name, hash_##name> registrar_##name;
+          Samp_SDK::Detail::Public_Register<decltype(&name), &name, hash_##name> register_##name;
       ```
 
 - **`Public_Traits` and `Wrapper()`**:
@@ -1076,7 +1256,7 @@ This `singleton` is the component that maps Pawn `public` names to your C++ `Plu
       2. Calling your actual C++ `Plugin_Public` function (`func_ptr`) with parameters already converted to the correct C++ types.
 - **`Public_Param_Reader::Get_Public_Params(...)`**:
    - **Description:** A set of recursive template functions that read values from the AMX stack and convert them to the C++ types specified in the `Plugin_Public` declaration.
-   - **Mechanism:** Uses `Get_Stack_Cell()` to access `cell`s on the stack. Uses `if constexpr` (C++17+) or `std::is_same<T>::value` (C++14) to apply the correct conversion (`amx::AMX_CTOF` for float, `Samp_SDK::Get_String` for string, direct cast for int).
+   - **Mechanism:** Uses `Get_Stack_Cell()` to access the `cell`s on the stack. Uses `if constexpr` (C++17+) or `std::is_same<T>::value` (C++14) to apply the correct conversion (`amx::AMX_CTOF` for float, `Samp_SDK::Get_String` for string, direct cast for int).
 
 ### 4.7. `native.hpp`: Managing and Calling Plugin Natives
 
@@ -1085,25 +1265,57 @@ This header is dedicated to the creation and management of C++ natives that your
 - **`Native_List_Holder`**:
    - **Description:** A global `singleton` that stores all `Plugin_Native`s declared in your plugin (from all `.cpp` files that use `SAMP_SDK_WANT_AMX_EVENTS`).
    - **`std::vector<Native> natives_`**: Contains `Native` objects (which store the native's name and the pointer to the C++ `Native_Handler` function).
-   - **`std::unordered_map<uint32_t, Native_Handler> plugin_natives_`**: An optimized hash map for fast lookups of internal `Plugin_Native`s (used by `Plugin_Call`).
-- **`Native_Registrar`**:
-   - **Mechanism:** Similar to `Public_Registrar`, this is a template class whose `Plugin_Native` macro creates a global static instance. In its constructor, it adds the native to `Native_List_Holder`.
+   - **`std::unordered_map<uint32_t, Native_Handler> plugin_natives_`**: An optimized hash-mapped for fast lookups of internal `Plugin_Native`s (used by `Plugin_Call`).
+- **`Native_Register`**:
+   - **Mechanism:** Similar to `Public_Register`, this is a template class whose `Plugin_Native` macro creates a global static instance. In its constructor, it adds the native to the `Native_List_Holder`.
    - **Impact:** Allows you to declare `Plugin_Native`s in multiple `.cpp` files without worrying about manual registration. All will be collected automatically.
 - **`Native_Registry`**:
-   - **Description:** A helper class that, in `OnAmxLoad`, takes the complete list of `Native`s from `Native_List_Holder` and formats them into an `AMX_NATIVE_INFO` array.
-   - **Mechanism:** Calls `amx::Register(amx, amx_natives_info_.data(), -1)` to register all your natives with the newly loaded AMX instance.
+   - **Description:** An auxiliary class that, in `OnAmxLoad`, takes the complete list of `Native`s from the `Native_List_Holder` and formats them into an `AMX_NATIVE_INFO` array.
+   - **Mechanism:** Calls `amx::Register(amx, amx_natives_info_.data(), -1)` to register all your natives in the newly loaded AMX instance.
 - **`Plugin_Call_Impl(...)`**:
    - **Description:** The underlying implementation of the `Plugin_Call` macro.
-   - **Mechanism:** Uses `Native_List_Holder::Instance().Find_Plugin_Native(native_hash)` to directly get the C++ function pointer.
+   - **Mechanism:** Uses `Native_List_Holder::Instance().Find_Plugin_Native(native_hash)` to directly obtain the C++ function pointer.
    - **Environment:** Executes the native in an `Amx_Sandbox` (isolated) environment to manage temporary stack and heap, similar to how `Pawn_Native` works.
 
-### 4.8. `callbacks.hpp` & `amx_memory.hpp`: C++ -> Pawn Calls and RAII
+### 4.8. `native_hook_manager.hpp`: The Native Hooks Engine
+
+This is the robust native hooking system, designed to manage the chaining of hooks from multiple plugins for the same native.
+
+- **`Native_Hook`**:
+   - **Description:** A class that represents a single native hook. Stores the native's name hash, the user-provided C++ handler function (`user_handler_`), and an `std::atomic<AMX_NATIVE> next_in_chain_`.
+   - **`user_handler_`**: Your C++ `Plugin_Native_Hook` function.
+   - **`next_in_chain_`**: The pointer to the original native or to a lower-priority plugin's hook. It is an `std::atomic` to ensure thread-safety in read/write.
+   - **`Dispatch(AMX* amx, cell* params)`**: Called by the trampoline to execute your `user_handler_`.
+   - **`Call_Original(AMX* amx, cell* params)`**: Crucial method that calls `next_in_chain_`, allowing your hook to invoke the original functionality or the next hook in the chain.
+- **`Trampoline_Allocator`**:
+   - **Description:** A class responsible for allocating executable memory blocks and generating the "trampoline" assembly code in these blocks.
+   - **`Generate_Trampoline_Code(unsigned char* memory, int hook_id)`**: Writes 10 bytes of assembly:
+      1. `B8 XX XX XX XX`: `MOV EAX, hook_id` (places the unique hook ID in the EAX register).
+      2. `E9 XX XX XX XX`: `JMP relative_address_to_Dispatch_Wrapper_Asm` (jumps to the SDK's generic dispatch function).
+   - **`Allocation_Size = 4096`**: Allocates memory in pages for efficiency and cache alignment.
+   - **Memory Permissions:** Uses `VirtualAlloc` (Windows) or `mmap` (Linux) with `EXECUTE_READWRITE` permissions to ensure the generated code can be executed.
+- **`Dispatch_Wrapper_Asm()`**:
+   - **Description:** A small assembly function (defined with `__declspec(naked)` or `asm volatile`) that serves as the target of all trampolines.
+   - **Action:** Saves registers, moves `EAX` (which contains `hook_id`) to the stack, and calls the `Dispatch_Hook` C++ function. After `Dispatch_Hook` returns, it restores registers and returns.
+- **`cell SAMP_SDK_CDECL Dispatch_Hook(int hook_id, AMX* amx, cell* params)`**:
+   - **Description:** The generic C++ function called by `Dispatch_Wrapper_Asm`.
+   - **Action:** Uses `hook_id` to find the corresponding `Native_Hook` in the `Native_Hook_Manager` and calls its `Dispatch()` method, which in turn invokes the user's `Plugin_Native_Hook` handler.
+- **`Native_Hook_Manager`**:
+   - **Description:** The central `singleton` that manages all registered `Native_Hook`s and their trampolines.
+   - **`std::list<Native_Hook> hooks_`**: Stores the list of hooks in order.
+   - **`std::unordered_map<uint32_t, Trampoline_Func> hash_to_trampoline_`**: Maps the native name's hash to the generated trampoline pointer.
+   - **`std::vector<uint32_t> hook_id_to_hash_`**: Maps the integer hook ID (used in the trampoline) back to the native name's hash.
+   - **`Get_Trampoline(uint32_t hash)`**: Returns (or creates and allocates) a trampoline pointer for a given native hash.
+- **`PLUGIN_NATIVE_HOOK_REGISTRATION`**:
+   - **Mechanism:** A macro that creates a global static class (`Native_Hook_Register_##name`) for each `Plugin_Native_Hook`. In that class's static constructor, it registers the user's `handler` with the `Native_Hook_Manager`.
+
+### 4.9. `callbacks.hpp` & `amx_memory.hpp`: C++ -> Pawn Calls and RAII
 
 These headers form the backbone for calling Pawn functions from C++ (`Pawn_*` macros) and ensure memory safety.
 
 - **`Amx_Sandbox`**:
    - **Description:** A `thread_local` structure that simulates a minimalist, isolated `AMX` environment for `Pawn_Native` and `Plugin_Call` calls.
-   - **Mechanism:** Has its own `AMX` struct, `AMX_HEADER`, and a `std::vector<unsigned char> heap` to simulate a script's memory. This allows `amx::Push`, `amx::Allot`, etc., to be called without interfering with the state of real running Pawn scripts.
+   - **Mechanism:** Has its own `AMX` struct, `AMX_HEADER`, and a `std::vector<unsigned char> heap` to simulate a script's memory. This allows `amx::Push`, `amx::Allot`, etc., to be called without interfering with the state of actual running Pawn scripts.
    - **`thread_local`:** Ensures that each thread has its own `Amx_Sandbox`, preventing race conditions if the SDK is used in a multi-threaded context (e.g., a future thread pool for non-Pawn operations).
    - **Example (`Amx_Sandbox`):**
       ```cpp
@@ -1114,7 +1326,7 @@ These headers form the backbone for calling Pawn functions from C++ (`Pawn_*` ma
           std::vector<unsigned char> heap; // Simulated memory for stack/heap
 
           Amx_Sandbox(size_t heap_size = 64 * 1024) : heap(heap_size) {
-              Reset(); // Initializes the AMX and header
+              Reset(); // Initializes AMX and header
           }
 
           void Reset() {
@@ -1136,15 +1348,15 @@ These headers form the backbone for calling Pawn functions from C++ (`Pawn_*` ma
       ```
 
 - **`Parameter_Processor`**:
-   - **Description:** A set of overloaded template functions that manage the `marshalling` of *each* C++ parameter to the `cell` format expected by the AMX, and vice versa for output parameters.
+   - **Description:** A set of overloaded template functions that manage the `marshalling` of *each* C++ parameter to the `cell` format expected by AMX, and vice-versa for output parameters.
    - **Input Processing:**
        - For `int`, `float`, `bool`: Converts directly to `cell`.
        - For `const char*`, `std::string`: Allocates memory on the `Amx_Sandbox` heap (or real AMX for `Pawn_Public`), copies the string, and pushes the AMX address onto the stack.
    - **Output Processing (`is_output_arg`):**
-       - **Mechanism:** When an argument is a non-const lvalue reference (detected by the `is_output_arg` trait), `Parameter_Processor` does not push the value, but rather an *AMX address* to a `cell` temporarily allocated on the heap.
-       - **`std::vector<std::function<void()>> post_call_updaters`**: After the Pawn native call, a list of lambdas (`post_call_updaters`) is executed. Each lambda is responsible for reading the final value from the `cell` allocated in the AMX and assigning it back to the original C++ variable (e.g., `x = amx::AMX_CTOF(*phys_addr)`).
+       - **Mechanism:** When an argument is a non-const lvalue reference (detected by the `is_output_arg` trait), the `Parameter_Processor` does not push the value, but rather an *AMX address* for a `cell` temporarily allocated on the heap.
+       - **`std::vector<std::function<void()>> post_call_updaters`**: After the Pawn native call, a list of lambdas (`post_call_updaters`) is executed. Each lambda is responsible for reading the final value from the `cell` allocated on the AMX and assigning it back to the original C++ variable (e.g., `x = amx::AMX_CTOF(*phys_addr)`).
 - **`is_output_arg`**:
-   - **Mechanism:** An `std::integral_constant` (type trait) that, at compile time, evaluates whether a C++ parameter type is a modifiable reference (e.g., `int&`, `float&`, `std::string&`). This allows `Parameter_Processor` to differentiate input from output parameters.
+   - **Mechanism:** An `std::integral_constant` (type trait) that, at compile time, evaluates whether a C++ parameter type is a modifiable reference (e.g., `int&`, `float&`, `std::string&`). This allows the `Parameter_Processor` to differentiate input from output parameters.
    - **Example (`is_output_arg`):**
       ```cpp
       // Simplified snippet from callbacks.hpp
@@ -1152,39 +1364,39 @@ These headers form the backbone for calling Pawn functions from C++ (`Pawn_*` ma
       struct is_output_arg : std::integral_constant<bool, std::is_lvalue_reference<T>::value && !std::is_const<typename std::remove_reference<T>::type>::value> {};
       ```
 - **`Amx_Scoped_Memory`**:
-   - **Description:** An RAII (`Resource Acquisition Is Initialization`) class that encapsulates AMX memory allocation and deallocation.
+   - **Description:** An RAII (`Resource Acquisition Is Initialization`) class that encapsulates memory allocation and deallocation on the AMX.
    - **Mechanism:** In the constructor, it calls `amx::Allot` to get an `amx_addr` and a `phys_addr`. In the destructor, it calls `amx::Release` to free that memory.
    - **Impact:** **Crucial for preventing memory leaks on the AMX heap.** Ensures that temporary memory used for strings or output parameters is always freed, even if exceptions or early returns occur.
 
-### 4.9. `amx_api.hpp` & `amx_helpers.hpp` & `amx_defs.h`: Abstracted AMX Access
+### 4.10. `amx_api.hpp` & `amx_helpers.hpp` & `amx_defs.h`: Abstracted AMX Access
 
 These headers provide the fundamental definitions and high-level tools for interacting with Pawn.
 
 - **`amx_defs.h`**:
    - **Content:** Contains the raw definitions of AMX structures (`AMX`, `AMX_HEADER`), types (`cell`, `ucell`), and error enums (`AmxError`). Also defines `AMX_NATIVE` and `AMX_CALLBACK`.
-   - **`SAMP_SDK_PACKED`**: Uses packing attributes (`#pragma pack(push, 1)` / `__attribute__((packed))`) to ensure AMX structures have the correct memory layout, fundamental for interoperability.
+   - **`SAMP_SDK_PACKED`**: Uses packing attributes (`#pragma pack(push, 1)` / `__attribute__((packed))`) to ensure that AMX structures have the correct memory layout, which is fundamental for interoperability.
 - **`Samp_SDK::amx::Call<Func, Index, ...>`**:
    - **Description:** The main template function for invoking AMX API functions exposed by the server.
-   - **Mechanism:** Gets the function pointer through `Core::Instance().Get_AMX_Export(Index)` and calls it. Centralizes error handling if the function pointer is not available.
+   - **Mechanism:** Gets the function pointer via `Core::Instance().Get_AMX_Export(Index)` and calls it. Centralizes error handling if the function pointer is not available.
    - **Impact:** Converts low-level calls (`Core::Instance().Get_AMX_Export(PLUGIN_AMX_EXPORT_Exec)`) into idiomatic and type-safe C++ calls (`amx::Exec`).
 - **`Samp_SDK::amx::AMX_CTOF(cell c)` / `AMX_FTOC(float f)`**:
-   - **Description:** Essential functions for converting `cell` values to `float` and vice versa, performing a bitwise reinterpretation of memory.
+   - **Description:** Essential functions for converting `cell` values to `float` and vice-versa, performing a bitwise reinterpretation of memory.
    - **`static_assert`:** Includes `static_assert` to ensure `sizeof(cell) == sizeof(float)` at compile time, preventing errors on platforms with different type sizes.
 - **`Samp_SDK::Get_String(AMX* amx, cell amx_addr)`**:
    - **Description:** Helper to convert an AMX string address into `std::string`.
    - **Mechanism:** First, gets the physical address (`cell* phys_addr`) of the string in the AMX using `amx::Get_Addr`. Then, uses `amx::STR_Len` to determine the length and `amx::Get_String` to copy the bytes into an `std::string`.
 - **`std::string Samp_SDK::Format(const char* format, ...)`**:
-   - **Description:** The base string formatting function (`printf`-like) for the SDK.
+   - **Description:** The base string formatting (`printf`-like) function for the SDK.
    - **Mechanism:** Uses `vsnprintf` in two passes: first to determine the necessary string size, and then to format the string into the dynamically allocated `std::string`. This prevents buffer overflows.
 
 ## 5. Compilation and Deployment
 
 ### Architecture and Platform Requirements
 
-- Your plugin **MUST** be compiled for the **x86 (32-bit)** architecture. The SDK's hooking mechanism is specific to this architecture.
+- Your plugin **MUST** be compiled for the **x86 (32-bit)** architecture.
 - Supported Platforms: Windows (.dll) and Linux (.so).
 
-### Examples of Compilation Commands
+### Compilation Command Examples
 
 #### **MSVC (Visual Studio)**
 
@@ -1202,8 +1414,8 @@ g++ -m32 -shared -std=c++17 -O2 -fPIC -Wall -Wextra -Wl,--no-undefined main.cpp 
 - `-shared`: Creates a shared library (`.so`).
 - `-std=c++17`: Sets the C++ standard to C++17 (can be `c++14` or `c++20`).
 - `-O2`: Optimization level 2.
-- `-fPIC`: Generates position-independent code, necessary for shared libraries.
-- `-Wall -Wextra`: Activates additional warnings to help catch errors.
+- `-fPIC`: Generates position-independent code, required for shared libraries.
+- `-Wall -Wextra`: Enables additional warnings to help catch errors.
 - `-Wl,--no-undefined`: Prevents library creation if there are undefined symbols.
 
 #### **GCC / Clang (MinGW on Windows)**
@@ -1212,17 +1424,17 @@ g++ -m32 -shared -std=c++17 -O2 -fPIC -Wall -Wextra -Wl,--no-undefined main.cpp 
 # For a plugin named 'my_plugin.dll' from 'main.cpp'
 g++ -m32 -shared -std=c++17 -O2 -static-libstdc++ -static-libgcc -Wl,--no-undefined main.cpp -o my_plugin.dll
 ```
-- `-static-libstdc++`: Statically links the C++ standard library. Essential to prevent your plugin from depending on specific compiler runtime DLLs that may not be present on the user's system.
+- `-static-libstdc++`: Statically links the C++ standard library. Essential to prevent your plugin from depending on compiler-specific runtime DLLs that may not be present on the user's system.
 - `-static-libgcc`: Statically links the GCC library.
 
-### Considerations for Distribution
+### Distribution Considerations
 
 - **File Name:** Your plugin must have the `.dll` (Windows) or `.so` (Linux) extension. E.g., `my_plugin.dll`.
 - **Location:** Place the compiled file in your SA-MP server's `plugins/` folder.
 - **server.cfg:** Add your plugin's name (if Windows, without the extension) to the `plugins` line in `server.cfg`.
    ```
    plugins my_plugin (if Linux, my_plugin.so)
-   ``
+   ```
 
 ## License
 
