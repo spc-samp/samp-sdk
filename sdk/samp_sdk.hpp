@@ -108,17 +108,17 @@ void OnProcessTick();
 
 #if defined(SAMP_SDK_IMPLEMENTATION)
 
-Export_Plugin("Supports", "0");
-Export_Plugin("Load", "4");
-Export_Plugin("Unload", "0");
-
+#if defined(SAMP_SDK_WINDOWS)
+    Export_Plugin("Supports", "0");
+    Export_Plugin("Load", "4");
+    Export_Plugin("Unload", "0");
 #if defined(SAMP_SDK_WANT_AMX_EVENTS)
     Export_Plugin("AmxLoad", "4");
     Export_Plugin("AmxUnload", "4");
 #endif
-
 #if defined(SAMP_SDK_WANT_PROCESS_TICK)
     Export_Plugin("ProcessTick", "0");
+#endif
 #endif
 
 #if defined(SAMP_SDK_WANT_AMX_EVENTS)
@@ -238,3 +238,4 @@ SAMP_SDK_EXPORT void SAMP_SDK_CALL ProcessTick() {
 
 #define Register_Parameters(...) \
     Samp_SDK::Detail::Register_Parameters_Impl(amx, params, __VA_ARGS__)
+
