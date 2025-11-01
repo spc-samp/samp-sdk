@@ -48,12 +48,15 @@
       - [`void OnAmxLoad(AMX* amx)`](#void-onamxloadamx-amx)
       - [`void OnAmxUnload(AMX* amx)`](#void-onamxunloadamx-amx)
       - [`void OnProcessTick()`](#void-onprocesstick)
-    - [3.2. `Plugin_Public`: Intercepting Pawn Events](#32-plugin_public-intercepting-pawn-events)
+    - [3.2. Exporting Plugin Functions](#32-exporting-plugin-functions)
+      - [Export for MSVC (Visual Studio) with `Export_Plugin`](#export-for-msvc-visual-studio-with-export_plugin)
+      - [Export for GCC / Clang with `SAMP_SDK_EXPORT`](#export-for-gcc--clang-with-samp_sdk_export)
+    - [3.3. `Plugin_Public`: Intercepting Pawn Events](#33-plugin_public-intercepting-pawn-events)
       - [Syntax and Declaration](#syntax-and-declaration)
       - [Automatic Parameter Marshalling](#automatic-parameter-marshalling)
       - [Flow Control: `PLUGIN_PUBLIC_CONTINUE` vs `PLUGIN_PUBLIC_STOP`](#flow-control-plugin_public_continue-vs-plugin_public_stop)
       - [Ghost Callbacks](#ghost-callbacks)
-    - [3.3. `Plugin_Native`: Creating Native Functions in C++](#33-plugin_native-creating-native-functions-in-c)
+    - [3.4. `Plugin_Native`: Creating Native Functions in C++](#34-plugin_native-creating-native-functions-in-c)
       - [Syntax and Fixed Signature](#syntax-and-fixed-signature)
       - [Automatic Native Registration](#automatic-native-registration)
       - [Parameter Extraction: `Register_Parameters` vs. `Native_Params`](#parameter-extraction-register_parameters-vs-native_params)
@@ -65,12 +68,12 @@
           - [`p.Get_REF<T>(size_t index)` (C++17+)](#pget_reftsize_t-index-c17)
           - [`p.Set_REF<T>(size_t index, T value)`](#pset_reftsize_t-index-t-value)
       - [Return Values](#return-values)
-    - [3.4. `Plugin_Native_Hook`: Intercepting Existing SA-MP Natives](#34-plugin_native_hook-intercepting-existing-sa-mp-natives)
+    - [3.5. `Plugin_Native_Hook`: Intercepting Existing SA-MP Natives](#35-plugin_native_hook-intercepting-existing-sa-mp-natives)
       - [Syntax and Fixed Signature](#syntax-and-fixed-signature-1)
       - [Hook Registration and Activation](#hook-registration-and-activation)
       - [Calling the Original Native (Hook Chain): `Call_Original_Native`](#calling-the-original-native-hook-chain-call_original_native)
       - [Complete `Plugin_Native_Hook` Example](#complete-plugin_native_hook-example)
-    - [3.5. `Pawn_*` Macros: Calling Pawn Functions from C++](#35-pawn_-macros-calling-pawn-functions-from-c)
+    - [3.6. `Pawn_*` Macros: Calling Pawn Functions from C++](#36-pawn_-macros-calling-pawn-functions-from-c)
       - [`Pawn_Native(NativeName, ...)`](#pawn_nativenativename-)
       - [`Pawn_Public(PublicName, ...)`](#pawn_publicpublicname-)
       - [`Pawn(FunctionName, ...)`](#pawnfunctionname-)
@@ -78,13 +81,13 @@
       - [Input Parameter Marshalling](#input-parameter-marshalling)
       - [Output Parameter Marshalling (References: `int&`, `float&`, `std::string&`)](#output-parameter-marshalling-references-int-float-stdstring)
       - [The `Callback_Result` Object: Full Analysis](#the-callback_result-object-full-analysis)
-    - [3.6. `Plugin_Module`: Dynamic Module Management](#36-plugin_module-dynamic-module-management)
+    - [3.7. `Plugin_Module`: Dynamic Module Management](#37-plugin_module-dynamic-module-management)
       - [Syntax and Purpose](#syntax-and-purpose)
       - [Module Lifecycle](#module-lifecycle)
       - [Benefits of Modularization](#benefits-of-modularization)
-    - [3.7. `Plugin_Call`: Calling Internal Plugin Natives](#37-plugin_call-calling-internal-plugin-natives)
+    - [3.8. `Plugin_Call`: Calling Internal Plugin Natives](#38-plugin_call-calling-internal-plugin-natives)
       - [Syntax and Performance Advantages](#syntax-and-performance-advantages)
-    - [3.8. SDK Utility Functions](#38-sdk-utility-functions)
+    - [3.9. SDK Utility Functions](#39-sdk-utility-functions)
       - [`Samp_SDK::Log(const char* format, ...)`](#samp_sdklogconst-char-format-)
       - [`std::string Plugin_Format(const char* format, ...)` (Recommended)](#stdstring-plugin_formatconst-char-format--recommended)
       - [`std::string Samp_SDK::Format(const char* format, ...)` (Implementation Detail)](#stdstring-samp_sdkformatconst-char-format--implementation-detail)
@@ -333,7 +336,51 @@ void OnProcessTick() {
 }
 ```
 
-### 3.2. `Plugin_Public`: Intercepting Pawn Events
+### 3.2. Exporting Plugin Functions
+
+For the SA-MP server to be able to call your plugin's functions (`Load`, `Supports`, etc.), they need to be "exported" from the DLL file (Windows) or SO file (Linux). The SDK automates the export of standard lifecycle functions, but also provides tools for you to export your own custom functions, should you need interoperability with other programs.
+
+The method for exporting functions varies according to the compiler.
+
+#### Export for MSVC (Visual Studio) with `Export_Plugin`
+
+On Windows with MSVC, the easiest way to export custom functions is by using the `Export_Plugin` macro, defined in `exports.hpp`.
+
+- **Syntax:** `Export_Plugin("Function", "Stack")`
+- **`Function`**: The exact name of the function to be exported.
+- **`Stack`**: The total amount of bytes that the function's parameters occupy on the stack. For the `__stdcall` convention (SDK default on Windows), the calculation is `4 * (Number of Parameters)`.
+
+```cpp
+#include "samp-sdk/exports.hpp"
+
+// Example: Exporting a custom function that could be called
+// by another program or plugin that knows its signature.
+const char* SAMP_SDK_CALL GetPluginVersion() {
+    return "1.0.0";
+}
+
+Export_Plugin("GetPluginVersion", "0");
+```
+
+> [!WARNING]
+> **Limitation of `Export_Plugin`**
+> This macro works **only with the MSVC compiler (Visual Studio)**. It uses a Microsoft-specific `#pragma` directive that is ignored by other compilers like GCC and Clang.
+
+#### Export for GCC / Clang with `SAMP_SDK_EXPORT`
+
+For GCC and Clang (on Windows or Linux), the export is managed by the `SAMP_SDK_EXPORT` macro, defined in `platform.hpp`. You simply place it before the function definition.
+
+- **Mechanism:** On Linux, it adds `__attribute__((visibility("default")))`. On Windows with GCC/Clang, it adds `__attribute__((dllexport))`.
+- **Usage:** The SDK already applies `SAMP_SDK_EXPORT` to all lifecycle functions (`Load`, `Unload`, etc.), so their export is fully automatic for these compilers. For your custom functions, simply do the same.
+
+```cpp
+// For GCC/Clang, defining the function with SAMP_SDK_EXPORT is sufficient.
+SAMP_SDK_EXPORT const char* SAMP_SDK_CALL Get_PluginVersion() {
+    return "1.0.0";
+}
+```
+
+### 3.3. `Plugin_Public`: Intercepting Pawn Events
 
 The `Plugin_Public` macro is the primary bridge for receiving Pawn callbacks in your C++ code.
 
@@ -396,7 +443,7 @@ Plugin_Public(OnMyCustomInternalEvent, int data1, float data2) {
 // The call will go to your Plugin_Public above, even if there is no OnMyCustomInternalEvent in Pawn.
 ```
 
-### 3.3. `Plugin_Native`: Creating Native Functions in C++
+### 3.4. `Plugin_Native`: Creating Native Functions in C++
 
 `Plugin_Native` allows you to extend Pawn functionality with high-performance C++ code.
 
@@ -532,7 +579,7 @@ Plugin_Native(GetPlayerMaxHealth, AMX* amx, cell* params) {
 }
 ```
 
-### 3.4. `Plugin_Native_Hook`: Intercepting Existing SA-MP Natives
+### 3.5. `Plugin_Native_Hook`: Intercepting Existing SA-MP Natives
 
 The `Plugin_Native_Hook` macro allows you to intercept and modify the behavior of any existing SA-MP native function or natives from other plugins. This is a powerful mechanism for extending or altering the server's default logic.
 
@@ -661,7 +708,7 @@ void OnAmxUnload(AMX* amx) {
 > [!WARNING]
 > Directly manipulating the `cell* params` array to change input parameters requires caution. Make sure you understand the order and type of parameters. For most use cases, `p.Get(...)` to inspect and `Call_Original_Native(...)` to continue the chain is sufficient. Direct modification of `params` should only be done if you know the parameter is a value and needs to be modified for the original call. For strings and arrays, modification is more complex and usually involves `amx::Set_String` to write to the existing address or reallocate, which might be easier to manage by calling the native via `Pawn_Native` with the new values and returning `0` from your hook to cancel the original call.
 
-### 3.5. `Pawn_*` Macros: Calling Pawn Functions from C++
+### 3.6. `Pawn_*` Macros: Calling Pawn Functions from C++
 
 These macros are the inverse of `Plugin_Public` and `Plugin_Native`: they allow your C++ code to invoke Pawn functions.
 
@@ -777,7 +824,7 @@ else {
 // }
 ```
 
-### 3.6. `Plugin_Module`: Dynamic Module Management
+### 3.7. `Plugin_Module`: Dynamic Module Management
 
 The `Plugin_Module` macro allows your plugin to act as a "loader" for other plugins, creating a modular and extensible architecture. A module loaded in this way is treated as a first-class plugin, with its own event lifecycle managed by the host plugin.
 
@@ -830,7 +877,7 @@ A module must export the `Load`, `Unload`, and `Supports` functions, just like a
 - **Independent Components:** Create modules that are **fully event-driven and independent**. A module can have its own `Plugin_Native`s, intercept `Plugin_Public`s, and have its own `OnProcessTick` logic, operating as a standalone plugin but loaded by a host.
 - **Dynamic Updates:** In controlled scenarios, allows updating parts of your system (by replacing a module's `.dll` or `.so`) without needing to recompile and restart the main plugin or the entire server (though this requires strict version and compatibility management).
 
-### 3.7. `Plugin_Call`: Calling Internal Plugin Natives
+### 3.8. `Plugin_Call`: Calling Internal Plugin Natives
 
 Use `Plugin_Call` to invoke a `Plugin_Native` defined **within your own plugin**.
 
@@ -860,7 +907,7 @@ void Check_All_Players_Level() {
 }
 ```
 
-### 3.8. SDK Utility Functions
+### 3.9. SDK Utility Functions
 
 #### `Samp_SDK::Log(const char* format, ...)`
 
@@ -970,33 +1017,39 @@ These headers are the basis for SDK portability and optimization, adapting it to
    - **Mechanism:** Uses preprocessor macros (`#if defined(WIN32)`, `#if defined(__linux__)`, etc.) to identify the operating system.
    - **Architecture Verification:** Contains `static_assert` or `#error` to ensure the plugin is being compiled for x86 (32-bit), a critical requirement for compatibility with SA-MP and the hooking mechanism.
    - **Symbol Export Management:**
-      - `SAMP_SDK_EXPORT`: A macro defined in `platform.hpp` that expands to `extern "C"` and, on Linux, adds `__attribute__((visibility("default")))`. On Windows, it just ensures `extern "C"` because the SDK uses `pragma comment(linker, "/EXPORT:...")` (for MSVC) or the MinGW standard to export the main functions.
-      - This ensures that the plugin lifecycle functions (`Supports`, `Load`, `Unload`, etc.) are correctly exported from your DLL/SO, regardless of the compilation environment, **without the need for `.def` files or to manually add `__attribute__((visibility("default")))`** in your implementation.
-   - **Example (`platform.hpp` - relevant fragment):**
+      - **`SAMP_SDK_EXPORT`**: A crucial macro defined in `platform.hpp`. Its expansion depends on the compiler and operating system to ensure that the plugin's lifecycle functions (`Supports`, `Load`, etc.) are correctly exported.
+         - On **Linux**, it expands to `__attribute__((visibility("default")))`.
+         - On **Windows with GCC/Clang**, it expands to `__attribute__((dllexport))`.
+         - On **Windows with MSVC**, it expands to nothing, as the export is managed by the `Export_Plugin` macro.
+      - **`Export_Plugin(name, size)`**: A macro defined in `exports.hpp` that, on MSVC, expands to `#pragma comment(linker, "/EXPORT:name=_name@size")`. This eliminates the need for `.def` files and provides a clear API for exporting. For other compilers, this macro is empty.
+   - **Example (`platform.hpp` - relevant snippet):**
       ```cpp
       #if defined(SAMP_SDK_WINDOWS)
-          // For MSVC, export is managed by pragma linker commands
-          #define SAMP_SDK_EXPORT SAMP_SDK_EXTERN_C
-      #else // Linux
-          // For GCC/Clang on Linux, we use the visibility attribute
-          #define SAMP_SDK_EXPORT SAMP_SDK_EXTERN_C __attribute__((visibility("default")))
+      #if defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
+          // For GCC/Clang on Windows, we use the dllexport attribute
+          #define SAMP_SDK_API __attribute__((dllexport))
+      #else
+          // For MSVC, the export is managed by the Export_Plugin macro
+          #define SAMP_SDK_API
       #endif
-      // ... other definitions ...
+          #define SAMP_SDK_EXPORT SAMP_SDK_EXTERN_C SAMP_SDK_API
+      #elif defined(SAMP_SDK_LINUX)
+          #define SAMP_SDK_EXPORT SAMP_SDK_EXTERN_C __attribute__((visibility("default"))) 
+      #endif
       ```
-   - **Example (`samp_sdk.hpp` - relevant implementation fragment):**
+   - **Example (`samp_sdk.hpp` - relevant implementation snippet):**
       ```cpp
-      #if defined(SAMP_SDK_IMPLEMENTATION)
-
       #if defined(SAMP_SDK_WINDOWS)
-          // On Windows (MSVC), we use pragma comment to export functions.
+          // On Windows (MSVC), we use the macro from exports.hpp to export the functions.
           // This eliminates the need for a .def file.
-          #pragma comment(linker, "/EXPORT:Supports=_Supports@0")
-          #pragma comment(linker, "/EXPORT:Load=_Load@4")
-          #pragma comment(linker, "/EXPORT:Unload=_Unload@0")
+          Export_Plugin("Supports", "0");
+          Export_Plugin("Load", "4");
+          Export_Plugin("Unload", "0");
           // ... other exports ...
       #endif
 
-      // Implementation of exported functions
+      // Implementation of the exported functions
+      // For GCC/Clang on Windows, SAMP_SDK_EXPORT already contains __attribute__((dllexport))
       SAMP_SDK_EXPORT unsigned int SAMP_SDK_CALL Supports() { /* ... */ }
       SAMP_SDK_EXPORT bool SAMP_SDK_CALL Load(void** ppData) { /* ... */ }
       SAMP_SDK_EXPORT void SAMP_SDK_CALL Unload() { /* ... */ }
