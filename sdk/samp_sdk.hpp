@@ -82,6 +82,7 @@
 #include "callbacks.hpp"
 #include "core.hpp"
 #include "dynamic_library.hpp"
+#include "exports.hpp"
 #include "interceptor_manager.hpp"
 #include "logger.hpp"
 #include "module_manager.hpp"
@@ -107,17 +108,17 @@ void OnProcessTick();
 
 #if defined(SAMP_SDK_IMPLEMENTATION)
 
-#if defined(SAMP_SDK_WINDOWS)
-    #pragma comment(linker, "/EXPORT:Supports=_Supports@0")
-    #pragma comment(linker, "/EXPORT:Load=_Load@4")
-    #pragma comment(linker, "/EXPORT:Unload=_Unload@0")
+Export_Plugin("Supports", "0");
+Export_Plugin("Load", "4");
+Export_Plugin("Unload", "0");
+
 #if defined(SAMP_SDK_WANT_AMX_EVENTS)
-    #pragma comment(linker, "/EXPORT:AmxLoad=_AmxLoad@4")
-    #pragma comment(linker, "/EXPORT:AmxUnload=_AmxUnload@4")
+    Export_Plugin("AmxLoad", "4");
+    Export_Plugin("AmxUnload", "4");
 #endif
+
 #if defined(SAMP_SDK_WANT_PROCESS_TICK)
-    #pragma comment(linker, "/EXPORT:ProcessTick=_ProcessTick@0")
-#endif
+    Export_Plugin("ProcessTick", "0");
 #endif
 
 #if defined(SAMP_SDK_WANT_AMX_EVENTS)
@@ -129,8 +130,13 @@ namespace Samp_SDK {
     }
 }
 #else
-void OnAmxLoad(AMX* amx) { (void)amx; }
-void OnAmxUnload(AMX* amx) { (void)amx; }
+void OnAmxLoad(AMX* amx) {
+    (void)amx;
+}
+
+void OnAmxUnload(AMX* amx) {
+    (void)amx;
+}
 #endif
 
 #if !defined(SAMP_SDK_WANT_PROCESS_TICK)
@@ -191,7 +197,8 @@ SAMP_SDK_EXPORT void SAMP_SDK_CALL ProcessTick() {
 
 #endif
 
-#define Plugin_Module(name, path, ...) Samp_SDK::Detail::Module_Manager::Instance().Load_Module(name, path, ##__VA_ARGS__, Samp_SDK::Core::Instance().Get_Plugin_Data())
+#define Plugin_Module(name, path, ...) \
+    Samp_SDK::Detail::Module_Manager::Instance().Load_Module(name, path, ##__VA_ARGS__, Samp_SDK::Core::Instance().Get_Plugin_Data())
 
 #define Plugin_Public(name, ...) \
     static cell SAMP_SDK_CALL name(__VA_ARGS__); \
@@ -217,9 +224,17 @@ SAMP_SDK_EXPORT void SAMP_SDK_CALL ProcessTick() {
     #define Plugin_Call(name, ...) Samp_SDK::Detail::Plugin_Call_Impl(Samp_SDK::Detail::FNV1a_Hash_Const(#name), ##__VA_ARGS__)
 #endif
 
-#define Pawn(name, ...) Samp_SDK::Detail::Caller<Samp_SDK::Pawn_Call_Type::Automatic>::Call(Samp_SDK::Detail::FNV1a_Hash_Const(#name), #name, ##__VA_ARGS__)
-#define Pawn_Native(name, ...) Samp_SDK::Detail::Caller<Samp_SDK::Pawn_Call_Type::Native>::Call(Samp_SDK::Detail::FNV1a_Hash_Const(#name), #name, ##__VA_ARGS__)
-#define Pawn_Public(name, ...) Samp_SDK::Detail::Caller<Samp_SDK::Pawn_Call_Type::Public>::Call(Samp_SDK::Detail::FNV1a_Hash_Const(#name), #name, ##__VA_ARGS__)
+#define Pawn(name, ...) \
+    Samp_SDK::Detail::Caller<Samp_SDK::Pawn_Call_Type::Automatic>::Call(Samp_SDK::Detail::FNV1a_Hash_Const(#name), #name, ##__VA_ARGS__)
 
-#define Plugin_Format(...) Samp_SDK::Format(__VA_ARGS__)
-#define Register_Parameters(...) Samp_SDK::Detail::Register_Parameters_Impl(amx, params, __VA_ARGS__)
+#define Pawn_Native(name, ...) \
+    Samp_SDK::Detail::Caller<Samp_SDK::Pawn_Call_Type::Native>::Call(Samp_SDK::Detail::FNV1a_Hash_Const(#name), #name, ##__VA_ARGS__)
+
+#define Pawn_Public(name, ...) \
+    Samp_SDK::Detail::Caller<Samp_SDK::Pawn_Call_Type::Public>::Call(Samp_SDK::Detail::FNV1a_Hash_Const(#name), #name, ##__VA_ARGS__)
+
+#define Plugin_Format(...) \
+    Samp_SDK::Format(__VA_ARGS__)
+
+#define Register_Parameters(...) \
+    Samp_SDK::Detail::Register_Parameters_Impl(amx, params, __VA_ARGS__)

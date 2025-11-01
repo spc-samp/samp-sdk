@@ -108,10 +108,16 @@
 #endif
 
 #if defined(SAMP_SDK_WINDOWS)
+    #if defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
+        #define SAMP_SDK_API __attribute__((dllexport))
+    #else
+        #define SAMP_SDK_API
+    #endif
+
     #define SAMP_SDK_AMX_API
     #define SAMP_SDK_NATIVE_CALL
     #define SAMP_SDK_CALL __stdcall
-    #define SAMP_SDK_EXPORT SAMP_SDK_EXTERN_C
+    #define SAMP_SDK_EXPORT SAMP_SDK_EXTERN_C SAMP_SDK_API
 #elif defined(SAMP_SDK_LINUX)
     #define SAMP_SDK_AMX_API
     #define SAMP_SDK_NATIVE_CALL
