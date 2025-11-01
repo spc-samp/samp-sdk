@@ -364,7 +364,7 @@ Pour GCC et Clang (sous Windows ou Linux), l'exportation est gérée par la macr
 
 ```cpp
 // Pour GCC/Clang, la définition de la fonction avec SAMP_SDK_EXPORT est suffisante.
-SAMP_SDK_EXPORT const char* SAMP_SDK_CALL Get_PluginVersion() {
+SAMP_SDK_EXPORT const char* SAMP_SDK_CALL GetPluginVersion() {
     return "1.0.0";
 }
 ```

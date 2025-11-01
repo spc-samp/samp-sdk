@@ -364,7 +364,7 @@ GCC ve Clang için (Windows veya Linux'ta), dışa aktarma `platform.hpp` içind
 
 ```cpp
 // GCC/Clang için fonksiyonun SAMP_SDK_EXPORT ile tanımlanması yeterlidir.
-SAMP_SDK_EXPORT const char* SAMP_SDK_CALL Get_PluginVersion() {
+SAMP_SDK_EXPORT const char* SAMP_SDK_CALL GetPluginVersion() {
     return "1.0.0";
 }
 ```
