@@ -1000,7 +1000,7 @@ g++ -m32 -shared -std=c++17 -O2 -static-libstdc++ -static-libgcc -Wl,--no-undefi
 
 ## Licença
 
-Copyright © **SA-MP Programming Community**
+Copyright © **AlderGrounds**
 
 Este software é licenciado sob os termos da Licença MIT ("Licença"); você pode utilizar este software de acordo com as condições da Licença. Uma cópia da Licença pode ser obtida em: [MIT License](https://opensource.org/licenses/MIT)
 
@@ -1021,7 +1021,7 @@ Todas as cópias ou partes substanciais do software devem incluir:
 
 #### 3. Direitos Autorais
 
-O software e toda a documentação associada são protegidos por leis de direitos autorais. A **SA-MP Programming Community** mantém a titularidade dos direitos autorais originais do software.
+O software e toda a documentação associada são protegidos por leis de direitos autorais. A **AlderGrounds** mantém a titularidade dos direitos autorais originais do software.
 
 #### 4. Isenção de Garantias e Limitação de Responsabilidade
 

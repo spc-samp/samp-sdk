@@ -2,12 +2,12 @@
  * SA-MP SDK - A Modern C++ SDK for San Andreas Multiplayer Plugin Development    *
  * ============================================================================== *
  *                                                                                *
- * Copyright (c) 2025, SPC (SA-MP Programming Community)                          *
+ * Copyright (c) 2025, AlderGrounds                                               *
  *                                                                                *
  * Developed by: Calasans                                                         *
- * Provided by: SA-MP Programming Community                                       *
+ * Provided by: AlderGrounds                                                      *
  * License: MIT License                                                           *
- * Repository: https://github.com/spc-samp/samp-sdk                               *
+ * Repository: https://github.com/aldergrounds/samp-sdk                           *
  *                                                                                *
  * ============================================================================== *
  *                                                                                *
@@ -238,4 +238,3 @@ SAMP_SDK_EXPORT void SAMP_SDK_CALL ProcessTick() {
 
 #define Register_Parameters(...) \
     Samp_SDK::Detail::Register_Parameters_Impl(amx, params, __VA_ARGS__)
-

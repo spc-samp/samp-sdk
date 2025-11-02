@@ -1000,7 +1000,7 @@ g++ -m32 -shared -std=c++17 -O2 -static-libstdc++ -static-libgcc -Wl,--no-undefi
 
 ## Lisans
 
-Copyright © **SA-MP Programming Community**
+Copyright © **AlderGrounds**
 
 Bu yazılım MIT Lisansı ("Lisans") şartları altında lisanslanmıştır; bu yazılımı Lisans şartlarına uygun olarak kullanabilirsiniz. Lisansın bir kopyasını şu adresten edinebilirsiniz: [MIT License](https://opensource.org/licenses/MIT)
 
@@ -1021,7 +1021,7 @@ Yazılımın tüm kopyaları veya önemli parçaları şunları içermelidir:
 
 #### 3. Telif Hakları
 
-Yazılım ve ilgili tüm dokümantasyon telif hakkı yasaları ile korunmaktadır. **SA-MP Programming Community** yazılımın orijinal telif haklarını elinde tutmaktadır.
+Yazılım ve ilgili tüm dokümantasyon telif hakkı yasaları ile korunmaktadır. **AlderGrounds** yazılımın orijinal telif haklarını elinde tutmaktadır.
 
 #### 4. Garanti Reddi ve Sorumluluk Sınırlaması
 
