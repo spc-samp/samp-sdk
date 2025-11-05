@@ -167,24 +167,33 @@ namespace Samp_SDK {
             }
         }
 #elif defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
-        inline void Dispatch_Wrapper_Asm() {
-            asm volatile(
-                ".intel_syntax noprefix\n"
-                "push ecx\n"
-                "push edx\n"
-                "mov ecx, [esp + 12]\n"
-                "mov edx, [esp + 16]\n"
-                "push edx\n"
-                "push ecx\n"
-                "push eax\n"
-                "call Dispatch_Hook\n"
-                "add esp, 12\n"
-                "pop edx\n"
-                "pop ecx\n"
-                "ret\n"
-                ".att_syntax\n"
-            );
-        }
+        extern "C" void Dispatch_Wrapper_Asm(void);
+        
+        __asm__(
+            ".section .text\n"
+            ".globl Dispatch_Wrapper_Asm\n"
+            ".type Dispatch_Wrapper_Asm, @function\n"
+            "Dispatch_Wrapper_Asm:\n"
+            "    push %ecx\n"
+            "    push %edx\n"
+
+            "    mov 12(%esp), %ecx\n"
+            "    mov 16(%esp), %edx\n"
+
+            "    push %edx\n"
+            "    push %ecx\n"
+            "    push %eax\n"
+
+            "    call Dispatch_Hook\n"
+
+            "    add $12, %esp\n"
+
+            "    pop %edx\n"
+            "    pop %ecx\n"
+
+            "    ret\n"
+            ".size Dispatch_Wrapper_Asm, . - Dispatch_Wrapper_Asm\n"
+        );
 #endif
 
         class Trampoline_Allocator {
