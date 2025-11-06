@@ -168,61 +168,62 @@ namespace Samp_SDK {
         }
 #elif defined(SAMP_SDK_COMPILER_GCC_OR_CLANG)
         extern "C" void Dispatch_Wrapper_Asm(void);
-        
-        #if defined(SAMP_SDK_WINDOWS)
-            __asm__(
-                ".text\n"
-                ".globl _Dispatch_Wrapper_Asm\n"
-                "_Dispatch_Wrapper_Asm:\n"
+#if defined(SAMP_SDK_IMPLEMENTATION)
+#if defined(SAMP_SDK_WINDOWS)
+        __asm__(
+            ".text\n"
+            ".globl _Dispatch_Wrapper_Asm\n"
+            "_Dispatch_Wrapper_Asm:\n"
 
-                "    push %ecx\n"
-                "    push %edx\n"
+            "    push %ecx\n"
+            "    push %edx\n"
 
-                "    mov 12(%esp), %ecx\n"
-                "    mov 16(%esp), %edx\n"
+            "    mov 12(%esp), %ecx\n"
+            "    mov 16(%esp), %edx\n"
 
-                "    push %edx\n"
-                "    push %ecx\n"
-                "    push %eax\n"
+            "    push %edx\n"
+            "    push %ecx\n"
+            "    push %eax\n"
 
-                "    call _Dispatch_Hook\n"
+            "    call _Dispatch_Hook\n"
 
-                "    add $12, %esp\n"
+            "    add $12, %esp\n"
 
-                "    pop %edx\n"
-                "    pop %ecx\n"
+            "    pop %edx\n"
+            "    pop %ecx\n"
 
-                "    ret\n"
-            );
-        #elif defined(SAMP_SDK_LINUX)
-            __asm__(
-                ".section .text\n"
-                ".globl Dispatch_Wrapper_Asm\n"
-                ".type Dispatch_Wrapper_Asm, @function\n"
-                "Dispatch_Wrapper_Asm:\n"
+            "    ret\n"
+        );
+#elif defined(SAMP_SDK_LINUX)
+        __asm__(
+            ".section .text\n"
+            ".globl Dispatch_Wrapper_Asm\n"
+            ".type Dispatch_Wrapper_Asm, @function\n"
+            "Dispatch_Wrapper_Asm:\n"
 
-                "    push %ecx\n"
-                "    push %edx\n"
+            "    push %ecx\n"
+            "    push %edx\n"
 
-                "    mov 12(%esp), %ecx\n"
-                "    mov 16(%esp), %edx\n"
+            "    mov 12(%esp), %ecx\n"
+            "    mov 16(%esp), %edx\n"
 
-                "    push %edx\n"
-                "    push %ecx\n"
-                "    push %eax\n"
+            "    push %edx\n"
+            "    push %ecx\n"
+            "    push %eax\n"
 
-                "    call Dispatch_Hook\n"
+            "    call Dispatch_Hook\n"
 
-                "    add $12, %esp\n"
+            "    add $12, %esp\n"
 
-                "    pop %edx\n"
-                "    pop %ecx\n"
+            "    pop %edx\n"
+            "    pop %ecx\n"
 
-                "    ret\n"
+            "    ret\n"
 
-                ".size Dispatch_Wrapper_Asm, . - Dispatch_Wrapper_Asm\n"
-            );
-        #endif
+            ".size Dispatch_Wrapper_Asm, . - Dispatch_Wrapper_Asm\n"
+        );
+#endif
+#endif
 #endif
 
         class Trampoline_Allocator {
