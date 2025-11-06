@@ -100,6 +100,8 @@ constexpr int PLUGIN_EXEC_GHOST_PUBLIC = -10;
 
 namespace Samp_SDK {
     namespace Detail {
+        inline std::function<bool(const std::string&, AMX*, cell&)> Public_Handler = nullptr;
+
         int SAMP_SDK_AMX_API Amx_Register_Detour(AMX* amx, const AMX_NATIVE_INFO* nativelist, int number);
         int SAMP_SDK_AMX_API Amx_Exec_Detour(AMX* amx, cell* retval, int index);
         int SAMP_SDK_AMX_API Amx_Init_Detour(AMX *amx, void *program);
@@ -177,7 +179,9 @@ namespace Samp_SDK {
 
                     for (int i = 0; (number == -1 || i < number) && nativelist[i].name != nullptr; ++i) {
                         uint32_t hash = FNV1a_Hash(nativelist[i].name);
+
                         cache_data.native_cache[hash] = nativelist[i].func;
+                        cache_data.native_name_cache[hash] = nativelist[i].name;
                     }
                 }
 
@@ -192,6 +196,10 @@ namespace Samp_SDK {
                     auto it = cache_data.native_cache.find(hash);
 
                     return (it != cache_data.native_cache.end()) ? it->second : nullptr;
+                }
+
+                const std::unordered_map<uint32_t, std::string>& Get_Native_Name_Cache() {
+                    return Get_Cache_Data().native_name_cache;
                 }
 
                 void On_Amx_Patched(AMX* amx) {
@@ -233,6 +241,7 @@ namespace Samp_SDK {
 #endif
 
                     std::unordered_map<uint32_t, AMX_NATIVE> native_cache;
+                    std::unordered_map<uint32_t, std::string> native_name_cache;
                     Mutex_Type mtx;
                 };
 
@@ -321,6 +330,21 @@ namespace Samp_SDK {
             }
 
             if (public_name_ptr) {
+                if (Public_Handler) {
+                    cell result = 1;
+                    bool should_continue_pawn = Public_Handler(*public_name_ptr, amx, result);
+                    
+                    if (!should_continue_pawn) {
+                        if (retval)
+                            *retval = result;
+                            
+                        amx->stk += amx->paramcount * sizeof(cell);
+                        amx->paramcount = 0;
+
+                        return static_cast<int>(Amx_Error::None);
+                    }
+                }
+
                 cell result = 1;
                 bool should_continue = Public_Dispatcher::Instance().Dispatch(FNV1a_Hash(public_name_ptr->c_str()), amx, result);
 
