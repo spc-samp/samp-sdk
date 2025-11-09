@@ -101,6 +101,7 @@ constexpr int PLUGIN_EXEC_GHOST_PUBLIC = -10;
 namespace Samp_SDK {
     namespace Detail {
         inline std::function<bool(const std::string&, AMX*, cell&)> Public_Handler = nullptr;
+        inline std::function<bool(const std::string&)> Has_Public_Handler = nullptr;
 
         int SAMP_SDK_AMX_API Amx_Register_Detour(AMX* amx, const AMX_NATIVE_INFO* nativelist, int number);
         int SAMP_SDK_AMX_API Amx_Exec_Detour(AMX* amx, cell* retval, int index);
@@ -307,7 +308,12 @@ namespace Samp_SDK {
                 tl_public_name = std::make_unique<std::string>(name);
 
                 if (error != static_cast<int>(Amx_Error::None)) {
-                    if (Public_Dispatcher::Instance().Has_Handler(FNV1a_Hash(name)))
+                    bool has_handler = Public_Dispatcher::Instance().Has_Handler(FNV1a_Hash(name));
+
+                    if (!has_handler && Has_Public_Handler)
+                        has_handler = Has_Public_Handler(name);
+
+                    if (has_handler)
                         return (*index = PLUGIN_EXEC_GHOST_PUBLIC, static_cast<int>(Amx_Error::None));
                 }
             }
