@@ -191,8 +191,14 @@ enum class Amx_Error {
     General,
 };
 
+#define AMX_FLAG_DEBUG 0x02
+#define AMX_FLAG_COMPACT 0x04
+#define AMX_FLAG_BYTEOPC 0x08
+#define AMX_FLAG_NOCHECKS 0x10
 #define AMX_FLAG_NTVREG 0x1000
-#define AMX_FLAG_RELOC 0x4000
+#define AMX_FLAG_JITC 0x2000
+#define AMX_FLAG_BROWSE 0x4000
+#define AMX_FLAG_RELOC 0x8000
 
 constexpr int MIN_AMX_VERSION = 8;
 constexpr int MIN_FILE_VERSION = 2;
